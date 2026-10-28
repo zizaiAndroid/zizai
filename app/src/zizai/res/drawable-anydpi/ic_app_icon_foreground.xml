@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 字在 Zizai launcher icon, foreground layer and splash icon: a speech bubble with a sound wave. Placeholder art (P0-06). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FFFFFF" android:pathData="M38,30 H70 A10,10 0 0 1 80,40 V62 A10,10 0 0 1 70,72 H47 L38,81 V72 A10,10 0 0 1 28,62 V40 A10,10 0 0 1 38,30 Z" />
+    <path android:fillColor="@color/ic_app_icon_background" android:pathData="M36,47 h4 v8 h-4 Z M44,43 h4 v16 h-4 Z M52,39 h4 v24 h-4 Z M60,43 h4 v16 h-4 Z M68,47 h4 v8 h-4 Z" />
+</vector>

@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -363,7 +364,7 @@ private fun EmptyState() {
 
 // --- helpers --------------------------------------------------------------------------------------
 
-private const val PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=net.devemperor.dictate"
+private const val PLAY_STORE_URL = io.zizai.ZizaiFlags.PLAY_STORE_URL // ZIZAI-HOOK
 private val BAR_MAX_HEIGHT = 64.dp
 
 private fun shareStats(context: android.content.Context, text: String) {

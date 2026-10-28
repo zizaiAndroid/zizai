@@ -1,3 +1,16 @@
+字在 Zizai
+Copyright 2026 Zizai contributors
+
+字在 Zizai is a modified version of Dictate Keyboard (https://github.com/DevEmperor/DictateKeyboard),
+licensed under the Apache License, Version 2.0. Files changed by Zizai carry a "Modified by Zizai
+contributors" notice; files under app/src/main/kotlin/io/zizai/, app/src/zizai/, tools/zizai/ and docs/
+are new. "Dictate" and "Dictate Keyboard" are names of the upstream project; Zizai is not affiliated
+with or endorsed by its author.
+
+================================================================================
+Dictate Keyboard
+================================================================================
+
 Dictate Keyboard
 Copyright 2024-2026 DevEmperor
 

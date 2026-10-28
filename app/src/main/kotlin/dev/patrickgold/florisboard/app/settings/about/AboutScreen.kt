@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -123,7 +124,7 @@ fun AboutScreen() = FlorisScreen {
         // re-view every release's tour without cluttering the list. (Auto-show on update still jumps
         // straight to the updated version — see WhatsNewTour / pendingTourVersions.)
         var showWhatsNewPicker by remember { mutableStateOf(false) }
-        Preference(
+        if (io.zizai.ZizaiFlags.upstreamReleaseNotes) Preference( // ZIZAI-HOOK
             icon = Icons.Default.AutoAwesome,
             modifier = Modifier.settingsSearchAnchor("about__whats_new__title"),
             title = stringRes(R.string.about__whats_new__title),

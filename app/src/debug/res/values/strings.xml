@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)). -->
 <resources>
-    <item name="floris_app_name" translatable="false" type="string">Dictate Debug</item>
+    <item name="floris_app_name" translatable="false" type="string">Zizai Debug</item>
 </resources>

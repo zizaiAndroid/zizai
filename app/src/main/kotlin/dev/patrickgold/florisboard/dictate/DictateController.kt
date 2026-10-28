@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -4236,8 +4237,8 @@ object DictateController {
         if (maybeWarnLowCredit()) return
         val total = prefs.dictate.totalAudioSeconds.get()
         val kind = when {
-            total > DONATE_THRESHOLD_SECONDS && !prefs.dictate.hasDonated.get() -> PromoKind.DONATE
-            total > RATE_THRESHOLD_SECONDS && total <= DONATE_THRESHOLD_SECONDS && !prefs.dictate.hasRated.get() -> PromoKind.RATE
+            io.zizai.ZizaiFlags.donations && total > DONATE_THRESHOLD_SECONDS && !prefs.dictate.hasDonated.get() -> PromoKind.DONATE // ZIZAI-HOOK
+            total > RATE_THRESHOLD_SECONDS && (!io.zizai.ZizaiFlags.donations || total <= DONATE_THRESHOLD_SECONDS) && !prefs.dictate.hasRated.get() -> PromoKind.RATE // ZIZAI-HOOK
             else -> return
         }
         _state.value = UiState.Promo(kind)
@@ -4310,6 +4311,7 @@ object DictateController {
      * from reappearing without suppressing the in-app dialog, and vice versa. No-op unless idle.
      */
     fun maybePromptChangelog(context: Context) {
+        if (!io.zizai.ZizaiFlags.upstreamReleaseNotes) return // ZIZAI-HOOK
         if (_state.value !is UiState.Idle) return
         if (!DEBUG_FORCE_CHANGELOG_NUDGE) {
             if (!AppVersionUtils.shouldShowChangelog(context, prefs)) return
@@ -4346,7 +4348,7 @@ object DictateController {
         runCatching {
             val intent = when (kind) {
                 PromoKind.RATE -> Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=net.devemperor.dictate"))
+                    Uri.parse(io.zizai.ZizaiFlags.PLAY_STORE_URL)) // ZIZAI-HOOK
                 PromoKind.DONATE -> Intent(Intent.ACTION_VIEW, Uri.parse("https://paypal.me/DevEmperor"))
                 PromoKind.CHANGELOG -> Intent(context, FlorisAppActivity::class.java)
                 PromoKind.FLOATING_BUTTON -> Intent(

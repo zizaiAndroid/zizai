@@ -388,5 +388,5 @@ object SettingsSearchIndex {
         SettingsSearchEntry(R.string.pref__spelling__use_contacts__label, R.string.settings__typing__title, Routes.Settings.Typing, anchor = "pref__spelling__use_contacts__label"),
         SettingsSearchEntry(R.string.pref__spelling__use_udm_entries__label, R.string.settings__typing__title, Routes.Settings.Typing, anchor = "pref__spelling__use_udm_entries__label"),
         SettingsSearchEntry(R.string.settings__dictionary__title, R.string.settings__typing__title, Routes.Settings.Typing, anchor = "settings__dictionary__title"),
-    ).filter { io.zizai.ZizaiFlags.allowsRoute(it.route) } // ZIZAI-HOOK: no results for features switched off in v1
+    ).filter { io.zizai.ZizaiFlags.allowsSearchEntry(it.route, it.anchor) } // ZIZAI-HOOK: no results for features switched off in v1
 }

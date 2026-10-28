@@ -498,7 +498,9 @@ Then:
 3. **Compare the merged release manifest with the previous release's.** New permissions or
    foreground-service types need a Play declaration, or removal in `app/src/release/AndroidManifest.xml`.
 4. Check new upstream features against the v1 flags, and check provider and model changes.
-5. Open a pull request, let CI pass, and merge.
+5. Regenerate the branding overlay, so new or changed upstream strings say Zizai, and commit it:
+   `python tools/zizai/branding.py`.
+6. Open a pull request, let CI pass, and merge.
 
 ### 6.2 Definition of done (every work package)
 

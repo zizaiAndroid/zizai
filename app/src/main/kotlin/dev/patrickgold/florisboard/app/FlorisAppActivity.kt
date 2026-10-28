@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -235,7 +236,7 @@ class FlorisAppActivity : ComponentActivity() {
                             whatsNewContext, prefs, WHATS_NEW_TOURS.map { it.version },
                         )
                     }
-                    if (autoQueue.isEmpty()) {
+                    if (autoQueue.isEmpty() && io.zizai.ZizaiFlags.upstreamReleaseNotes) { // ZIZAI-HOOK
                         ChangelogDialog()
                     }
                     // Always composed so Settings › About can re-open any tour; only auto-shows when queued.

@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2025 The FlorisBoard Contributors
  *
@@ -35,6 +36,6 @@ class ExampleInstrumentedTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         // The fork's applicationId, not the upstream namespace — the stock assertion has been failing
         // since this became Dictate. Debug builds carry the ".debug" suffix.
-        assertEquals("net.devemperor.dictate", appContext.packageName.removeSuffix(".debug"))
+        assertEquals("io.zizai.keyboard", appContext.packageName.removeSuffix(".debug"))
     }
 }

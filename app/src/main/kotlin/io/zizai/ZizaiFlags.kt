@@ -39,11 +39,33 @@ object ZizaiFlags {
      */
     const val wear: Boolean = false
 
+    /**
+     * Upstream's release notes: the "What's new" tours, the changelog dialog and the changelog nudge all
+     * describe Dictate Keyboard's releases, not Zizai's. Off until Zizai has release notes of its own.
+     */
+    const val upstreamReleaseNotes: Boolean = false
+
+    /**
+     * Upstream's donate nudge opens the upstream developer's PayPal page. Never shown in Zizai: the money
+     * would go to someone else, and Play's payments policy doesn't allow external payment links.
+     */
+    const val donations: Boolean = false
+
+    /** Zizai's own Google Play listing, for the "rate the app" nudge and the stats screen. */
+    const val PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=io.zizai.keyboard"
+
+    /** The package name backups must come from to be restored. */
+    const val PACKAGE_NAME = "io.zizai.keyboard"
+
     /** Drops the Smartbar actions of features that are switched off; [codeOf] reads an action's key code. */
     fun <T> filterQuickActions(actions: List<T>, codeOf: (T) -> Int): List<T> = actions.filterNot {
         val code = codeOf(it)
         (!translate && code == KeyCode.TRANSLATE) || (!gif && code == KeyCode.IME_UI_MODE_GIF)
     }
+
+    /** Whether a settings-search result points at something that is shown. */
+    fun allowsSearchEntry(route: Any?, anchor: String?): Boolean =
+        allowsRoute(route) && (upstreamReleaseNotes || anchor != "about__whats_new__title")
 
     /** Whether a settings route belongs to a feature that is switched on. */
     fun allowsRoute(route: Any?): Boolean = when (route) {

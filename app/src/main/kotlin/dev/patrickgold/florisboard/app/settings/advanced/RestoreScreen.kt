@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -100,7 +101,7 @@ object Restore {
     // Dictate's own application id (base, without the .debug/.beta variant suffixes) — a backup whose
     // metadata package starts with this is a genuine Dictate backup, not a "third-party" one. Was still
     // the upstream FlorisBoard id after the fork, which made every Dictate backup falsely warn.
-    const val PACKAGE_NAME = "net.devemperor.dictate"
+    const val PACKAGE_NAME = io.zizai.ZizaiFlags.PACKAGE_NAME // ZIZAI-HOOK
     const val BACKUP_ARCHIVE_FILE_NAME = "backup.zip"
 }
 
