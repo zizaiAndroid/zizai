@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -151,7 +152,7 @@ fun SetupScreen() = FlorisScreen {
     var providerSkipped by rememberSaveable { mutableStateOf(false) }
     // The floating-button step is optional and has no completion signal of its own, so (like the
     // provider step) a flag lets the user move past it to the final page once they've decided.
-    var floatingButtonStepPassed by rememberSaveable { mutableStateOf(false) }
+    var floatingButtonStepPassed by rememberSaveable { mutableStateOf(!io.zizai.ZizaiFlags.floatingButton) } // ZIZAI-HOOK
 
     val requestNotification =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -832,6 +833,7 @@ private fun FlorisStepLayoutScope.ProviderChoice(
     StepText(stringRes(R.string.setup__provider__choose_intro))
     Spacer(modifier = Modifier.height(16.dp))
 
+    if (io.zizai.ZizaiFlags.cloud) { // ZIZAI-HOOK
     ChoiceCard(
         title = stringRes(R.string.setup__provider__choice_cloud_title),
         body = stringRes(R.string.setup__provider__choice_cloud_body),
@@ -841,6 +843,7 @@ private fun FlorisStepLayoutScope.ProviderChoice(
         marks = listOf(ProviderRegistry.CLOUD.id),
     )
     Spacer(modifier = Modifier.height(12.dp))
+    } // ZIZAI-HOOK
     ChoiceCard(
         title = stringRes(R.string.setup__provider__choice_own_title),
         body = stringRes(R.string.setup__provider__choice_own_body),

@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -300,7 +301,7 @@ fun HomeScreen() = FlorisScreen {
             onClick = { navController.navigate(Routes.Settings.Media) },
         )
         // With the other tools the Smartbar opens (issue #424): it is one, and not a dictation feature.
-        Preference(
+        if (io.zizai.ZizaiFlags.translate) Preference( // ZIZAI-HOOK
             icon = Icons.Outlined.Translate,
             title = stringRes(R.string.settings__translation__title),
             onClick = { navController.navigate(Routes.Settings.Translation) },

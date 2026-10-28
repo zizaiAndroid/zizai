@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -2071,7 +2072,7 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
             }
             // Opens the KLIPY GIF search panel (its own ImeUiMode, like the media/history panels); resets
             // any previous search so it opens on the home view (recent GIFs + trending).
-            KeyCode.IME_UI_MODE_GIF -> {
+            KeyCode.IME_UI_MODE_GIF -> if (io.zizai.ZizaiFlags.gif) { // ZIZAI-HOOK
                 closeInternalFields()
                 gifSearchSubmit.value = null
                 activeState.imeUiMode = ImeUiMode.GIF
@@ -2095,7 +2096,7 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
                 activeState.imeUiMode = ImeUiMode.SCAN
             }
             // The translate bar (issue #424). A toggle: the button stays in the Smartbar below the bar.
-            KeyCode.TRANSLATE -> toggleTranslate()
+            KeyCode.TRANSLATE -> if (io.zizai.ZizaiFlags.translate) toggleTranslate() // ZIZAI-HOOK
             KeyCode.IME_UI_MODE_DICTATE -> dev.patrickgold.florisboard.dictate.DictateController.onMicClick(appContext)
             KeyCode.DICTATE_LIVE_PROMPT -> dev.patrickgold.florisboard.dictate.DictateController.startLivePrompt(appContext)
             KeyCode.DICTATE_PROMPTS -> {

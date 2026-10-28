@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -255,7 +256,7 @@ fun DictateScreen() = FlorisScreen {
 
         // Floating button keeps its own screen and the "New" badge until first opened (issue #88).
         val floatingHintSeen by prefs.dictate.floatingButtonHintSeen.collectAsState()
-        Preference(
+        if (io.zizai.ZizaiFlags.floatingButton) Preference( // ZIZAI-HOOK
             icon = Icons.Default.Adjust,
             modifier = Modifier.settingsSearchAnchor("dictate__floating_button_enable_title"),
             title = stringRes(R.string.dictate__floating_button_enable_title),
@@ -268,7 +269,7 @@ fun DictateScreen() = FlorisScreen {
             },
         )
 
-        Preference(
+        if (io.zizai.ZizaiFlags.wear) Preference( // ZIZAI-HOOK
             icon = Icons.Default.Watch,
             modifier = Modifier.settingsSearchAnchor("dictate__wear_title"),
             title = stringRes(R.string.dictate__wear_title),

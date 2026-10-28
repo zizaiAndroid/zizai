@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2024-2025 The FlorisBoard Contributors
  *
@@ -276,7 +277,7 @@ fun MediaScreen() = FlorisScreen {
         }
 
         // ----------------------------------------------------------------- GIFs
-        PreferenceGroup(title = stringRes(R.string.prefs__media__gif__title)) {
+        if (io.zizai.ZizaiFlags.gif) PreferenceGroup(title = stringRes(R.string.prefs__media__gif__title)) { // ZIZAI-HOOK
             // One row: the on/off switch and the setup walkthrough both live inside the dialog.
             val gifKey by prefs.gif.klipyApiKey.collectAsState()
             val gifEnabled by prefs.gif.enabled.collectAsState()

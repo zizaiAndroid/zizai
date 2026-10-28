@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2022-2025 The FlorisBoard Contributors
  *
@@ -28,6 +29,10 @@ plugins {
     alias(libs.plugins.kotest)
     alias(libs.plugins.kotlinx.kover)
 }
+
+// ZIZAI-HOOK: fork version and v1 feature flags live in zizai.properties (docs/ARCHITECTURE.md §7.2).
+val zizaiProps = Properties().apply { rootProject.file("zizai.properties").inputStream().use { load(it) } }
+fun zizaiFlag(name: String): Boolean = zizaiProps.getProperty(name, "false").trim().toBoolean()
 
 val projectMinSdk: String by project
 val projectTargetSdk: String by project
@@ -71,8 +76,8 @@ configure<ApplicationExtension> {
         applicationId = "net.devemperor.dictate"
         minSdk = projectMinSdk.toInt()
         targetSdk = projectTargetSdk.toInt()
-        versionCode = projectVersionCode.toInt()
-        versionName = projectVersionName.substringBefore("-")
+        versionCode = zizaiProps.getProperty("versionCode").toInt() // ZIZAI-HOOK
+        versionName = zizaiProps.getProperty("versionName") // ZIZAI-HOOK
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -90,6 +95,11 @@ configure<ApplicationExtension> {
         buildConfigField("String", "BUILD_COMMIT_HASH", "\"${getGitCommitHash().get()}\"")
         buildConfigField("String", "FLADDONS_API_VERSION", "\"v~draft2\"")
         buildConfigField("String", "FLADDONS_STORE_URL", "\"beta.addons.florisboard.org\"")
+        // ZIZAI-HOOK: v1 feature flags, read through io.zizai.ZizaiFlags.
+        for ((field, key) in listOf(
+            "ZIZAI_CLOUD" to "cloud", "ZIZAI_FLOATING_BUTTON" to "floatingButton",
+            "ZIZAI_TRANSLATE" to "translate", "ZIZAI_GIF" to "gif",
+        )) buildConfigField("boolean", field, zizaiFlag(key).toString())
 
         sourceSets {
             maybeCreate("main").apply {
@@ -181,6 +191,9 @@ configure<ApplicationExtension> {
     // from the module directory on its own. Naming it as a baseline made lint read the severity
     // overrides as recorded findings and left every real issue unbaselined, so any fatal one failed
     // the release build (issue #332).
+
+    // ZIZAI-HOOK: with on-device translation off, never package a locally built Bergamot library.
+    if (!zizaiFlag("translate")) packaging { jniLibs { excludes += "**/libdictate_bergamot.so" } }
 
     testOptions {
         unitTests {
@@ -354,7 +367,7 @@ val verifyBergamotLib by tasks.registering {
         }
     }
 }
-tasks.named("preBuild").configure { dependsOn(verifyBergamotLib) }
+if (zizaiFlag("translate")) tasks.named("preBuild").configure { dependsOn(verifyBergamotLib) } // ZIZAI-HOOK
 
 fun getGitCommitHash(short: Boolean = false): Provider<String> {
     if (!File(".git").exists()) {

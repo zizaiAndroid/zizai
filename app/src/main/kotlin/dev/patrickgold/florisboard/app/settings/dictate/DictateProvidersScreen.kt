@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -263,6 +264,7 @@ fun DictateProvidersScreen() = FlorisScreen {
                 // Dictate Cloud has no API key to type in — it has a balance, packs and a recovery
                 // code — so its row opens its own screen instead of the credential editor.
                 if (preset.id == ProviderRegistry.CLOUD.id) {
+                    if (!io.zizai.ZizaiFlags.cloud) return@forEach // ZIZAI-HOOK
                     Preference(
                         // The service's own mark, like every other provider in this list — a
                         // generic cloud here is what the app uses for "an endpoint with no logo".

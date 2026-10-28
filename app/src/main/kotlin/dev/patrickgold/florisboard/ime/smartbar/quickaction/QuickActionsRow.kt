@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2022-2025 The FlorisBoard Contributors
  *
@@ -46,11 +47,13 @@ internal val ToggleOverflowPanelAction = QuickAction.InsertKey(TextKeyData.TOGGL
  * opening the panel would be redundant. No-op in the PANEL layout.
  */
 internal fun List<QuickAction>.filterDictateHidden(promptsLayout: DictatePromptsLayout): List<QuickAction> =
+    io.zizai.ZizaiFlags.filterQuickActions(this) { it.keyData().code }.let { actions -> // ZIZAI-HOOK
     if (promptsLayout == DictatePromptsLayout.ROW) {
-        filterNot { it.keyData().code == KeyCode.DICTATE_PROMPTS }
+        actions.filterNot { it.keyData().code == KeyCode.DICTATE_PROMPTS }
     } else {
-        this
+        actions
     }
+    } // ZIZAI-HOOK
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable

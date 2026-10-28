@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -1180,7 +1181,7 @@ fun WhatsNewTour(autoQueue: List<VersionName>) {
         autoTours.isNotEmpty() && queueIndex <= autoTours.lastIndex -> autoTours[queueIndex]
         else -> null
     } ?: return
-    val pages = activeTour.pages
+    val pages = activeTour.pages.filter { io.zizai.ZizaiFlags.allowsRoute(it.route) } // ZIZAI-HOOK
     // Another unseen tour after this one → an "Weiter zu X" bridge on the outro instead of "Fertig".
     val nextAutoTour = if (!isManual && queueIndex < autoTours.lastIndex) autoTours[queueIndex + 1] else null
 

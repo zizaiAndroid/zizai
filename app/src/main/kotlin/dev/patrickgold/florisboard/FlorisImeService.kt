@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -472,7 +473,7 @@ class FlorisImeService : LifecycleInputMethodService() {
         dev.patrickgold.florisboard.dictate.DictateController.maybePromptChangelog(this)
         // Floating-button spotlight: one-time nudge for users who have not enabled it yet. After the
         // changelog nudge so it does not compete on the same update; all no-op unless idle.
-        dev.patrickgold.florisboard.dictate.DictateController.maybePromptFloatingButton(this)
+        if (io.zizai.ZizaiFlags.floatingButton) dev.patrickgold.florisboard.dictate.DictateController.maybePromptFloatingButton(this) // ZIZAI-HOOK
         // Rate/donate nudge (roadmap 9.7/9.8): shown in the Smartbar once enough audio was dictated.
         // Guarded internally to no-op unless idle, so it never interrupts a recording started above.
         dev.patrickgold.florisboard.dictate.DictateController.maybePromptForReview()

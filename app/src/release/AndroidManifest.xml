@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  字在 Zizai: release-only manifest overrides (docs/IMPLEMENTATION_PLAN.md P0-04).
+
+  A build-type manifest outranks app/src/main/AndroidManifest.xml in the manifest merger, so the v1 feature
+  cuts (ADR-8) can remove components here without editing upstream's manifest. Whatever is declared in the
+  manifest is what Google Play reviews: an AccessibilityService or a foreground-service type left in would
+  require its Play Console declaration even with the UI hidden.
+
+  Keep this in step with zizai.properties: when a flag turns a feature back on, delete its lines here.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Dictate Cloud is off and the app is paid upfront: no in-app purchases (flag: cloud). -->
+    <uses-permission android:name="com.android.vending.BILLING" tools:node="remove" />
+
+    <!-- Only the floating button's AccessibilityService runs a microphone foreground service (flag: floatingButton). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" tools:node="remove" />
+
+    <application>
+        <!-- Floating dictation button (flag: floatingButton). -->
+        <service
+            android:name="dev.patrickgold.florisboard.dictate.overlay.DictateAccessibilityService"
+            tools:node="remove" />
+
+        <!-- On-device translation (flag: translate). -->
+        <service
+            android:name="dev.patrickgold.florisboard.dictate.translate.TranslationEngineService"
+            tools:node="remove" />
+
+        <!-- Wear OS app is not shipped in v1; these are its phone-side counterparts. -->
+        <service
+            android:name="dev.patrickgold.florisboard.dictate.wear.DictateWearService"
+            tools:node="remove" />
+        <service
+            android:name="dev.patrickgold.florisboard.dictate.wear.WearTetherService"
+            tools:node="remove" />
+    </application>
+</manifest>
