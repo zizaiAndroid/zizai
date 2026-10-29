@@ -203,6 +203,25 @@ bash tools/fetch-sherpa-onnx.sh
 
 ## 3. Phase 1 — MVP to closed test (about 14 weeks)
 
+#### Progress (2026-10-29)
+
+| Task | State | Notes |
+|---|---|---|
+| S1–S3 | Done | Results below |
+| P1-01 – P1-07 | Done | Engine, data and session; JVM tests, about 130 golden inputs |
+| P1-08 | Not started | Optional extended pack |
+| P1-09, P1-10 | Done | OpenCC 1.1.9 test cases pass; dictation clean-up hooked into `DictateController.sink` |
+| P1-11 – P1-15 | Done | Checked on the Pixel 8 Pro (Keep, search fields) |
+| P1-16 | Done | Smartbar candidates for the touch keyboard; no expanded grid sheet yet |
+| P1-17 | Done | 中文 settings screen, Ctrl+/ cheat sheet, first-use sheet |
+| P1-18 | Done, minus the touch 改 chip and `replaceText` | Context reading and ranking, read-back restore |
+| P1-19 | Blocked on you | Needs a Cloudflare account for the report Worker |
+| P1-20 | Partly | Exceptions reset the session; on-device latency not yet measured |
+| P1-21, P1-22 | Yours | Store listing and closed test |
+
+Still open: Mandarin as the default dictation language (P1-10), the 2 ms budget measured on the phone
+(P1-20), and the grid sheet for touch (P1-16).
+
 ### 3.1 Risk spikes (week 1)
 
 Each spike is a throwaway branch that answers one question before real code depends on it. Record the
