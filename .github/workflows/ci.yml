@@ -40,7 +40,30 @@ jobs:
           }
 
       - name: Build and unit-test
-        run: ./gradlew --no-configuration-cache :app:assembleDebug test
+        run: |
+          set -o pipefail
+          ./gradlew --no-configuration-cache --continue :app:assembleDebug test 2>&1 | tee "$RUNNER_TEMP/build.log"
+
+      # Logs need a login to read, but annotations are public through GitHub's API, so the failure
+      # details are surfaced as annotations: Gradle's "What went wrong" blocks, compiler errors, and
+      # each failing test with its first message line.
+      - name: Report failures as annotations
+        if: failure()
+        run: |
+          log="$RUNNER_TEMP/build.log"
+          grep -A4 'What went wrong' "$log" | grep -v '^--$' | head -15 \
+            | while read -r line; do [ -n "$line" ] && echo "::error title=Gradle::$line"; done
+          grep -E '^e: ' "$log" | head -10 | while read -r line; do echo "::error title=Kotlin::$line"; done
+          find . -path '*/build/test-results/*' -name 'TEST-*.xml' -print0 \
+            | xargs -0 grep -l '<failure' 2>/dev/null | head -10 | while read -r xml; do
+              python3 - "$xml" <<'EOF'
+          import sys, xml.etree.ElementTree as ET
+          for case in ET.parse(sys.argv[1]).getroot().iter("testcase"):
+              for f in case.findall("failure"):
+                  msg = (f.get("message") or f.text or "").strip().splitlines()[0][:300] if (f.get("message") or f.text) else ""
+                  print(f"::error title=Test {case.get('classname')}::{case.get('name')} — {msg}")
+          EOF
+            done
 
       - name: Upload test reports on failure
         if: failure()
