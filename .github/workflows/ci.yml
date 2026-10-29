@@ -17,10 +17,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 21, not 17: upstream's tests expect emoji grapheme clusters, which java.text.BreakIterator
+      # only understands since Java 20 (SelectionMetricsTest fails on 17).
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
 
       - uses: gradle/actions/setup-gradle@v4
 
