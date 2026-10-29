@@ -20,10 +20,17 @@ import android.view.inputmethod.EditorInfo
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import dev.patrickgold.florisboard.dictate.DictateController
+import dev.patrickgold.florisboard.ime.keyboard.KeyData
+import dev.patrickgold.florisboard.ime.nlp.SuggestionCandidate
+import dev.patrickgold.florisboard.ime.text.key.KeyCode
+import dev.patrickgold.florisboard.ime.text.key.KeyType
+import dev.patrickgold.florisboard.nlpManager
 import dev.patrickgold.florisboard.subtypeManager
+import io.zizai.ZizaiPrefs
 import io.zizai.han.session.DefaultHanSession
 import io.zizai.han.session.HanSession
 import io.zizai.han.session.HanSettings
+import io.zizai.han.session.Key
 import io.zizai.han.session.KeyResult
 import io.zizai.han.session.KeyStroke
 import io.zizai.han.session.ResetReason
@@ -32,19 +39,29 @@ import kotlinx.coroutines.launch
 
 /**
  * The single entry point for Zizai's Chinese input in the IME service (docs/IMPLEMENTATION_PLAN.md P1-11).
- * Every upstream hook in `FlorisImeService` is one `// ZIZAI-HOOK:` line calling into this class; with no
- * Chinese Pinyin subtype active and no hardware keyboard in use, it changes nothing.
+ * Every upstream hook is one `// ZIZAI-HOOK:` line calling into this class; with no Chinese Pinyin subtype
+ * active and no hardware keyboard in use, it changes nothing.
+ *
+ * The hardware keyboard (through [KeyRouter]) and the touch keyboard (through `KeyboardManager` hooks)
+ * drive the same [HanSession], so both get the same candidates, segmentation and paging (P1-16).
  */
 class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
+    init {
+        current = this
+    }
+
     private val subtypeManager by ims.subtypeManager()
+    private val nlpManager by ims.nlpManager()
+    private val prefs by lazy { ZizaiPrefs.get(ims) } // lazy: the service has no context while constructing
     private val editor = EditorBridge(ims)
     private val hardware = HardwareMode(ims)
     private val router = KeyRouter(this)
-    private var settings = HanSettings()
 
     private val session: HanSession by lazy {
-        DefaultHanSession(HanAssets.lexicon(ims), settings = { settings }, editor = editor)
+        DefaultHanSession(HanAssets.lexicon(ims), settings = ::settings, editor = editor)
     }
+
+    private fun settings() = HanSettings(pageSize = prefs.pageSize, fullWidthPunctuation = prefs.fullWidthPunctuation)
 
     override var chineseMode: Boolean = true
         set(value) {
@@ -57,18 +74,24 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     /** After the upstream root view is added to the window's content. */
     fun attach(content: ViewGroup) {
         hardware.attach(content)
-        hardware.pill.setOnClickListener { if (sessionActive) commitRawComposition(); chineseMode = !chineseMode }
-        val owner = ims as LifecycleOwner
-        owner.lifecycleScope.launch {
+        hardware.pill.setOnClickListener {
+            if (sessionActive) commitRawComposition()
+            chineseMode = !chineseMode
+        }
+        (ims as LifecycleOwner).lifecycleScope.launch {
             combine(session.ui, DictateController.state) { ui, _ -> ui }.collect { ui ->
-                hardware.panel.render(ui)
+                hardware.panel.render(if (hardware.active) ui else io.zizai.han.session.HanUiState.Idle)
                 renderPill()
                 if (hardware.active) hardware.position()
+                nlpManager.refreshCandidates()
             }
         }
     }
 
-    fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean = guard(false) { router.onKeyDown(keyCode, event) }
+    fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (prefs.hardwareMode == ZizaiPrefs.HardwareModeSetting.TOUCH && !session.isActive) return false
+        return guard(false) { router.onKeyDown(keyCode, event) }
+    }
 
     fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean = guard(false) { router.onKeyUp(keyCode, event) }
 
@@ -87,9 +110,9 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     }
 
     /**
-     * Returns true when upstream must not reconcile the selection: in hardware mode the session owns the
-     * composing text (spike S1 showed upstream's reconciliation duplicating it). If the app dropped our
-     * composition (it cleared the field, say), the session resets instead of fighting it.
+     * Returns true when upstream must not reconcile the selection: in hardware mode, or while the session
+     * owns the composing text (spike S1 showed upstream's reconciliation duplicating it). If the app dropped
+     * our composition (it cleared the field, say), the session resets instead of fighting it.
      */
     fun onUpdateSelection(candidatesStart: Int): Boolean {
         val echo = editor.consumeUpdate()
@@ -103,10 +126,10 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         if (!restarting) resetAll(ResetReason.FIELD_CHANGED)
     }
 
-    /** A tap in the editor: back to the touch keyboard. */
+    /** A tap in the editor: back to the touch keyboard, unless the user always wants hardware mode. */
     fun onViewClicked() {
         if (session.isActive) commitRawComposition()
-        hardware.exit()
+        if (prefs.hardwareMode != ZizaiPrefs.HardwareModeSetting.HARDWARE) hardware.exit()
     }
 
     /** API 34+: a finger or stylus in the editor means touch mode. */
@@ -117,6 +140,41 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     fun onFinishInputView() {
         resetAll(ResetReason.FIELD_CHANGED)
         hardware.exit()
+    }
+
+    // ---- Touch path (P1-16) ----
+
+    /** From `KeyboardManager.onInputKeyUp`; true when the session took the key. */
+    fun onTouchKey(data: KeyData): Boolean = guard(false) {
+        val info = editorInfo ?: return@guard false
+        if (!session.isActive && !(chineseSubtype && chineseMode && KeyRouter.isTextField(info))) return@guard false
+        val stroke = when {
+            data.code == KeyCode.DELETE -> KeyStroke(Key.BACKSPACE)
+            data.code == KeyCode.SPACE -> KeyStroke(Key.SPACE)
+            data.code == KeyCode.ENTER -> KeyStroke(Key.ENTER)
+            data.type == KeyType.CHARACTER -> {
+                val text = data.asString(isForDisplay = false)
+                if (text.isEmpty()) return@guard false
+                val cp = text.codePointAt(0)
+                KeyStroke(Key.CHAR, cp, shift = Character.isUpperCase(cp))
+            }
+            else -> return@guard false
+        }
+        dispatch(stroke, fromHardware = false)
+    }
+
+    /** The Smartbar's candidates while the session composes, or null to let upstream assemble its own. */
+    fun touchCandidates(): List<SuggestionCandidate>? {
+        if (!session.isActive) return null
+        return session.peekCandidates(TOUCH_CANDIDATES).mapIndexed { i, c -> HanSuggestionCandidate(c.text, i) }
+    }
+
+    /** From `KeyboardManager.commitCandidate`; true when it was one of ours. */
+    fun onTouchCandidate(candidate: SuggestionCandidate): Boolean = guard(false) {
+        val han = candidate as? HanSuggestionCandidate ?: return@guard false
+        val size = prefs.pageSize
+        (session.onCandidateTapped(han.index / size, han.index % size) as? KeyResult.Handled)?.let { editor.apply(it.edits) }
+        true
     }
 
     // ---- KeyRouterHost ----
@@ -130,10 +188,12 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
 
     override val sessionActive: Boolean get() = session.isActive
 
-    override fun dispatch(stroke: KeyStroke): Boolean = when (val r = session.onKey(stroke)) {
+    override fun dispatch(stroke: KeyStroke): Boolean = dispatch(stroke, fromHardware = true)
+
+    private fun dispatch(stroke: KeyStroke, fromHardware: Boolean): Boolean = when (val r = session.onKey(stroke)) {
         KeyResult.NotHandled -> false
         is KeyResult.Handled -> {
-            if (session.isActive) hardware.enter()
+            if (fromHardware && session.isActive) hardware.enter()
             editor.apply(r.edits)
             !r.passThrough
         }
@@ -143,7 +203,9 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         (session.commitRaw() as? KeyResult.Handled)?.let { editor.apply(it.edits) }
     }
 
-    override fun enterHardwareMode() = hardware.enter()
+    override fun enterHardwareMode() {
+        if (prefs.hardwareMode != ZizaiPrefs.HardwareModeSetting.TOUCH) hardware.enter()
+    }
 
     override fun toggleDictation() = DictateController.onMicClick(ims)
 
@@ -158,7 +220,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     }
 
     override fun toggleFullWidth() {
-        settings = settings.copy(fullWidthPunctuation = !settings.fullWidthPunctuation)
+        prefs.fullWidthPunctuation = !prefs.fullWidthPunctuation
     }
 
     // ---- Internals ----
@@ -184,5 +246,13 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         runCatching { session.reset(ResetReason.ERROR) }
         router.reset()
         fallback
+    }
+
+    companion object {
+        private const val TOUCH_CANDIDATES = 40
+
+        /** The live instance, for hooks in upstream classes that can't reach the service's field. */
+        @Volatile var current: ZizaiIme? = null
+            private set
     }
 }

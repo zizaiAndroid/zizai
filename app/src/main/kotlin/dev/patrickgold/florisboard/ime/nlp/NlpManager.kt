@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -704,7 +705,10 @@ class NlpManager(context: Context) {
         return listOf(MathSuggestionCandidate(result = answer.result, completion = answer.completion))
     }
 
+    fun refreshCandidates() = assembleCandidates() // ZIZAI-HOOK: the Han session's pages changed
+
     private fun assembleCandidates() {
+        io.zizai.ime.ZizaiIme.current?.touchCandidates()?.let { activeCandidates = it; return } // ZIZAI-HOOK
         runBlocking {
             fieldCandidates?.let { field ->
                 // No sum here: it reads the app's field, not the one being typed in. The copied text is

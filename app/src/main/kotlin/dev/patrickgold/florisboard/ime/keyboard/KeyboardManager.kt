@@ -785,6 +785,7 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
      *  candidate of its own accord (see [commitAutoCorrection]).
      */
     fun commitCandidate(candidate: SuggestionCandidate, byUser: Boolean = true) {
+        if (io.zizai.ime.ZizaiIme.current?.onTouchCandidate(candidate) == true) return // ZIZAI-HOOK: Han candidates
         activeInternalField()?.let { field ->
             commitIntoField(field, candidate)
             return
@@ -2005,6 +2006,7 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
         if (handleFieldKey(data)) {
             return@batchEdit
         }
+        if (io.zizai.ime.ZizaiIme.current?.onTouchKey(data) == true) return@batchEdit // ZIZAI-HOOK: Pinyin (P1-16)
         when (data.code) {
             KeyCode.ARROW_DOWN,
             KeyCode.ARROW_LEFT,

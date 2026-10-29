@@ -164,19 +164,6 @@ class KeyRouter(private val host: KeyRouterHost) {
         return KeyStroke(Key.CHAR, cp, shift, ctrl, alt, meta, event.repeatCount)
     }
 
-    /** Fields that start in English (docs/ARCHITECTURE.md §6.1): passwords, email, URLs, numbers. */
-    private fun isTextField(info: EditorInfo): Boolean {
-        if (info.imeOptions and EditorInfo.IME_FLAG_FORCE_ASCII != 0) return false
-        val type = info.inputType
-        if (type and InputType.TYPE_MASK_CLASS != InputType.TYPE_CLASS_TEXT) return false
-        return when (type and InputType.TYPE_MASK_VARIATION) {
-            InputType.TYPE_TEXT_VARIATION_PASSWORD, InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD,
-            InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD, InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS,
-            InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS, InputType.TYPE_TEXT_VARIATION_URI -> false
-            else -> true
-        }
-    }
-
     fun reset() {
         consumedDowns.clear()
         handler.removeCallbacks(startPushToTalk)
@@ -184,9 +171,22 @@ class KeyRouter(private val host: KeyRouterHost) {
         shiftDownAt = -1
     }
 
-    private companion object {
-        const val SHIFT_TAP_MS = 300L
-        const val PUSH_TO_TALK_MS = 250L
-        const val KeyCharacterMapCombining = 0x80000000.toInt()
+    companion object {
+        private const val SHIFT_TAP_MS = 300L
+        private const val PUSH_TO_TALK_MS = 250L
+        private const val KeyCharacterMapCombining = 0x80000000.toInt()
+
+        /** Fields that start in English (docs/ARCHITECTURE.md §6.1): passwords, email, URLs, numbers. */
+        fun isTextField(info: EditorInfo): Boolean {
+            if (info.imeOptions and EditorInfo.IME_FLAG_FORCE_ASCII != 0) return false
+            val type = info.inputType
+            if (type and InputType.TYPE_MASK_CLASS != InputType.TYPE_CLASS_TEXT) return false
+            return when (type and InputType.TYPE_MASK_VARIATION) {
+                InputType.TYPE_TEXT_VARIATION_PASSWORD, InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD,
+                InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD, InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS,
+                InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS, InputType.TYPE_TEXT_VARIATION_URI -> false
+                else -> true
+            }
+        }
     }
 }

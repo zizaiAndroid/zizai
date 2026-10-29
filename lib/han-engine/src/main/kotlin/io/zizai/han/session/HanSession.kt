@@ -35,6 +35,9 @@ interface HanSession {
     /** Synchronous; must stay under 2 ms at the 95th percentile. */
     fun onKey(stroke: KeyStroke): KeyResult
     fun onCandidateTapped(page: Int, index: Int): KeyResult
+
+    /** The first [count] candidates across pages, for the touch keyboard's scrolling strip. */
+    fun peekCandidates(count: Int): List<Candidate>
     fun startReconversion(target: ReconversionTarget): KeyResult
 
     /** Commits the composition as typed (Shift tap, switching to English). */
@@ -85,6 +88,19 @@ class DefaultHanSession(
         if (mode == SessionMode.RECONVERTING) return pickReconversion(page * pageSize + index)
         val c = pager?.page(page)?.getOrNull(index) ?: return handled()
         return select(c)
+    }
+
+    override fun peekCandidates(count: Int): List<Candidate> {
+        if (mode == SessionMode.RECONVERTING) return state.value.candidates
+        val p = pager ?: return emptyList()
+        val out = ArrayList<Candidate>(count)
+        var i = 0
+        while (out.size < count) {
+            val pg = p.page(i++)
+            if (pg.isEmpty()) break
+            out += pg
+        }
+        return out.take(count)
     }
 
     override fun commitRaw(): KeyResult {
