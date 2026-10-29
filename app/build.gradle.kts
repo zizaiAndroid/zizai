@@ -317,6 +317,8 @@ dependencies {
     implementation(libs.play.services.wearable)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(projects.lib.kotlin)
+    implementation(projects.lib.hanEngine) // ZIZAI-HOOK: Chinese engine (P1-11)
+    implementation(projects.lib.zhText) // ZIZAI-HOOK
     implementation(projects.lib.snygg)
 
     testImplementation(libs.kotest.assertions.core)

@@ -253,6 +253,7 @@ class FlorisImeService : LifecycleInputMethodService() {
     private val themeManager by themeManager()
 
     val windowController = ImeWindowController(prefs, lifecycleScope)
+    private val zizai = io.zizai.ime.ZizaiIme(this) // ZIZAI-HOOK: Chinese input (P1-11)
 
     private val activeState get() = keyboardManager.activeState
     val inputFeedbackController by lazy { InputFeedbackController.new(this) }
@@ -337,6 +338,7 @@ class FlorisImeService : LifecycleInputMethodService() {
         super.installViewTreeOwners()
         val content = window.window!!.findViewById<ViewGroup>(android.R.id.content)
         content.addView(ImeRootView(this))
+        zizai.attach(content) // ZIZAI-HOOK
         // Disable the default input view placement
         return null
     }
@@ -392,6 +394,7 @@ class FlorisImeService : LifecycleInputMethodService() {
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         flogInfo { "restarting=$restarting info=${info?.debugSummarize()}" }
         super.onStartInputView(info, restarting)
+        zizai.onStartInputView(info, restarting) // ZIZAI-HOOK
         if (info == null) return
         val editorInfo = FlorisEditorInfo.wrap(info)
         activeState.batchEdit {
@@ -482,6 +485,7 @@ class FlorisImeService : LifecycleInputMethodService() {
     override fun onEvaluateInputViewShown(): Boolean {
         val config = resources.configuration
         return super.onEvaluateInputViewShown()
+            || zizai.keepsWindowShown // ZIZAI-HOOK
             || config.keyboard == Configuration.KEYBOARD_NOKEYS
             || prefs.physicalKeyboard.showOnScreenKeyboard.get()
     }
@@ -494,6 +498,7 @@ class FlorisImeService : LifecycleInputMethodService() {
      */
     override fun onViewClicked(focusChanged: Boolean) {
         super.onViewClicked(focusChanged)
+        zizai.onViewClicked() // ZIZAI-HOOK
         if (keyboardManager.translateQuery.value != null || keyboardManager.activeInternalField() != null) {
             keyboardManager.onEditorClicked()
         }
@@ -509,6 +514,7 @@ class FlorisImeService : LifecycleInputMethodService() {
     ) {
         flogInfo { "old={start=$oldSelStart,end=$oldSelEnd} new={start=$newSelStart,end=$newSelEnd} composing={start=$candidatesStart,end=$candidatesEnd}" }
         super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd)
+        if (zizai.onUpdateSelection(candidatesStart)) return // ZIZAI-HOOK: the session owns the composing text
         // A cursor the keyboard did not move means the user is working in the app's field again: the
         // translate bar gives the keys back (#424), a search closes (#394).
         keyboardManager.onAppSelectionChanged(oldSelStart, oldSelEnd, newSelStart, newSelEnd)
@@ -525,6 +531,7 @@ class FlorisImeService : LifecycleInputMethodService() {
     override fun onFinishInputView(finishingInput: Boolean) {
         flogInfo { "finishing=$finishingInput" }
         super.onFinishInputView(finishingInput)
+        zizai.onFinishInputView() // ZIZAI-HOOK
         editorInstance.handleFinishInputView()
     }
 
@@ -647,6 +654,7 @@ class FlorisImeService : LifecycleInputMethodService() {
 
     override fun onComputeInsets(outInsets: Insets?) {
         if (outInsets == null) return
+        if (zizai.computeInsets(outInsets)) return // ZIZAI-HOOK: hardware mode
         val state = keyboardManager.activeState.snapshot()
         windowController.onComputeInsets(outInsets, state.isFullscreenInputRequired())
     }
@@ -669,10 +677,24 @@ class FlorisImeService : LifecycleInputMethodService() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (zizai.onKeyDown(keyCode, event)) return true // ZIZAI-HOOK: hardware key router
         return keyboardManager.onHardwareKeyDown(keyCode, event) || super.onKeyDown(keyCode, event)
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        if (zizai.onKeyUp(keyCode, event)) return true // ZIZAI-HOOK
         return keyboardManager.onHardwareKeyUp(keyCode, event) || super.onKeyUp(keyCode, event)
+    }
+
+    // ZIZAI-HOOK: caret geometry for the hardware-mode candidate panel.
+    override fun onUpdateCursorAnchorInfo(cursorAnchorInfo: android.view.inputmethod.CursorAnchorInfo?) {
+        super.onUpdateCursorAnchorInfo(cursorAnchorInfo)
+        if (cursorAnchorInfo != null) zizai.onUpdateCursorAnchorInfo(cursorAnchorInfo)
+    }
+
+    // ZIZAI-HOOK: a finger or stylus in the editor leaves hardware mode (API 34+).
+    override fun onUpdateEditorToolType(toolType: Int) {
+        super.onUpdateEditorToolType(toolType)
+        zizai.onUpdateEditorToolType(toolType)
     }
 }
