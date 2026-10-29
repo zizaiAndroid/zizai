@@ -17,8 +17,10 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.zizai.han.lexicon.LexiconFormat
+import io.zizai.han.lexicon.LexiconReader
 import io.zizai.han.reading.Mandarin
 import java.io.File
+import java.nio.ByteBuffer
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -96,5 +98,34 @@ class BuilderTest : FunSpec({
         val b = LexiconWriter.write(CoreLexicon.build(Unihan.read(unihanZip(tempdir())), aosp.reversed()))
         sha256(a) shouldBe sha256(b)
         (a.size % 4) shouldBe 0
+    }
+
+    // Needs the downloaded sources (run the builder once); skipped where they're absent, as in CI.
+    val cache = File("../../build/han-sources")
+    test("on the full data, the reader agrees with the builder's own index").config(
+        enabled = File(cache, "unihan").exists() && File(cache, "aosp-rawdict").exists(),
+    ) {
+        val lex = CoreLexicon.build(Unihan.read(File(cache, "unihan")), AospDict.read(File(cache, "aosp-rawdict")))
+        val bytes = LexiconWriter.write(lex)
+        sha256(bytes) shouldBe sha256(File("../../app/src/main/assets/han/han-core.bin").readBytes())
+        val reader = LexiconReader(ByteBuffer.wrap(bytes))
+        reader.charCount shouldBe lex.chars.size
+        lex.chars.forEachIndexed { i, c ->
+            reader.charIndex(c.codePoint) shouldBe i
+            reader.readingCount(i) shouldBe c.readings.size
+            c.readings.forEachIndexed { j, r -> reader.reading(i, j) shouldBe r.packed }
+        }
+        lex.postings.forEachIndexed { s, list ->
+            reader.postingCount(s) shouldBe list.size
+            list.forEachIndexed { j, p -> reader.postingCodePoint(reader.postingStart(s) + j) shouldBe p.codePoint }
+        }
+        lex.words.forEachIndexed { w, word ->
+            reader.wordText(w) shouldBe word.text
+            IntArray(reader.wordSyllableCount(w)) { reader.wordSyllable(w, it) }.toList() shouldBe word.syllables.toList()
+            val found = ArrayList<Int>()
+            reader.forEachWord(word.syllables, word.syllables, word.syllables.size, true) { found += it; true }
+            (w in found) shouldBe true
+            reader.wordsWithText(word.text).map(reader::wordByText).contains(w) shouldBe true
+        }
     }
 })

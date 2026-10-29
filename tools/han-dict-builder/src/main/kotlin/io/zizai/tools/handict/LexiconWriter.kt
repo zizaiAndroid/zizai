@@ -98,7 +98,10 @@ object LexiconWriter {
         }
         sections[LexiconFormat.WTXT] = section { out ->
             out.writeInt(lex.words.size)
-            lex.words.indices.sortedWith(compareBy({ lex.words[it].text }, { it })).forEach { out.writeInt(it) }
+            // UTF-8 byte order, so the reader can binary-search without decoding.
+            val utf8 = lex.words.map { it.text.toByteArray(Charsets.UTF_8) }
+            lex.words.indices.sortedWith { a, b -> java.util.Arrays.compareUnsigned(utf8[a], utf8[b]).takeIf { it != 0 } ?: (a - b) }
+                .forEach { out.writeInt(it) }
         }
         sections[LexiconFormat.STRS] = strings.toByteArray()
 

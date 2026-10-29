@@ -26,7 +26,7 @@ package io.zizai.han.lexicon
  * WORD     u32 n, n × 16 bytes { u32 firstSyllable, u8 syllableCount, u8 score, u16 reserved,
  *          u32 textOffset, u32 textLength }, sorted by syllable sequence, then score descending
  * WSYL     u32 n, n × u16 syllable id
- * WTXT     u32 n, n × u32 word index, sorted by word text
+ * WTXT     u32 n, n × u32 word index, sorted by the words' UTF-8 bytes (unsigned)
  * STRS     UTF-8 text of every word
  * ```
  *
