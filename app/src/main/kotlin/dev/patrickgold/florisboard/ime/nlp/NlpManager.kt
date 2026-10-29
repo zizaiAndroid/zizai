@@ -708,7 +708,7 @@ class NlpManager(context: Context) {
     fun refreshCandidates() = assembleCandidates() // ZIZAI-HOOK: the Han session's pages changed
 
     private fun assembleCandidates() {
-        io.zizai.ime.ZizaiIme.current?.touchCandidates()?.let { activeCandidates = it; return } // ZIZAI-HOOK
+        io.zizai.ime.ZizaiIme.current?.touchCandidates()?.let { activeCandidates = it; autoExpandCollapseSmartbarActions(it, null); return } // ZIZAI-HOOK
         runBlocking {
             fieldCandidates?.let { field ->
                 // No sum here: it reads the app's field, not the one being typed in. The copied text is

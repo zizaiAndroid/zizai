@@ -110,8 +110,9 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     }
 
     /**
-     * Returns true when upstream must not reconcile the selection: in hardware mode, or while the session
-     * owns the composing text (spike S1 showed upstream's reconciliation duplicating it). If the app dropped
+     * Returns true when upstream must not reconcile the selection: while the session owns the composing
+     * text (spike S1 showed upstream's reconciliation duplicating it). Otherwise upstream keeps tracking, or
+     * its idea of the selection goes stale (it showed the prompt strip for a selection that wasn't there). If the app dropped
      * our composition (it cleared the field, say), the session resets instead of fighting it.
      */
     fun onUpdateSelection(candidatesStart: Int): Boolean {
@@ -119,7 +120,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         if (!echo && session.isActive && candidatesStart < 0) {
             session.reset(ResetReason.COMPOSITION_LOST)
         }
-        return hardware.active || session.isActive
+        return session.isActive
     }
 
     fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
