@@ -68,6 +68,19 @@ class HardwareSpike(private val ims: InputMethodService) {
         val info = ims.currentInputEditorInfo ?: return false
         val ic = ims.currentInputConnection ?: return false
         if (info.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL) return false
+        // SPIKE S3: F2 flips the character before the cursor through dummy homophones, in place.
+        if (keyCode == KeyEvent.KEYCODE_F2 && buffer.isEmpty()) {
+            flip(ic)
+            consumedDowns += keyCode
+            return true
+        }
+        if (flipRange != null && keyCode == KeyEvent.KEYCODE_ENTER) {
+            ic.finishComposingText()
+            log("S3 confirm -> readback='${ic.getTextBeforeCursor(1, 0)}'")
+            flipRange = null
+            consumedDowns += keyCode
+            return true
+        }
         // SPIKE S2: Ctrl+Shift+Space toggles dictation, to test the microphone with the window shown or hidden.
         if (keyCode == KeyEvent.KEYCODE_SPACE && event.isCtrlPressed && event.isShiftPressed) {
             log("S2 toggle dictation: active=$active inputViewShown=${ims.isInputViewShown}")
@@ -115,6 +128,29 @@ class HardwareSpike(private val ims: InputMethodService) {
         info.matrix.mapPoints(pts)
         caretScreen = pts
         position()
+    }
+
+    private val homophones = listOf("是", "事", "时", "市")
+    private var flipRange: IntArray? = null
+
+    /** SPIKE S3: in-place reconversion of the character before the cursor. */
+    private fun flip(ic: InputConnection) {
+        val range = flipRange ?: run {
+            val et = ic.getExtractedText(android.view.inputmethod.ExtractedTextRequest(), 0)
+            val before = ic.getTextBeforeCursor(1, 0)?.toString().orEmpty()
+            if (et == null || before.isEmpty()) {
+                log("S3 no extracted text (et=${et != null}) or nothing before cursor ('$before')")
+                return
+            }
+            val pos = et.startOffset + et.selectionStart
+            intArrayOf(pos - 1, pos).also { flipRange = it; log("S3 start: before='$before' range=${it.joinToString()}") }
+        }
+        val current = ic.getTextBeforeCursor(1, 0)?.toString().orEmpty()
+        val next = homophones[(homophones.indexOf(current) + 1).mod(homophones.size)]
+        val okRegion = ic.setComposingRegion(range[0], range[1])
+        val okText = ic.setComposingText(next, 1)
+        val readback = ic.getTextBeforeCursor(1, 0)?.toString()
+        log("S3 flip '$current' -> '$next' setComposingRegion=$okRegion setComposingText=$okText readback='$readback' ${if (readback == next) "OK" else "MISMATCH"}")
     }
 
     fun computeInsets(outInsets: InputMethodService.Insets) {
