@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -51,7 +52,7 @@ data class BigramDict(
 )
 
 object BigramCatalog {
-    const val REL = "https://github.com/DevEmperor/DictateKeyboard/releases/download/bigram-dicts-v1"
+    const val REL = "${io.zizai.ZizaiFlags.RELEASES_BASE}/bigram-dicts-v1" // ZIZAI-HOOK
 
     /** Languages whose bigram file ships in the APK ([ime/dict/<lang>_bigrams.txt]) — never downloaded/deleted. */
     val BUNDLED = setOf("en")

@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -60,7 +61,7 @@ object PinyinPackManager {
      * installed app verifies against the size and hash baked in below, and would reject a changed file.
      */
     private const val RELEASE =
-        "https://github.com/DevEmperor/DictateKeyboard/releases/download/language-packs-v1"
+        "${io.zizai.ZizaiFlags.RELEASES_BASE}/language-packs-v1" // ZIZAI-HOOK
     private const val URL = "$RELEASE/$FILE_NAME"
     /** Exposed so the add-a-language dialog can name what it costs (issue #334). */
     const val SIZE_BYTES = 3_030_654L

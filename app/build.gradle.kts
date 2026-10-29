@@ -100,6 +100,7 @@ configure<ApplicationExtension> {
             "ZIZAI_CLOUD" to "cloud", "ZIZAI_FLOATING_BUTTON" to "floatingButton",
             "ZIZAI_TRANSLATE" to "translate", "ZIZAI_GIF" to "gif",
         )) buildConfigField("boolean", field, zizaiFlag(key).toString())
+        buildConfigField("String", "ZIZAI_RELEASES_BASE", "\"${zizaiProps.getProperty("releasesBase").trim().trimEnd('/')}\"")
 
         sourceSets {
             maybeCreate("main").apply {

@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -42,7 +43,7 @@ data class GlideDict(
  */
 object GlideDictionaryCatalog {
     /** Project-hosted release holding the dictionary files. Single re-point for hosting. */
-    const val REL = "https://github.com/DevEmperor/DictateKeyboard/releases/download/glide-dicts-v1"
+    const val REL = "${io.zizai.ZizaiFlags.RELEASES_BASE}/glide-dicts-v1" // ZIZAI-HOOK
 
     /**
      * The downloadable dictionaries. Populated from `generate.py` output once the files are hosted.

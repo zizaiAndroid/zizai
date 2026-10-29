@@ -1,0 +1,45 @@
+# 字在 Zizai: copy upstream's downloadable assets into this repository's releases (docs/IMPLEMENTATION_PLAN.md P0-07).
+#
+# The app downloads on-device models and dictionaries from `releasesBase` in zizai.properties. Release tags and
+# file names here match upstream's exactly, and the app verifies each file's size and SHA-256, so once this has
+# run for every tag, switching `releasesBase` to this repository changes nothing else.
+#
+# Run it from the Actions tab ("Run workflow"). It works on GitHub's servers, about 6 GB in total, and is safe to
+# re-run: existing files are replaced, missing releases are created.
+name: Mirror upstream release assets
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: Space-separated upstream release tags to mirror
+        required: true
+        default: whisper-models-v1 language-packs-v1 glide-dicts-v1 bigram-dicts-v1 trigram-dicts-v1
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      UPSTREAM: DevEmperor/DictateKeyboard
+    steps:
+      - name: Mirror each tag
+        run: |
+          set -euo pipefail
+          for tag in ${{ inputs.tags }}; do
+            echo "::group::$tag"
+            work="$RUNNER_TEMP/$tag"
+            mkdir -p "$work"
+            gh release download "$tag" --repo "$UPSTREAM" --dir "$work" --clobber
+            if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+              gh release create "$tag" --repo "$GITHUB_REPOSITORY" --title "$tag" --notes \
+                "Unmodified mirror of $UPSTREAM release $tag, used by 字在 Zizai for on-device downloads. Each file keeps its original license and attribution; see NOTICE in this repository and upstream's release notes: https://github.com/$UPSTREAM/releases/tag/$tag"
+            fi
+            gh release upload "$tag" "$work"/* --repo "$GITHUB_REPOSITORY" --clobber
+            echo "$tag: $(ls "$work" | wc -l) files mirrored"
+            rm -rf "$work"
+            echo "::endgroup::"
+          done

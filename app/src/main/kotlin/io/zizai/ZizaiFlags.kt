@@ -54,6 +54,12 @@ object ZizaiFlags {
     /** Zizai's own Google Play listing, for the "rate the app" nudge and the stats screen. */
     const val PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=io.zizai.keyboard"
 
+    /**
+     * Base URL for downloadable models and dictionaries (`releasesBase` in `zizai.properties`): upstream's
+     * GitHub releases until they're mirrored into Zizai's own (P0-07). Followed by `/<tag>/<file>`.
+     */
+    const val RELEASES_BASE: String = BuildConfig.ZIZAI_RELEASES_BASE
+
     /** The package name backups must come from to be restored. */
     const val PACKAGE_NAME = "io.zizai.keyboard"
 

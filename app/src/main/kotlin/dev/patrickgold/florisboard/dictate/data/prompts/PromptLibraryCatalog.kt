@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -22,8 +23,8 @@ package dev.patrickgold.florisboard.dictate.data.prompts
  * having to cut a release for every added prompt.
  */
 object PromptLibraryCatalog {
-    private const val OWNER = "DevEmperor"
-    private const val REPO = "DictateKeyboard"
+    private const val OWNER = "zizaiAndroid" // ZIZAI-HOOK: Zizai's own library and submissions
+    private const val REPO = "zizai" // ZIZAI-HOOK
 
     /** Branch that holds the library file. Single re-point for hosting. */
     const val BRANCH = "prompt-library"

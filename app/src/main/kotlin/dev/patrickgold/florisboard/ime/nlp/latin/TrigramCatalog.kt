@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -46,7 +47,7 @@ data class TrigramDict(
 )
 
 object TrigramCatalog {
-    const val REL = "https://github.com/DevEmperor/DictateKeyboard/releases/download/trigram-dicts-v1"
+    const val REL = "${io.zizai.ZizaiFlags.RELEASES_BASE}/trigram-dicts-v1" // ZIZAI-HOOK
 
     /**
      * Languages whose trigram file ships in the APK ([ime/dict/<lang>_trigrams.txt]) — never

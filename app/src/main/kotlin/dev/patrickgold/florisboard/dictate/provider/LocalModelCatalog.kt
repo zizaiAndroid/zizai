@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -193,7 +194,7 @@ data class LocalModelSpec(
 object LocalModelCatalog {
 
     /** Project-hosted mirror of the model files (GitHub release assets). Single re-point for hosting. */
-    private const val REL = "https://github.com/DevEmperor/DictateKeyboard/releases/download/whisper-models-v1"
+    private const val REL = "${io.zizai.ZizaiFlags.RELEASES_BASE}/whisper-models-v1" // ZIZAI-HOOK
 
     /**
      * The language lists the entries below share. Kept here rather than inline because two of them are

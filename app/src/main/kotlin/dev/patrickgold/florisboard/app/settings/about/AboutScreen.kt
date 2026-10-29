@@ -165,7 +165,7 @@ fun AboutScreen() = FlorisScreen {
             icon = Icons.Outlined.Public,
             modifier = Modifier.settingsSearchAnchor("about__website__title"),
             title = stringRes(R.string.about__website__title),
-            summary = "dictatekeyboard.com",
+            summary = "github.com/zizaiAndroid/zizai", // ZIZAI-HOOK
             onClick = { context.launchUrl(R.string.florisboard__website_url) },
         )
         Preference(
