@@ -111,3 +111,9 @@ tools/han-dict-builder/sources.lock.
     https://android.googlesource.com/platform/packages/inputmethods/PinyinIME
     Copyright (C) 2009 The Android Open Source Project. Licensed under the
     Apache License, Version 2.0. Base lexicon and frequencies.
+
+    OpenCC 1.1.9 dictionaries — https://github.com/BYVoid/OpenCC
+    Copyright (c) 2010-2024 Carbo Kuo and contributors. Licensed under the
+    Apache License, Version 2.0. Compiled into app/src/main/assets/han/zh-convert.bin
+    for Simplified/Traditional conversion; lib/zh-text/src/test/resources/opencc
+    holds OpenCC's own test cases, unmodified.

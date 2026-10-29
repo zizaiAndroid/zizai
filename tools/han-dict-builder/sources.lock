@@ -2,3 +2,12 @@
 # name          license      sha256 of the decoded bytes                                       decode  url
 unihan          Unicode-3.0  4c93ea9c1f636451729a840978f1667a53886af37ba854fdcce109721c63d43e  none    https://www.unicode.org/Public/18.0.0/ucd/Unihan.zip
 aosp-rawdict    Apache-2.0   408700f28a56091fa07f3b849a0f134fbfc71e6b2ae9b3f52973a5b076f599ff  base64  https://android.googlesource.com/platform/packages/inputmethods/PinyinIME/+/49aebad1c1cfbbcaa9288ffed5161e79e57c3679/jni/data/rawdict_utf16_65105_freq.txt?format=TEXT
+opencc-STPhrases       Apache-2.0   17fece21a28f3db2dc32397abd73d21ae73261c3f295fa6a3fe64b5e8d8b554b  none    https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/STPhrases.txt
+opencc-STCharacters    Apache-2.0   ed1d268e0ad028511dcf5b0089faed0a980ad332449ec11d481ceefde6879f41  none    https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/STCharacters.txt
+opencc-TSPhrases       Apache-2.0   504169029c43f7f234b8e2ae470720af3657675c5574ff8aa0feb257e1dc5ce2  none    https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/TSPhrases.txt
+opencc-TSCharacters    Apache-2.0   6b5a0a799bea2bb22c001f635eaa3fc2904310f0c08addbff275477a80ecf09a  none    https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/TSCharacters.txt
+opencc-TWVariants      Apache-2.0   30e6f8395edbfdd74e293fd8b9c62105d787c849fbb208d2a7832eac696734d7  none    https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/TWVariants.txt
+opencc-TWPhrasesIT     Apache-2.0   3a4a2ad207f3a9442eb8f399630cf982c2ffc561df9c58b2ee352cfa023915c1  none    https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/TWPhrasesIT.txt
+opencc-TWPhrasesName   Apache-2.0   76e643569a30ea54e7ab6e52621fd4c396e01ee6dc2d15b7d25bf23addf4438a  none    https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/TWPhrasesName.txt
+opencc-TWPhrasesOther  Apache-2.0   6d0365fd180283f3e14b44f63d19d1aca045d60b0e000765902ad889a90d7a33  none    https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/TWPhrasesOther.txt
+opencc-HKVariants      Apache-2.0   c3c93c35885902ba2b12a3235a7761b00fb2b027f36aa8314db2f6b6ad51d374  none    https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/HKVariants.txt

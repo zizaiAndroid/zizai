@@ -1,11 +1,21 @@
 {
   "format": 1,
   "files": {
-    "han-core.bin": { "size": 2733660, "sha256": "56a257f336e89b0cd60c4eef47b0a04a253163a5fa7144a1f24d42b5eb36ddf2" }
+    "han-core.bin": { "size": 2733660, "sha256": "56a257f336e89b0cd60c4eef47b0a04a253163a5fa7144a1f24d42b5eb36ddf2" },
+    "zh-convert.bin": { "size": 1349168, "sha256": "b221027672d63a017c8e26ba8d4e9fb009d61bd7f0ed66932c304b6e5c66d013" }
   },
   "stats": { "characters": 44357, "postings": 53184, "words": 48068 },
   "sources": [
     { "name": "unihan", "license": "Unicode-3.0", "sha256": "4c93ea9c1f636451729a840978f1667a53886af37ba854fdcce109721c63d43e", "url": "https://www.unicode.org/Public/18.0.0/ucd/Unihan.zip" },
-    { "name": "aosp-rawdict", "license": "Apache-2.0", "sha256": "408700f28a56091fa07f3b849a0f134fbfc71e6b2ae9b3f52973a5b076f599ff", "url": "https://android.googlesource.com/platform/packages/inputmethods/PinyinIME/+/49aebad1c1cfbbcaa9288ffed5161e79e57c3679/jni/data/rawdict_utf16_65105_freq.txt?format=TEXT" }
+    { "name": "aosp-rawdict", "license": "Apache-2.0", "sha256": "408700f28a56091fa07f3b849a0f134fbfc71e6b2ae9b3f52973a5b076f599ff", "url": "https://android.googlesource.com/platform/packages/inputmethods/PinyinIME/+/49aebad1c1cfbbcaa9288ffed5161e79e57c3679/jni/data/rawdict_utf16_65105_freq.txt?format=TEXT" },
+    { "name": "opencc-STPhrases", "license": "Apache-2.0", "sha256": "17fece21a28f3db2dc32397abd73d21ae73261c3f295fa6a3fe64b5e8d8b554b", "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/STPhrases.txt" },
+    { "name": "opencc-STCharacters", "license": "Apache-2.0", "sha256": "ed1d268e0ad028511dcf5b0089faed0a980ad332449ec11d481ceefde6879f41", "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/STCharacters.txt" },
+    { "name": "opencc-TSPhrases", "license": "Apache-2.0", "sha256": "504169029c43f7f234b8e2ae470720af3657675c5574ff8aa0feb257e1dc5ce2", "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/TSPhrases.txt" },
+    { "name": "opencc-TSCharacters", "license": "Apache-2.0", "sha256": "6b5a0a799bea2bb22c001f635eaa3fc2904310f0c08addbff275477a80ecf09a", "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/TSCharacters.txt" },
+    { "name": "opencc-TWVariants", "license": "Apache-2.0", "sha256": "30e6f8395edbfdd74e293fd8b9c62105d787c849fbb208d2a7832eac696734d7", "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/TWVariants.txt" },
+    { "name": "opencc-TWPhrasesIT", "license": "Apache-2.0", "sha256": "3a4a2ad207f3a9442eb8f399630cf982c2ffc561df9c58b2ee352cfa023915c1", "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/TWPhrasesIT.txt" },
+    { "name": "opencc-TWPhrasesName", "license": "Apache-2.0", "sha256": "76e643569a30ea54e7ab6e52621fd4c396e01ee6dc2d15b7d25bf23addf4438a", "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/TWPhrasesName.txt" },
+    { "name": "opencc-TWPhrasesOther", "license": "Apache-2.0", "sha256": "6d0365fd180283f3e14b44f63d19d1aca045d60b0e000765902ad889a90d7a33", "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/TWPhrasesOther.txt" },
+    { "name": "opencc-HKVariants", "license": "Apache-2.0", "sha256": "c3c93c35885902ba2b12a3235a7761b00fb2b027f36aa8314db2f6b6ad51d374", "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/HKVariants.txt" }
   ]
 }

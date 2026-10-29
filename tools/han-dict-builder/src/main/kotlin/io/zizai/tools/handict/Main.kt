@@ -15,7 +15,7 @@ import java.io.File
 import kotlin.system.exitProcess
 
 /**
- * Builds `han-core.bin` and `manifest.json` (docs/IMPLEMENTATION_PLAN.md P1-04).
+ * Builds `han-core.bin`, `zh-convert.bin` and `manifest.json` (docs/IMPLEMENTATION_PLAN.md P1-04, P1-09).
  *
  * ```
  * ./gradlew :tools:han-dict-builder:run
@@ -53,18 +53,23 @@ fun build(lockFile: File, cache: File, outDir: File) {
     check(problems.isEmpty()) { "invariants failed:\n  " + problems.take(30).joinToString("\n  ") }
 
     val bytes = LexiconWriter.write(lex)
+    val convert = OpenCc.write(OpenCc.DICTIONARIES.mapValues { (_, names) -> OpenCc.read(names.map(::file)) })
     outDir.mkdirs()
     File(outDir, "han-core.bin").writeBytes(bytes)
-    File(outDir, "manifest.json").writeText(manifest(sources, bytes, lex))
-    println("Wrote ${bytes.size} bytes: ${lex.chars.size} characters, ${lex.postings.sumOf { it.size }} postings, ${lex.words.size} words")
+    File(outDir, "zh-convert.bin").writeBytes(convert)
+    File(outDir, "manifest.json").writeText(manifest(sources, mapOf("han-core.bin" to bytes, "zh-convert.bin" to convert), lex))
+    println("Wrote han-core.bin, ${bytes.size} bytes: ${lex.chars.size} characters, ${lex.postings.sumOf { it.size }} postings, ${lex.words.size} words")
+    println("Wrote zh-convert.bin, ${convert.size} bytes")
 }
 
 /** Deterministic: no timestamps, fixed key order. */
-fun manifest(sources: List<Source>, bytes: ByteArray, lex: CoreLexicon): String = buildString {
+fun manifest(sources: List<Source>, files: Map<String, ByteArray>, lex: CoreLexicon): String = buildString {
     fun q(s: String) = "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
     append("{\n")
     append("  \"format\": ${HanEngine.LEXICON_FORMAT},\n")
-    append("  \"files\": {\n    \"han-core.bin\": { \"size\": ${bytes.size}, \"sha256\": ${q(sha256(bytes))} }\n  },\n")
+    append("  \"files\": {\n")
+    append(files.entries.joinToString(",\n") { (name, b) -> "    ${q(name)}: { \"size\": ${b.size}, \"sha256\": ${q(sha256(b))} }" })
+    append("\n  },\n")
     append("  \"stats\": { \"characters\": ${lex.chars.size}, \"postings\": ${lex.postings.sumOf { it.size }}, \"words\": ${lex.words.size} },\n")
     append("  \"sources\": [\n")
     append(sources.joinToString(",\n") {
