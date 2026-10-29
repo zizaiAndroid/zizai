@@ -214,7 +214,7 @@ bash tools/fetch-sherpa-onnx.sh
 | P1-11 – P1-15 | Done | Checked on the Pixel 8 Pro (Keep, search fields) |
 | P1-16 | Done | Smartbar candidates for the touch keyboard; no expanded grid sheet yet |
 | P1-17 | Done | 中文 settings screen, Ctrl+/ cheat sheet, first-use sheet |
-| P1-18 | Done, minus the touch 改 chip and `replaceText` | Context reading and ranking, read-back restore |
+| P1-18 | Done, minus `replaceText` on API 34+ | Context reading and ranking, read-back restore, the touch 改 chip |
 | P1-19 | Blocked on you | Needs a Cloudflare account for the report Worker |
 | P1-20 | Partly | Exceptions reset the session; `zizai.onKey` trace sections and a `ZizaiLatency` log. JVM: first page 0.08–0.14 ms. Debug build on the Pixel: p50 ≈ 8 ms, p95 ≈ 14–20 ms, which is debuggable ART; the release-optimized `benchmark` build still has to be measured (it must be enabled as a keyboard) |
 | P1-21, P1-22 | Yours | Store listing and closed test |

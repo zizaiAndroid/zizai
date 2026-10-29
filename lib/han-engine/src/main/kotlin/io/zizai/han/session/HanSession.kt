@@ -91,7 +91,8 @@ class DefaultHanSession(
     }
 
     override fun peekCandidates(count: Int): List<Candidate> {
-        if (mode == SessionMode.RECONVERTING) return state.value.candidates
+        // While flipping: the options from the first, so a strip index is an option index.
+        recon?.let { r -> return r.options.take(count).map { Candidate(it, 0, CandidateKind.CHAR, 0.0) } }
         val p = pager ?: return emptyList()
         val out = ArrayList<Candidate>(count)
         var i = 0

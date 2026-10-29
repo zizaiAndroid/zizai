@@ -164,15 +164,32 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         dispatch(stroke, fromHardware = false)
     }
 
-    /** The Smartbar's candidates while the session composes, or null to let upstream assemble its own. */
+    /**
+     * The Smartbar's candidates while the session composes or flips; when idle after a Chinese character
+     * in Chinese mode, the 改 chip that flips it (P1-18). Null lets upstream assemble its own.
+     */
     fun touchCandidates(): List<SuggestionCandidate>? {
-        if (!session.isActive) return null
+        if (!session.isActive) return flipChip()?.let(::listOf)
         return session.peekCandidates(TOUCH_CANDIDATES).mapIndexed { i, c -> HanSuggestionCandidate(c.text, i) }
+    }
+
+    private fun flipChip(): SuggestionCandidate? {
+        if (hardware.active || !chineseSubtype || !chineseMode) return null
+        val before = editor.textBeforeCursor(2)?.toString() ?: return null
+        if (before.isEmpty()) return null
+        val cp = before.codePointBefore(before.length)
+        if (!io.zizai.zhtext.ZhText.isHan(cp)) return null
+        return HanSuggestionCandidate("改 " + String(Character.toChars(cp)), HanSuggestionCandidate.FLIP_CHIP)
     }
 
     /** From `KeyboardManager.commitCandidate`; true when it was one of ours. */
     fun onTouchCandidate(candidate: SuggestionCandidate): Boolean = guard(false) {
         val han = candidate as? HanSuggestionCandidate ?: return@guard false
+        if (han.index == HanSuggestionCandidate.FLIP_CHIP) {
+            dispatch(KeyStroke(Key.FLIP), fromHardware = false)
+            nlpManager.refreshCandidates()
+            return@guard true
+        }
         val size = prefs.pageSize
         (session.onCandidateTapped(han.index / size, han.index % size) as? KeyResult.Handled)?.let { editor.apply(it.edits) }
         verifyReconversion()

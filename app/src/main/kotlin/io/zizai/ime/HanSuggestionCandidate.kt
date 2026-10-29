@@ -22,4 +22,9 @@ data class HanSuggestionCandidate(override val text: CharSequence, val index: In
     override val isEligibleForUserRemoval: Boolean = false
     override val icon: ImageVector? = null
     override val sourceProvider: SuggestionProvider? = null
+
+    companion object {
+        /** The index of the 改 chip, which starts a flip instead of picking a candidate. */
+        const val FLIP_CHIP = -1
+    }
 }
