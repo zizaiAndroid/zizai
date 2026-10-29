@@ -80,6 +80,9 @@ interface EditorContext {
     /** Up to [n] UTF-16 units before the cursor, or null if the editor won't say. */
     fun textBeforeCursor(n: Int): CharSequence?
 
+    /** Up to [n] UTF-16 units after the cursor, or null if the editor won't say. */
+    fun textAfterCursor(n: Int): CharSequence? = null
+
     /** Absolute UTF-16 offset of the cursor, or -1 if unknown. */
     fun cursorPosition(): Int
 
@@ -104,8 +107,17 @@ data class HanSettings(
     val filter: HomophoneFilter = HomophoneFilter(),
 )
 
-/** The text to reconvert: the character (or word) at [start]..[end] in the editor. */
-data class ReconversionTarget(val text: String, val start: Int, val end: Int)
+/**
+ * The text to reconvert: the character at [start]..[end] in the editor, with up to a few characters of
+ * context on each side, which pick its reading (银行 → háng) and rank the options (在见 → 再见).
+ */
+data class ReconversionTarget(
+    val text: String,
+    val start: Int,
+    val end: Int,
+    val before: String = "",
+    val after: String = "",
+)
 
 /** One row of the expanded grid: a tone-marked syllable and its characters. */
 data class GridRow(val label: String, val tone: Int, val characters: List<String>)

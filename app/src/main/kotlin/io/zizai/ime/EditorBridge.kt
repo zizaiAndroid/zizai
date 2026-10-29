@@ -53,6 +53,11 @@ class EditorBridge(private val ims: InputMethodService) : EditorContext {
 
     override fun textBeforeCursor(n: Int): CharSequence? = ims.currentInputConnection?.getTextBeforeCursor(n, 0)
 
+    override fun textAfterCursor(n: Int): CharSequence? = ims.currentInputConnection?.getTextAfterCursor(n, 0)
+
+    /** Whether the text just before the cursor now reads [expected] (spike S3's read-back check). */
+    fun readsBack(expected: String): Boolean = textBeforeCursor(expected.length)?.toString() == expected
+
     override fun cursorPosition(): Int {
         val et = ims.currentInputConnection?.getExtractedText(ExtractedTextRequest(), 0) ?: return -1
         return et.startOffset + et.selectionStart

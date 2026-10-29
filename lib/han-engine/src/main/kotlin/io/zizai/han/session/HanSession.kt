@@ -142,12 +142,16 @@ class DefaultHanSession(
     }
 
     private fun reconvertBeforeCursor(): KeyResult {
-        val before = editor.textBeforeCursor(2) ?: return KeyResult.NotHandled
+        val before = editor.textBeforeCursor(CONTEXT_UNITS + 2)?.toString() ?: return KeyResult.NotHandled
         val cursor = editor.cursorPosition()
         if (before.isEmpty() || cursor < 0) return KeyResult.NotHandled
+        // Code points, not UTF-16 units, so Extension B characters flip whole.
         val cp = Character.codePointBefore(before, before.length)
         val len = Character.charCount(cp)
-        return startReconversion(ReconversionTarget(String(Character.toChars(cp)), cursor - len, cursor))
+        val after = editor.textAfterCursor(CONTEXT_UNITS)?.toString().orEmpty()
+        return startReconversion(
+            ReconversionTarget(String(Character.toChars(cp)), cursor - len, cursor, before.dropLast(len), after),
+        )
     }
 
     // ---- Composing ----
@@ -374,7 +378,9 @@ class DefaultHanSession(
         val cp = target.text.codePointAt(0)
         val ch = lexicon.charIndex(cp)
         if (ch < 0) return KeyResult.NotHandled
-        val syllables = (0 until lexicon.readingCount(ch)).map { LexiconReader.readingSyllable(lexicon.reading(ch, it)) }.distinct()
+        val own = (0 until lexicon.readingCount(ch)).map { LexiconReader.readingSyllable(lexicon.reading(ch, it)) }
+        // The reading the surrounding word gives it comes first: 银行 makes 行 háng, not xíng.
+        val syllables = (listOfNotNull(contextSyllable(target)) + own).distinct()
         val r = Reconversion(target, syllables, emptyList(), 0)
         toneFilter = 0
         r.options = reconversionOptions(r)
@@ -386,22 +392,71 @@ class DefaultHanSession(
         return handled(EditorEdit.MarkComposing(target.start, target.end), EditorEdit.SetPreedit(r.options[1]))
     }
 
-    /** The original first, then every character sharing one of its readings, best first. */
+    /**
+     * The original first; then the characters of its main reading that make a word with their
+     * neighbours (在见 → 再见), best word first; then every other character sharing one of its readings,
+     * best first. Only the main reading is boosted, or a rare one would jump ahead (在 → 才 in 我才).
+     */
     private fun reconversionOptions(r: Reconversion): List<String> {
-        val out = LinkedHashSet<String>()
-        out += r.target.text
+        val all = LinkedHashSet<String>()
+        val main = HashSet<String>()
         val filter = settings().filter.copy(tone = toneFilter)
         for (s in r.syllables) {
             val start = lexicon.postingStart(s)
             for (p in start until start + lexicon.postingCount(s)) {
                 val cp = lexicon.postingCodePoint(p)
                 if (filter.accepts(cp, lexicon.postingToneMask(p), lexicon.postingTier(p), lexicon.postingFlags(p))) {
-                    out += String(Character.toChars(cp))
+                    val c = String(Character.toChars(cp))
+                    all += c
+                    // Only characters common with this reading (they have a frequency for it): Unihan also lists
+                    // archaic ones, such as 才 for zài.
+                    if (s == r.syllables.first() && lexicon.postingScore(p) > 0) main += c
                 }
             }
         }
-        return out.toList()
+        val prev = r.target.before.lastCodePointString()
+        val next = r.target.after.firstCodePointString()
+        val inWords = main.mapNotNull { c ->
+            if (c == r.target.text) return@mapNotNull null
+            val score = maxOf(wordScore(prev + c, prev.isNotEmpty()), wordScore(c + next, next.isNotEmpty()))
+            if (score > 0) c to score else null
+        }.sortedByDescending { it.second }.map { it.first }
+        return (listOf(r.target.text) + inWords + all).distinct()
     }
+
+    /** The best lexicon score of a word spelled exactly [text], or 0. */
+    private fun wordScore(text: String, enabled: Boolean): Int {
+        if (!enabled) return 0
+        return lexicon.wordsWithText(text).maxOfOrNull { lexicon.wordScore(lexicon.wordByText(it)) } ?: 0
+    }
+
+    /** The syllable the best lexicon word around the target gives it, if the target sits in one. */
+    private fun contextSyllable(t: ReconversionTarget): Int? {
+        val before = t.before.codePointStrings().takeLast(3)
+        val after = t.after.codePointStrings().take(3)
+        var best: Int? = null
+        var bestScore = 0
+        for (k in 0..before.size) for (m in 0..after.size) {
+            if (k + m == 0 || k + m > 3) continue
+            val text = before.takeLast(k).joinToString("") + t.text + after.take(m).joinToString("")
+            for (pos in lexicon.wordsWithText(text)) {
+                val w = lexicon.wordByText(pos)
+                if (lexicon.wordScore(w) > bestScore && lexicon.wordSyllableCount(w) == k + m + 1) {
+                    bestScore = lexicon.wordScore(w)
+                    best = lexicon.wordSyllable(w, k)
+                }
+            }
+        }
+        return best
+    }
+
+    private fun String.codePointStrings(): List<String> = codePoints().toArray().map { String(Character.toChars(it)) }
+
+    private fun String.lastCodePointString(): String =
+        if (isEmpty()) "" else String(Character.toChars(codePointBefore(length)))
+
+    private fun String.firstCodePointString(): String =
+        if (isEmpty()) "" else String(Character.toChars(codePointAt(0)))
 
     private fun onReconvertingKey(s: KeyStroke): KeyResult {
         val r = recon ?: return KeyResult.NotHandled
@@ -471,6 +526,11 @@ class DefaultHanSession(
     // ---- State ----
 
     private val pageSize get() = settings().pageSize
+
+    private companion object {
+        /** UTF-16 units of context read on each side of a flip: three characters, even surrogate pairs. */
+        const val CONTEXT_UNITS = 6
+    }
 
     private fun filter() = settings().filter.copy(tone = toneFilter)
 

@@ -175,6 +175,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         val han = candidate as? HanSuggestionCandidate ?: return@guard false
         val size = prefs.pageSize
         (session.onCandidateTapped(han.index / size, han.index % size) as? KeyResult.Handled)?.let { editor.apply(it.edits) }
+        verifyReconversion()
         true
     }
 
@@ -196,8 +197,21 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         is KeyResult.Handled -> {
             if (fromHardware && session.isActive) enterHardwareMode()
             editor.apply(r.edits)
+            verifyReconversion()
             !r.passThrough
         }
+    }
+
+    /**
+     * After each flip step, read the text back (spike S3). An editor that didn't take the change gets the
+     * original back rather than a mangled field (P1-18).
+     */
+    private fun verifyReconversion() {
+        val ui = session.ui.value
+        if (ui.mode != io.zizai.han.session.SessionMode.RECONVERTING) return
+        if (editor.readsBack(ui.preedit)) return
+        Log.w("Zizai", "flip read-back mismatch; restoring the original")
+        (session.onKey(KeyStroke(Key.ESCAPE)) as? KeyResult.Handled)?.let { editor.apply(it.edits) }
     }
 
     override fun commitRawComposition() {

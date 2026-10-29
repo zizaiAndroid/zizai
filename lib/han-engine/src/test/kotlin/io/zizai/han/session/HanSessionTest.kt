@@ -30,6 +30,7 @@ class FakeEditor : EditorContext {
     val composing: String get() = if (composingStart < 0) "" else text.substring(composingStart, composingEnd)
 
     override fun textBeforeCursor(n: Int): CharSequence = text.substring(maxOf(0, cursor - n), cursor)
+    override fun textAfterCursor(n: Int): CharSequence = text.substring(cursor, minOf(text.length, cursor + n))
     override fun cursorPosition(): Int = cursor
 
     fun apply(result: KeyResult, stroke: KeyStroke) {
@@ -238,6 +239,26 @@ class HanSessionTest : FunSpec({
         val typing = Rig()
         typing.editor.text.append("我在"); typing.editor.cursor = 2
         typing.type("{F2}hao ").text shouldBe "我再好"
+    }
+
+    test("flip: the neighbours rank the options and pick the reading") {
+        val r = Rig()
+        r.editor.text.append("明天在见"); r.editor.cursor = 3
+        r.type("{F2}").text shouldBe "明天再见"
+
+        val bank = Rig()
+        bank.editor.text.append("银行"); bank.editor.cursor = 2
+        bank.type("{F2}")
+        // 行 in 银行 reads háng, so the options after it are hang characters, not xing.
+        val options = bank.ui.candidates.map { it.text }
+        options.first() shouldBe "行"
+        withClue(options) { (options[1] in listOf("航", "杭", "巷", "夯", "沆", "绗")) shouldBe true }
+    }
+
+    test("flip: an Extension B character flips whole") {
+        val r = Rig()
+        r.editor.text.append("我𠀀"); r.editor.cursor = 3
+        r.type("{F2}{ESC}").text shouldBe "我𠀀"
     }
 
     test("flip: digits pick and the tone filter applies") {
