@@ -217,6 +217,37 @@ results in ARCHITECTURE.md.
 
 If S1 or S2 fails, stop and revise ADR-5 before starting P1-10.
 
+#### S1 result: passed (2026-10-28)
+
+Spike code: branch `spike/s1-hardware-panel`. Tested on the Pixel 8 Pro (Android 16) with key events
+injected by `adb shell input keyevent`, which reach the IME exactly like a hardware keyboard's.
+
+| App | Composing text | Panel at caret | Notes |
+|---|---|---|---|
+| Google Keep (note body) | ✓ | ✓ | Follows the caret onto a new line |
+| Chrome (google.com search box) | ✓ | ✓ | The page sees the Pinyin as text and suggests on it; panel-only preedit mode will matter here |
+| Google Messages (compose field at the bottom) | ✓ | ✓ | Panel correctly flips above the caret |
+| Settings search | ✓ | ✓ | |
+
+Not tested yet: Google Docs, WhatsApp and Telegram (not installed), and a real Bluetooth keyboard.
+
+What the real implementation must take from it:
+
+- **Cursor geometry is good enough.** All four apps reported `CursorAnchorInfo.insertionMarker*`; the
+  matrix-to-screen mapping put the panel right under the caret.
+- **Upstream's composing reconciliation must be suspended** while our session owns the preedit
+  (ADR-2 confirmed): with it running, every `setComposingText` was committed and the text duplicated. The
+  spike skipped `editorInstance.handleSelectionUpdate` in `onUpdateSelection` while active.
+- **Hide upstream's keyboard with `INVISIBLE`, not `GONE`.** The IME window wraps its content, so `GONE`
+  shrinks it to a 108 px strip and a caret-anchored panel falls outside it.
+- **The app keeps its full height** with `contentTopInsets = visibleTopInsets = window height` and a
+  touchable region of just the panel.
+- **Touching the field returns to the on-screen keyboard** through `onViewClicked`.
+- **Clearing a composition must empty it first** (`setComposingText("")`, then `finishComposingText`);
+  finishing a one-letter composition commits that letter.
+- **adb key injection works as a test harness** for hardware typing, so P1-12 and P1-14 can have
+  scripted on-device tests.
+
 ### 3.2 Engine and data (weeks 2–5)
 
 #### P1-01 Module skeletons · S
