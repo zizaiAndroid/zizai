@@ -253,6 +253,12 @@ class FlorisImeService : LifecycleInputMethodService() {
     private val themeManager by themeManager()
 
     val windowController = ImeWindowController(prefs, lifecycleScope)
+    private val hardwareSpike = io.zizai.ime.hardware.HardwareSpike(this) // ZIZAI-HOOK: spike S1
+
+    override fun onUpdateCursorAnchorInfo(cursorAnchorInfo: android.view.inputmethod.CursorAnchorInfo?) {
+        super.onUpdateCursorAnchorInfo(cursorAnchorInfo)
+        if (cursorAnchorInfo != null) hardwareSpike.onUpdateCursorAnchorInfo(cursorAnchorInfo) // ZIZAI-HOOK: spike S1
+    }
 
     private val activeState get() = keyboardManager.activeState
     val inputFeedbackController by lazy { InputFeedbackController.new(this) }
@@ -337,6 +343,7 @@ class FlorisImeService : LifecycleInputMethodService() {
         super.installViewTreeOwners()
         val content = window.window!!.findViewById<ViewGroup>(android.R.id.content)
         content.addView(ImeRootView(this))
+        hardwareSpike.attach(content) // ZIZAI-HOOK: spike S1
         // Disable the default input view placement
         return null
     }
@@ -482,6 +489,7 @@ class FlorisImeService : LifecycleInputMethodService() {
     override fun onEvaluateInputViewShown(): Boolean {
         val config = resources.configuration
         return super.onEvaluateInputViewShown()
+            || hardwareSpike.active // ZIZAI-HOOK: spike S1
             || config.keyboard == Configuration.KEYBOARD_NOKEYS
             || prefs.physicalKeyboard.showOnScreenKeyboard.get()
     }
@@ -494,6 +502,7 @@ class FlorisImeService : LifecycleInputMethodService() {
      */
     override fun onViewClicked(focusChanged: Boolean) {
         super.onViewClicked(focusChanged)
+        hardwareSpike.exit() // ZIZAI-HOOK: spike S1
         if (keyboardManager.translateQuery.value != null || keyboardManager.activeInternalField() != null) {
             keyboardManager.onEditorClicked()
         }
@@ -509,6 +518,7 @@ class FlorisImeService : LifecycleInputMethodService() {
     ) {
         flogInfo { "old={start=$oldSelStart,end=$oldSelEnd} new={start=$newSelStart,end=$newSelEnd} composing={start=$candidatesStart,end=$candidatesEnd}" }
         super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd, candidatesStart, candidatesEnd)
+        if (hardwareSpike.active) return // ZIZAI-HOOK: spike S1 owns the composing text
         // A cursor the keyboard did not move means the user is working in the app's field again: the
         // translate bar gives the keys back (#424), a search closes (#394).
         keyboardManager.onAppSelectionChanged(oldSelStart, oldSelEnd, newSelStart, newSelEnd)
@@ -525,6 +535,7 @@ class FlorisImeService : LifecycleInputMethodService() {
     override fun onFinishInputView(finishingInput: Boolean) {
         flogInfo { "finishing=$finishingInput" }
         super.onFinishInputView(finishingInput)
+        hardwareSpike.exit() // ZIZAI-HOOK: spike S1
         editorInstance.handleFinishInputView()
     }
 
@@ -647,6 +658,7 @@ class FlorisImeService : LifecycleInputMethodService() {
 
     override fun onComputeInsets(outInsets: Insets?) {
         if (outInsets == null) return
+        if (hardwareSpike.active) return hardwareSpike.computeInsets(outInsets) // ZIZAI-HOOK: spike S1
         val state = keyboardManager.activeState.snapshot()
         windowController.onComputeInsets(outInsets, state.isFullscreenInputRequired())
     }
@@ -669,10 +681,12 @@ class FlorisImeService : LifecycleInputMethodService() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (hardwareSpike.onKeyDown(keyCode, event)) return true // ZIZAI-HOOK: spike S1
         return keyboardManager.onHardwareKeyDown(keyCode, event) || super.onKeyDown(keyCode, event)
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        if (hardwareSpike.onKeyUp(keyCode)) return true // ZIZAI-HOOK: spike S1
         return keyboardManager.onHardwareKeyUp(keyCode, event) || super.onKeyUp(keyCode, event)
     }
 }
