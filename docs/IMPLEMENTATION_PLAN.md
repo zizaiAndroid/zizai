@@ -264,6 +264,24 @@ P1-13 must keep it shown (with an invisible keyboard view) rather than letting A
 hotkeys pressed while the window is hidden must first show it (`requestShowSelf`) and only start recording
 once it is visible.
 
+#### S3 result: passed (2026-10-28)
+
+Same branch; F2 flipped the character before the cursor through dummy homophones (是 → 事 → 时 → 市) with
+`setComposingRegion(pos-1, pos)` + `setComposingText(next, 1)`, reading the result back with
+`getTextBeforeCursor`. Enter confirmed with `finishComposingText()`.
+
+| App | End of text | Middle of text | Readback |
+|---|---|---|---|
+| Settings search | ✓ | n/a | matches |
+| Messages | ✓ | ✓ | matches |
+| Chrome (address bar) | ✓ | ✓ | matches |
+| Keep | ✓ | ✓ | matches |
+
+The position comes from `getExtractedText` (`startOffset + selectionStart`). P1-18 keeps the readback
+check and falls back to delete-and-commit when it fails or `getExtractedText` returns null, but no tested
+app needed it. Lesson from S1: cancel a composition with `setComposingText("", 1)` before
+`finishComposingText()`, or the last letter is committed.
+
 ### 3.2 Engine and data (weeks 2–5)
 
 #### P1-01 Module skeletons · S
