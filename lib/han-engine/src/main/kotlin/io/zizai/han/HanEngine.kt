@@ -10,8 +10,11 @@
 
 package io.zizai.han
 
-/** Entry point of the Chinese input engine; filled in from P1-02 on (docs/IMPLEMENTATION_PLAN.md §3.2). */
+/** Version constants shared by the engine and the dictionary builder (docs/ARCHITECTURE.md §6.8). */
 object HanEngine {
-    /** Version of the `han-core.bin` format this engine reads (docs/ARCHITECTURE.md §6.8). */
+    /**
+     * Version of the `han-core.bin` format. Bump it whenever the layout changes or a syllable table
+     * changes, because lexicon files store syllable ids.
+     */
     const val LEXICON_FORMAT = 1
 }
