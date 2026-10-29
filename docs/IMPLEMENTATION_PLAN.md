@@ -248,6 +248,22 @@ What the real implementation must take from it:
 - **adb key injection works as a test harness** for hardware typing, so P1-12 and P1-14 can have
   scripted on-device tests.
 
+#### S2 result: confirmed (2026-10-28)
+
+Same branch; Ctrl+Shift+Space called upstream's `DictateController.onMicClick`. Android doesn't refuse the
+microphone to an app it considers in the background; it records silence. `dumpsys audio` shows that per
+recording, and `cmd appops get <package> RECORD_AUDIO` shows rejections.
+
+| Keyboard window | Recording | AppOps |
+|---|---|---|
+| Shown, keyboard view `INVISIBLE` (hardware mode) | `silenced:false` | Running in the foreground state |
+| Hidden (after Back) | `silenced:true` | Rejected |
+
+So ADR-5 stands: **in hardware mode the IME window must stay shown** whenever dictation can start, and
+P1-13 must keep it shown (with an invisible keyboard view) rather than letting Android hide it. Dictation
+hotkeys pressed while the window is hidden must first show it (`requestShowSelf`) and only start recording
+once it is visible.
+
 ### 3.2 Engine and data (weeks 2–5)
 
 #### P1-01 Module skeletons · S
