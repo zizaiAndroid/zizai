@@ -55,6 +55,13 @@ class CandidatePanel(context: Context) : TextView(context) {
         visibility = View.GONE
     }
 
+    /** Shows plain text, such as the shortcut cheat sheet, instead of candidates. */
+    fun showText(message: CharSequence) {
+        text = message
+        contentDescription = message
+        visibility = View.VISIBLE
+    }
+
     fun render(state: HanUiState) {
         if (state.mode == SessionMode.IDLE) {
             visibility = View.GONE

@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -298,6 +299,10 @@ object Routes {
         object PhysicalKeyboard
 
         @Serializable
+        @Deeplink("settings/chinese")
+        object Chinese // ZIZAI-HOOK: 中文 settings (P1-17)
+
+        @Serializable
         @Deeplink("settings/other/backup")
         object Backup
 
@@ -469,6 +474,7 @@ object Routes {
 
             composableWithDeepLink(Settings.Other::class) { OtherScreen() }
             composableWithDeepLink(Settings.PhysicalKeyboard::class) { PhysicalKeyboardScreen() }
+            composableWithDeepLink(Settings.Chinese::class) { io.zizai.app.ChineseScreen() } // ZIZAI-HOOK
             composableWithDeepLink(Settings.Backup::class) { BackupScreen() }
             composableWithDeepLink(Settings.Restore::class) { RestoreScreen() }
 

@@ -194,7 +194,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     private fun dispatch(stroke: KeyStroke, fromHardware: Boolean): Boolean = when (val r = session.onKey(stroke)) {
         KeyResult.NotHandled -> false
         is KeyResult.Handled -> {
-            if (fromHardware && session.isActive) hardware.enter()
+            if (fromHardware && session.isActive) enterHardwareMode()
             editor.apply(r.edits)
             !r.passThrough
         }
@@ -205,7 +205,13 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     }
 
     override fun enterHardwareMode() {
-        if (prefs.hardwareMode != ZizaiPrefs.HardwareModeSetting.TOUCH) hardware.enter()
+        if (prefs.hardwareMode == ZizaiPrefs.HardwareModeSetting.TOUCH || hardware.active) return
+        hardware.enter()
+        // The first time: show the shortcuts once (P1-17 onboarding).
+        if (!prefs.hardwareOnboardingShown) {
+            prefs.hardwareOnboardingShown = true
+            showCheatSheet()
+        }
     }
 
     override fun toggleDictation() = DictateController.onMicClick(ims)
@@ -222,6 +228,28 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
 
     override fun toggleFullWidth() {
         prefs.fullWidthPunctuation = !prefs.fullWidthPunctuation
+    }
+
+    private var cheatSheetShown = false
+
+    override fun toggleCheatSheet() {
+        if (cheatSheetShown) return hideCheatSheet()
+        prefs.hardwareOnboardingShown = true // asked for it, so no need to show it unasked
+        if (prefs.hardwareMode != ZizaiPrefs.HardwareModeSetting.TOUCH) hardware.enter()
+        showCheatSheet()
+    }
+
+    override fun hideCheatSheet() {
+        if (!cheatSheetShown) return
+        cheatSheetShown = false
+        hardware.panel.render(if (hardware.active) session.ui.value else io.zizai.han.session.HanUiState.Idle)
+    }
+
+    private fun showCheatSheet() {
+        if (!hardware.active) return
+        cheatSheetShown = true
+        hardware.panel.showText(ims.getString(dev.patrickgold.florisboard.R.string.zizai__cheat_sheet))
+        hardware.position()
     }
 
     // ---- Internals ----

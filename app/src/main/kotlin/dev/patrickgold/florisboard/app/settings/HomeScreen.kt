@@ -265,6 +265,12 @@ fun HomeScreen() = FlorisScreen {
             title = stringRes(R.string.settings__localization__title),
             onClick = { navController.navigate(Routes.Settings.Localization) },
         )
+        Preference( // ZIZAI-HOOK: 中文 settings (P1-17)
+            icon = Icons.Outlined.Translate,
+            title = stringRes(R.string.zizai__chinese__title),
+            summary = stringRes(R.string.zizai__chinese__summary),
+            onClick = { navController.navigate(Routes.Settings.Chinese) },
+        )
         Preference(
             icon = Icons.Outlined.Palette,
             title = stringRes(R.string.settings__theme__title),

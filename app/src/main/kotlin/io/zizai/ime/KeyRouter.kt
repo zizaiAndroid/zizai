@@ -34,6 +34,10 @@ interface KeyRouterHost {
     fun cancelDictation(): Boolean
     fun pushToTalk(down: Boolean)
     fun toggleFullWidth()
+
+    /** Ctrl+/ shows or hides the shortcut cheat sheet; any other key hides it. */
+    fun toggleCheatSheet()
+    fun hideCheatSheet()
 }
 
 /**
@@ -120,6 +124,11 @@ class KeyRouter(private val host: KeyRouterHost) {
             host.toggleDictation()
             return true
         }
+        if (event.isCtrlPressed && keyCode == KeyEvent.KEYCODE_SLASH) {
+            host.toggleCheatSheet()
+            return true
+        }
+        host.hideCheatSheet()
         if (event.isCtrlPressed && !event.isShiftPressed && keyCode == KeyEvent.KEYCODE_PERIOD) {
             host.toggleFullWidth()
             return true

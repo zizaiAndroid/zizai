@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 字在 Zizai: strings for Zizai's own screens (docs/IMPLEMENTATION_PLAN.md P1-17). -->
+<resources>
+    <string name="zizai__chinese__title">中文</string>
+    <string name="zizai__chinese__summary">输出字形、候选词、实体键盘</string>
+
+    <string name="zizai__output_script__title">语音输入的中文字形</string>
+    <string name="zizai__output_script__simplified">简体</string>
+    <string name="zizai__output_script__traditional">繁体（OpenCC 标准）</string>
+    <string name="zizai__output_script__taiwan">繁体（台湾）</string>
+    <string name="zizai__output_script__taiwan_phrases">繁体（台湾，含台湾用语，如“軟體”）</string>
+    <string name="zizai__output_script__hong_kong">繁体（香港）</string>
+    <string name="zizai__output_script__as_is">保持识别结果</string>
+
+    <string name="zizai__page_size__title">每页候选数</string>
+    <string name="zizai__hardware_mode__title">实体键盘</string>
+    <string name="zizai__hardware_mode__auto">自动：用实体键盘打字时切换到浮动候选窗</string>
+    <string name="zizai__hardware_mode__touch">始终显示屏幕键盘</string>
+    <string name="zizai__hardware_mode__hardware">始终使用浮动候选窗</string>
+
+    <string name="zizai__full_width__title">全角标点</string>
+    <string name="zizai__full_width__summary">中文模式下输入，。？而不是 ,.?（Ctrl+. 切换）</string>
+    <string name="zizai__cjk_spacing__title">中英文之间加空格</string>
+    <string name="zizai__cjk_spacing__summary">语音输入时写成“用 Kotlin 写”而不是“用Kotlin写”</string>
+
+    <string name="zizai__cheat_sheet__title">快捷键</string>
+    <string name="zizai__cheat_sheet__summary">实体键盘使用。打字时按 Ctrl+/ 查看。</string>
+    <string name="zizai__cheat_sheet">空格 · 1–9 选字\n= − 翻页   ← → 移动   ↓ 按声调查看全部同音字\nTab 声调筛选   [ ] 以词定字\n回车 输入字母   Esc 取消   Shift 中/英\nF2 或 Alt+空格 改光标前的字\nCtrl+Shift+空格 语音输入   按住右 Ctrl 说话\nCtrl+. 标点全/半角   Ctrl+/ 本表</string>
+    <string name="zizai__close">关闭</string>
+</resources>

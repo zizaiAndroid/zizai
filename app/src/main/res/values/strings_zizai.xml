@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 字在 Zizai: strings for Zizai's own screens (docs/IMPLEMENTATION_PLAN.md P1-17). -->
+<resources>
+    <string name="zizai__chinese__title">中文 / Chinese</string>
+    <string name="zizai__chinese__summary">Output script, candidates, hardware keyboard</string>
+
+    <string name="zizai__output_script__title">Script for dictated Chinese</string>
+    <string name="zizai__output_script__simplified">Simplified (简体)</string>
+    <string name="zizai__output_script__traditional">Traditional (繁體, OpenCC standard)</string>
+    <string name="zizai__output_script__taiwan">Traditional, Taiwan (臺灣)</string>
+    <string name="zizai__output_script__taiwan_phrases">Traditional, Taiwan, with Taiwan vocabulary (軟體)</string>
+    <string name="zizai__output_script__hong_kong">Traditional, Hong Kong (香港)</string>
+    <string name="zizai__output_script__as_is">Leave as recognized</string>
+
+    <string name="zizai__page_size__title">Candidates per page</string>
+    <string name="zizai__hardware_mode__title">Hardware keyboard</string>
+    <string name="zizai__hardware_mode__auto">Automatic: switch to the floating panel when you type on it</string>
+    <string name="zizai__hardware_mode__touch">Always show the touch keyboard</string>
+    <string name="zizai__hardware_mode__hardware">Always use the floating panel</string>
+
+    <string name="zizai__full_width__title">Full-width punctuation</string>
+    <string name="zizai__full_width__summary">Type ，。？ instead of ,.? while in Chinese mode (Ctrl+. toggles)</string>
+    <string name="zizai__cjk_spacing__title">Space between Chinese and English</string>
+    <string name="zizai__cjk_spacing__summary">In dictation: 用 Kotlin 写 instead of 用Kotlin写</string>
+
+    <string name="zizai__cheat_sheet__title">Keyboard shortcuts</string>
+    <string name="zizai__cheat_sheet__summary">For a physical keyboard. Press Ctrl+/ while typing to see them.</string>
+    <string name="zizai__cheat_sheet">Space · 1–9 select\n= − page   ← → highlight   ↓ all characters by tone\nTab tone filter   [ ] first/last character of a word\nEnter letters   Esc cancel   Shift 中/英\nF2 or Alt+Space fix the character before the cursor\nCtrl+Shift+Space dictate   hold Right Ctrl to talk\nCtrl+. punctuation width   Ctrl+/ this sheet</string>
+    <string name="zizai__close">Close</string>
+</resources>

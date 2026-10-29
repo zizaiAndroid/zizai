@@ -1,0 +1,151 @@
+/*
+ * Copyright (C) 2026 Zizai contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ */
+
+package io.zizai.app
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import dev.patrickgold.florisboard.R
+import dev.patrickgold.florisboard.lib.compose.FlorisScreen
+import dev.patrickgold.jetpref.datastore.ui.Preference
+import io.zizai.ZizaiPrefs
+import io.zizai.zhtext.ZhScript
+import org.florisboard.lib.compose.stringRes
+
+/**
+ * The 中文 / Chinese settings screen (docs/IMPLEMENTATION_PLAN.md P1-17). Backed by [ZizaiPrefs], which
+ * the keyboard reads on every use, so changes apply without a restart.
+ */
+@Composable
+fun ChineseScreen() = FlorisScreen {
+    title = stringRes(R.string.zizai__chinese__title)
+
+    content {
+        val prefs = ZizaiPrefs.get(LocalContext.current)
+
+        val scripts = listOf(
+            ZhScript.SIMPLIFIED to stringRes(R.string.zizai__output_script__simplified),
+            ZhScript.TRADITIONAL to stringRes(R.string.zizai__output_script__traditional),
+            ZhScript.TAIWAN to stringRes(R.string.zizai__output_script__taiwan),
+            ZhScript.TAIWAN_PHRASES to stringRes(R.string.zizai__output_script__taiwan_phrases),
+            ZhScript.HONG_KONG to stringRes(R.string.zizai__output_script__hong_kong),
+            ZhScript.AS_IS to stringRes(R.string.zizai__output_script__as_is),
+        )
+        var script by remember { mutableStateOf(prefs.outputScript) }
+        ChoicePreference(stringRes(R.string.zizai__output_script__title), scripts, script) {
+            script = it
+            prefs.outputScript = it
+        }
+
+        val modes = listOf(
+            ZizaiPrefs.HardwareModeSetting.AUTO to stringRes(R.string.zizai__hardware_mode__auto),
+            ZizaiPrefs.HardwareModeSetting.TOUCH to stringRes(R.string.zizai__hardware_mode__touch),
+            ZizaiPrefs.HardwareModeSetting.HARDWARE to stringRes(R.string.zizai__hardware_mode__hardware),
+        )
+        var mode by remember { mutableStateOf(prefs.hardwareMode) }
+        ChoicePreference(stringRes(R.string.zizai__hardware_mode__title), modes, mode) {
+            mode = it
+            prefs.hardwareMode = it
+        }
+
+        var pageSize by remember { mutableStateOf(prefs.pageSize) }
+        ChoicePreference(stringRes(R.string.zizai__page_size__title), (5..10).map { it to "$it" }, pageSize) {
+            pageSize = it
+            prefs.pageSize = it
+        }
+
+        var fullWidth by remember { mutableStateOf(prefs.fullWidthPunctuation) }
+        SwitchRow(stringRes(R.string.zizai__full_width__title), stringRes(R.string.zizai__full_width__summary), fullWidth) {
+            fullWidth = it
+            prefs.fullWidthPunctuation = it
+        }
+
+        var spacing by remember { mutableStateOf(prefs.cjkLatinSpacing) }
+        SwitchRow(stringRes(R.string.zizai__cjk_spacing__title), stringRes(R.string.zizai__cjk_spacing__summary), spacing) {
+            spacing = it
+            prefs.cjkLatinSpacing = it
+        }
+
+        var cheatSheet by remember { mutableStateOf(false) }
+        Preference(
+            title = stringRes(R.string.zizai__cheat_sheet__title),
+            summary = stringRes(R.string.zizai__cheat_sheet__summary),
+            onClick = { cheatSheet = true },
+        )
+        if (cheatSheet) {
+            AlertDialog(
+                onDismissRequest = { cheatSheet = false },
+                confirmButton = { TextButton(onClick = { cheatSheet = false }) { Text(stringRes(R.string.zizai__close)) } },
+                title = { Text(stringRes(R.string.zizai__cheat_sheet__title)) },
+                text = { Text(stringRes(R.string.zizai__cheat_sheet)) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun <T> ChoicePreference(title: String, options: List<Pair<T, String>>, selected: T, onSelect: (T) -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    Preference(
+        title = title,
+        summary = options.firstOrNull { it.first == selected }?.second,
+        onClick = { open = true },
+    )
+    if (open) {
+        AlertDialog(
+            onDismissRequest = { open = false },
+            confirmButton = { TextButton(onClick = { open = false }) { Text(stringRes(R.string.zizai__close)) } },
+            title = { Text(title) },
+            text = {
+                Column {
+                    for ((value, label) in options) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onSelect(value); open = false }
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = value == selected, onClick = { onSelect(value); open = false })
+                            Text(label)
+                        }
+                    }
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun SwitchRow(title: String, summary: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+    Preference(
+        title = title,
+        summary = summary,
+        onClick = { onChange(!checked) },
+        trailing = { Switch(checked = checked, onCheckedChange = onChange) },
+    )
+}
