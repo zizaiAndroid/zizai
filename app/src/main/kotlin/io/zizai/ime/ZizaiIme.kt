@@ -192,7 +192,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
 
     override fun dispatch(stroke: KeyStroke): Boolean = dispatch(stroke, fromHardware = true)
 
-    private fun dispatch(stroke: KeyStroke, fromHardware: Boolean): Boolean = when (val r = session.onKey(stroke)) {
+    private fun dispatch(stroke: KeyStroke, fromHardware: Boolean): Boolean = when (val r = KeyLatency.measure { session.onKey(stroke) }) {
         KeyResult.NotHandled -> false
         is KeyResult.Handled -> {
             if (fromHardware && session.isActive) enterHardwareMode()

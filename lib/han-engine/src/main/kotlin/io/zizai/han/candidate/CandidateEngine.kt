@@ -48,7 +48,7 @@ class CandidateEngine(
 
         val bestTo = cheapestCosts(lattice)
         val wholeStreams = ArrayList<Iterator<Candidate>>()
-        val prefixWords = ArrayList<Candidate>()
+        val prefixWords = ArrayList<WordHit>()
         forEachPath(lattice, 0, best.cost + MAX_EXTRA_COST) { edges, depth, cost ->
             val end = edges[depth - 1].end
             val whole = skipApostrophes(lattice.input, end) == n
@@ -61,7 +61,7 @@ class CandidateEngine(
                     wholeStreams += characters(edges[0], filter, penalty, n)
                 }
             } else if (whole) {
-                wholeStreams += words(edges, depth, penalty, n).iterator()
+                wholeStreams += words(edges, depth, penalty, n).asSequence().map(::toCandidate).iterator()
             } else if (extra <= MAX_PREFIX_EXTRA_COST) {
                 prefixWords += words(edges, depth, penalty, end)
             }
@@ -76,8 +76,8 @@ class CandidateEngine(
         for (c in whole) emit(c)
 
         // Longest prefix first; within one length, by score.
-        prefixWords.sortWith(compareByDescending<Candidate> { it.end }.thenByDescending { it.score })
-        for (c in prefixWords) emit(c)
+        prefixWords.sortWith(compareByDescending<WordHit> { it.end }.thenByDescending { it.score })
+        for (h in prefixWords) emit(toCandidate(h))
 
         if (best.edges.size >= 2 || best.edges.first().end != n) {
             val first = best.edges.first()
@@ -99,9 +99,10 @@ class CandidateEngine(
         val start0 = skipApostrophes(input, 0)
         cost[start0] = 0.0
         val bestChar = HashMap<Int, Int>()
+        val cheapest = cheapestCosts(lattice)
         for (i in 0..n) {
             if (cost[i] == Double.POSITIVE_INFINITY || i == n) continue
-            forEachPath(lattice, i, Double.POSITIVE_INFINITY) { edges, depth, _ ->
+            forEachPath(lattice, i, Double.POSITIVE_INFINITY, cheapest) { edges, depth, _ ->
                 val e = skipApostrophes(input, edges[depth - 1].end)
                 val unit: Pair<String, Double>? = if (depth == 1) {
                     val edge = edges[0]
@@ -157,16 +158,21 @@ class CandidateEngine(
     private val firsts = IntArray(MAX_WORD_SYLLABLES)
     private val lasts = IntArray(MAX_WORD_SYLLABLES)
 
+    /** A word found for a path, before its text is decoded: only the ones shown ever are. */
+    private class WordHit(val word: Int, val score: Double, val end: Int)
+
+    private fun toCandidate(h: WordHit) = Candidate(lexicon.wordText(h.word), h.end, CandidateKind.WORD, h.score)
+
     /** Words exactly matching the path, best first, scored with [penalty]. */
-    private fun words(edges: EdgeStack, depth: Int, penalty: Double, end: Int): List<Candidate> {
+    private fun words(edges: EdgeStack, depth: Int, penalty: Double, end: Int): List<WordHit> {
         if ((0 until depth).any { edges[it].kind == EdgeKind.RAW }) return emptyList()
         for (i in 0 until depth) {
             firsts[i] = edges[i].first
             lasts[i] = edges[i].last
         }
-        val out = ArrayList<Candidate>()
+        val out = ArrayList<WordHit>()
         lexicon.forEachWord(firsts, lasts, depth, true) { w ->
-            out += Candidate(lexicon.wordText(w), end, CandidateKind.WORD, lexicon.wordScore(w) / 16.0 - penalty)
+            out += WordHit(w, lexicon.wordScore(w) / 16.0 - penalty, end)
             out.size < MAX_WORDS_PER_PATH
         }
         out.sortByDescending { it.score }
@@ -240,19 +246,33 @@ class CandidateEngine(
         edge.kind != EdgeKind.RAW && !(edge.kind == EdgeKind.PREFIX &&
             lattice.edgesFrom(edge.start).any { it.end == edge.end && it.isComplete })
 
-    /** Depth-first over segmentations starting at [from], up to [MAX_WORD_SYLLABLES] syllables. */
+    /** The longest word in the lexicon, in syllables: no path deeper than that can match a word. */
+    private val maxDepth: Int by lazy {
+        var m = 1
+        for (w in 0 until lexicon.wordCount) m = maxOf(m, lexicon.wordSyllableCount(w))
+        minOf(m, MAX_WORD_SYLLABLES)
+    }
+
+    /**
+     * Depth-first over segmentations starting at [from], as deep as the longest word. With [cheapest]
+     * (the lattice's cheapest cost to each position), a path is dropped once it costs more than
+     * [MAX_EXTRA_COST] over the cheapest way between its ends.
+     */
     private fun forEachPath(
         lattice: SyllableLattice,
         from: Int,
         maxCost: Double,
+        cheapest: DoubleArray? = null,
         visit: (EdgeStack, Int, Double) -> Unit,
     ) {
         val stack = EdgeStack(MAX_WORD_SYLLABLES)
+        val base = cheapest?.get(from) ?: 0.0
         fun walk(pos: Int, depth: Int, cost: Double) {
-            if (depth == MAX_WORD_SYLLABLES) return
+            if (depth == maxDepth) return
             for (edge in lattice.edgesFrom(skipApostrophes(lattice.input, pos))) {
                 val c = cost + edge.cost
                 if (c > maxCost) continue
+                if (cheapest != null && c - (cheapest[edge.end] - base) > MAX_EXTRA_COST) continue
                 stack[depth] = edge
                 visit(stack, depth + 1, c)
                 if (edge.end < lattice.length) walk(edge.end, depth + 1, c)
