@@ -33,6 +33,12 @@ application {
     mainClass = "io.zizai.tools.handict.MainKt"
 }
 
+// Default paths in Main.kt are relative to the repository root.
+tasks.named<JavaExec>("run") {
+    workingDir = rootDir
+    maxHeapSize = "2g"
+}
+
 tasks.withType<Test> {
     testLogging {
         events = setOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)

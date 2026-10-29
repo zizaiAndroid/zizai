@@ -1,0 +1,4 @@
+# Pinned inputs of han-dict-builder (docs/IMPLEMENTATION_PLAN.md P1-04).
+# name          license      sha256 of the decoded bytes                                       decode  url
+unihan          Unicode-3.0  4c93ea9c1f636451729a840978f1667a53886af37ba854fdcce109721c63d43e  none    https://www.unicode.org/Public/18.0.0/ucd/Unihan.zip
+aosp-rawdict    Apache-2.0   408700f28a56091fa07f3b849a0f134fbfc71e6b2ae9b3f52973a5b076f599ff  base64  https://android.googlesource.com/platform/packages/inputmethods/PinyinIME/+/49aebad1c1cfbbcaa9288ffed5161e79e57c3679/jni/data/rawdict_utf16_65105_freq.txt?format=TEXT

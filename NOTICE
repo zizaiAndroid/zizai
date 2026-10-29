@@ -94,3 +94,20 @@ tools/pinyin-dict/generate.py; see tools/pinyin-dict/ATTRIBUTION.md.
     P. Lison & J. Tiedemann (2016), "OpenSubtitles2016: Extracting Large Parallel
     Corpora from Movie and TV Subtitles", LREC 2016. Only aggregate word counts
     are used; no source text is redistributed.
+
+================================================================================
+字在 Zizai Chinese core lexicon (app/src/main/assets/han/han-core.bin)
+================================================================================
+
+Built by tools/han-dict-builder from the sources pinned in
+tools/han-dict-builder/sources.lock.
+
+    Unihan Database (Unicode 18.0.0) — https://www.unicode.org/
+    Copyright © 1991-2026 Unicode, Inc. Licensed under the Unicode License v3
+    (https://www.unicode.org/license.txt). Character readings, General Standard
+    table positions, Big5 and GB 2312 membership, variants and stroke counts.
+
+    AOSP PinyinIME rawdict_utf16_65105_freq.txt —
+    https://android.googlesource.com/platform/packages/inputmethods/PinyinIME
+    Copyright (C) 2009 The Android Open Source Project. Licensed under the
+    Apache License, Version 2.0. Base lexicon and frequencies.

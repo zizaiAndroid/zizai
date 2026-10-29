@@ -197,6 +197,7 @@ configure<ApplicationExtension> {
     // every build type, and only the UI languages it covers ship; upstream's other translations say "Dictate".
     buildTypes.configureEach { sourceSets.maybeCreate(name).res.directories += "src/zizai/res" }
     androidResources { localeFilters += listOf("en", "zh-rCN", "zh-rTW", "zh-rHK") }
+    androidResources { noCompress += "bin" } // ZIZAI-HOOK: han-core.bin is memory-mapped (P1-04)
 
     // ZIZAI-HOOK: with on-device translation off, never package a locally built Bergamot library.
     if (!zizaiFlag("translate")) packaging { jniLibs { excludes += "**/libdictate_bergamot.so" } }

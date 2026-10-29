@@ -1,0 +1,11 @@
+{
+  "format": 1,
+  "files": {
+    "han-core.bin": { "size": 2733660, "sha256": "56a257f336e89b0cd60c4eef47b0a04a253163a5fa7144a1f24d42b5eb36ddf2" }
+  },
+  "stats": { "characters": 44357, "postings": 53184, "words": 48068 },
+  "sources": [
+    { "name": "unihan", "license": "Unicode-3.0", "sha256": "4c93ea9c1f636451729a840978f1667a53886af37ba854fdcce109721c63d43e", "url": "https://www.unicode.org/Public/18.0.0/ucd/Unihan.zip" },
+    { "name": "aosp-rawdict", "license": "Apache-2.0", "sha256": "408700f28a56091fa07f3b849a0f134fbfc71e6b2ae9b3f52973a5b076f599ff", "url": "https://android.googlesource.com/platform/packages/inputmethods/PinyinIME/+/49aebad1c1cfbbcaa9288ffed5161e79e57c3679/jni/data/rawdict_utf16_65105_freq.txt?format=TEXT" }
+  ]
+}

@@ -46,6 +46,26 @@ object Pinyin {
 
     fun toneMarked(reading: Reading): String = toneMarked(reading.spelling(), reading.tone)
 
+    /**
+     * Parses a tone-marked spelling as dictionaries write it (`shì`, `lǚ`, `ňg`, `ḿ`). No mark means the
+     * neutral tone. Returns null for anything outside the inventory (such as `ê`).
+     */
+    fun parseToneMarked(text: String): Reading? {
+        val nfd = Normalizer.normalize(text.trim().lowercase(), Normalizer.Form.NFD)
+        var tone = Mandarin.NEUTRAL_TONE
+        val sb = StringBuilder(nfd.length)
+        for (c in nfd) {
+            val mark = MARKS.indexOf(c)
+            when {
+                mark >= 0 -> tone = mark + 1
+                c == '̈' -> if (sb.isNotEmpty() && sb.last() == 'u') sb.setCharAt(sb.length - 1, 'v') else return null
+                else -> sb.append(c)
+            }
+        }
+        val id = Mandarin.syllables.idOf(normalizeSpelling(sb.toString()))
+        return if (id < 0) null else Reading.of(Mandarin, id, tone)
+    }
+
     private fun markPosition(s: String): Int {
         s.indexOf('a').let { if (it >= 0) return it }
         s.indexOf('e').let { if (it >= 0) return it }

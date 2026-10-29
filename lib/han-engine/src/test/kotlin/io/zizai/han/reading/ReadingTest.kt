@@ -75,6 +75,15 @@ class ReadingTest : FunSpec({
         }
     }
 
+    test("tone-marked spellings parse back to readings") {
+        for (id in 0 until table.size) for (tone in 1..5) {
+            val r = Reading.of(Mandarin, id, tone)
+            Pinyin.parseToneMarked(Pinyin.toneMarked(r)) shouldBe r
+        }
+        Pinyin.parseToneMarked("ê") shouldBe null
+        Pinyin.parseToneMarked("de").toString() shouldBe "de5"
+    }
+
     test("tone marks: every syllable gets exactly one mark on a vowel or syllabic consonant") {
         for (id in 0 until table.size) {
             val spelling = table.spellingOf(id)
