@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2022-2025 The FlorisBoard Contributors
  *
@@ -51,3 +52,8 @@ include(":lib:dictate-core")
 include(":lib:compose")
 include(":lib:kotlin")
 include(":lib:snygg")
+
+// ZIZAI-HOOK: Zizai modules (docs/IMPLEMENTATION_PLAN.md P1-01).
+include(":lib:han-engine")
+include(":lib:zh-text")
+include(":tools:han-dict-builder")
