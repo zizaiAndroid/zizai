@@ -68,6 +68,13 @@ class HardwareSpike(private val ims: InputMethodService) {
         val info = ims.currentInputEditorInfo ?: return false
         val ic = ims.currentInputConnection ?: return false
         if (info.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL) return false
+        // SPIKE S2: Ctrl+Shift+Space toggles dictation, to test the microphone with the window shown or hidden.
+        if (keyCode == KeyEvent.KEYCODE_SPACE && event.isCtrlPressed && event.isShiftPressed) {
+            log("S2 toggle dictation: active=$active inputViewShown=${ims.isInputViewShown}")
+            dev.patrickgold.florisboard.dictate.DictateController.onMicClick(ims)
+            consumedDowns += keyCode
+            return true
+        }
         if (event.isCtrlPressed || event.isAltPressed || event.isMetaPressed) return false
         val ch = event.getUnicodeChar(event.metaState).toChar()
         val handled = when {
