@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -902,13 +903,13 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
         // (see DictateLanguages; "detect" = auto-detect). Default mirrors the legacy app.
         val inputLanguages = string(
             key = "dictate__input_languages",
-            default = "detect,en",
+            default = "zh-CN,detect,en", // ZIZAI-HOOK: Mandarin first (P1-10)
         )
         // The currently active dictation language code; persists across sessions and is switched
         // from the recording bar's language chip.
         val activeInputLanguage = string(
             key = "dictate__active_input_language",
-            default = "detect",
+            default = "zh-CN", // ZIZAI-HOOK: Mandarin (Simplified) by default (P1-10)
         )
         // The language a shared file is transcribed in, once one has been picked on the share screen
         // (issue #461). Blank until then, which means the active dictation language, as before. Its own

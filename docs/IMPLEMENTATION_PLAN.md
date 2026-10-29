@@ -219,7 +219,7 @@ bash tools/fetch-sherpa-onnx.sh
 | P1-20 | Partly | Exceptions reset the session; `zizai.onKey` trace sections and a `ZizaiLatency` log. JVM: first page 0.08–0.14 ms. Debug build on the Pixel: p50 ≈ 8 ms, p95 ≈ 14–20 ms, which is debuggable ART; the release-optimized `benchmark` build still has to be measured (it must be enabled as a keyboard) |
 | P1-21, P1-22 | Yours | Store listing and closed test |
 
-Still open: Mandarin as the default dictation language (P1-10), the 2 ms budget measured on the phone
+Still open: the 2 ms budget measured on the phone
 (P1-20), and the grid sheet for touch (P1-16).
 
 ### 3.1 Risk spikes (week 1)

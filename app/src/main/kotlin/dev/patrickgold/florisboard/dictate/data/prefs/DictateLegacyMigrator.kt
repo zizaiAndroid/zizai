@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -206,10 +207,10 @@ object DictateLegacyMigrator {
     suspend fun seedDeviceLanguageIfNeeded() {
         val prefs by FlorisPreferenceStore
         if (prefs.dictate.inputLanguagesSeeded.get()) return
-        if (prefs.dictate.inputLanguages.get() == "detect,en") {
+        if (prefs.dictate.inputLanguages.get() == "zh-CN,detect,en") { // ZIZAI-HOOK: our default list
             val device = DictateLanguages.matchDevice(Locale.getDefault())
-            if (device != null && device.code != "en" && device.code != DictateLanguages.DETECT) {
-                prefs.dictate.inputLanguages.set("detect,en,${device.code}")
+            if (device != null && device.code !in setOf("en", "zh-CN") && device.code != DictateLanguages.DETECT) { // ZIZAI-HOOK
+                prefs.dictate.inputLanguages.set("zh-CN,detect,en,${device.code}") // ZIZAI-HOOK
             }
         }
         prefs.dictate.inputLanguagesSeeded.set(true)
