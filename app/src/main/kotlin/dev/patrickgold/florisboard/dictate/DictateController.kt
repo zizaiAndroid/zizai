@@ -3456,13 +3456,13 @@ object DictateController {
      * the dictation was started from the floating button (issue #88) and must inject into another app.
      * This single seam keeps the rest of the engine editor-agnostic.
      */
-    private fun sink(context: Context): DictationSink = when (outputTarget) {
+    private fun sink(context: Context): DictationSink = io.zizai.dictate.TranscriptPostProcessingSink.wrap(context, when (outputTarget) { // ZIZAI-HOOK: Chinese clean-up (P1-10)
         OutputTarget.IME -> ImeDictationSink(context)
         OutputTarget.OVERLAY -> AccessibilitySink()
         // System voice input (#67): the finished text is handed back to the OS via the RecognitionService
         // callback (the calling app/keyboard inserts it), not written into a field ourselves.
         OutputTarget.RECOGNITION_SERVICE -> RecognitionSink()
-    }
+    }) // ZIZAI-HOOK
 
     /**
      * Commits [text] into the focused field honoring the output prefs: either all at once

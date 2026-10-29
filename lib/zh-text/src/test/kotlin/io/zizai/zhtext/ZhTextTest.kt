@@ -57,6 +57,7 @@ class ZhTextTest : FunSpec({
         ZhText.normalizePunctuation("十点10:30开会: 准时", PunctuationLocale.MAINLAND) shouldBe "十点10:30开会：准时"
         ZhText.normalizePunctuation("Hello, world.", PunctuationLocale.MAINLAND) shouldBe "Hello, world."
         ZhText.normalizePunctuation("等等...", PunctuationLocale.MAINLAND) shouldBe "等等……"
+        ZhText.normalizePunctuation("我用Kotlin. Then English.", PunctuationLocale.MAINLAND) shouldBe "我用Kotlin。Then English."
     }
 
     test("quotes follow the locale") {

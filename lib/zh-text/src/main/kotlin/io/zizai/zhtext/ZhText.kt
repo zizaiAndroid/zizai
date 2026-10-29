@@ -59,18 +59,23 @@ object ZhText {
         val corner = locale != PunctuationLocale.MAINLAND
         val out = StringBuilder(text.length)
         var doubleOpen = true
+        var sentenceHasHan = false
         var i = 0
         while (i < text.length) {
             val c = text[i]
+            if (isHan(c.code) || Character.isSurrogate(c)) sentenceHasHan = true
             val prev = out.lastOrNull()
             val afterCjk = prev != null && isCjk(prev)
             var j = i + 1
             while (text.getOrNull(j) == ' ') j++
             val beforeCjk = text.getOrNull(j)?.let(::isCjk) == true
             val betweenDigits = prev?.isDigit() == true && text.getOrNull(i + 1)?.isDigit() == true
+            // A Chinese sentence that ends on a Latin word still ends with 。: `参加Google I/O.`
+            val endsChineseSentence = sentenceHasHan && c in ".?!" &&
+                text.getOrNull(i + 1).let { it == null || it.isWhitespace() }
             val mapped: String? = when {
                 c == '.' && text.startsWith("...", i) && afterCjk -> { i += 2; "……" }
-                !(afterCjk || (beforeCjk && c != '(')) || betweenDigits -> null
+                !(afterCjk || endsChineseSentence || (beforeCjk && c != '(')) || betweenDigits -> null
                 c == ',' -> "，"
                 c == '.' -> "。"
                 c == '?' -> "？"
@@ -82,6 +87,7 @@ object ZhText {
                 else -> null
             }
             if (mapped != null) {
+                if (mapped in SENTENCE_ENDS) sentenceHasHan = false
                 out.append(mapped)
                 i++
                 if (text.getOrNull(i) == ' ') i++
@@ -130,6 +136,8 @@ object ZhText {
         }
         return out.toString()
     }
+
+    private val SENTENCE_ENDS = setOf("。", "？", "！", "……")
 
     private fun isLatinOrDigit(cp: Int) = cp in 'a'.code..'z'.code || cp in 'A'.code..'Z'.code || cp in '0'.code..'9'.code
 }
