@@ -8,8 +8,9 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  */
 
-// 字在 Zizai: the Chinese input engine: readings, parser, lexicon and candidates (docs/ARCHITECTURE.md §6). Pure Kotlin/JVM, no Android dependencies, so it is tested on
-// the JVM and shared with :tools:han-dict-builder.
+// 字在 Zizai: the Chinese input engine: readings, parser, lexicon, candidates and the session
+// (docs/ARCHITECTURE.md §6). Pure Kotlin/JVM, no Android dependencies, so it is tested on the JVM and
+// shared with :tools:han-dict-builder.
 
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -46,6 +47,9 @@ kover {
 }
 
 dependencies {
+    // HanSession publishes its UI state as a StateFlow; core only, this module has no Android.
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${libs.versions.kotlinx.coroutines.get()}")
+
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.property)
     testImplementation(libs.kotest.runner.junit5)
