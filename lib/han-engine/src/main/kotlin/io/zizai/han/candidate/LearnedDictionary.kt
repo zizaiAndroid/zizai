@@ -75,6 +75,17 @@ class LearnedDictionary(private val now: () -> Long = System::currentTimeMillis)
         onChanged?.invoke()
     }
 
+    /**
+     * The user's own words and phrases, most used first: assembled phrases and words chosen at least
+     * twice, two characters or more, not blocked. For dictation's hot-word glossary (P2-07).
+     */
+    fun topPhrases(n: Int): List<String> = entries.values
+        .filter { it.syllables.size >= 2 && (it.assembled || it.count >= SHOW_AFTER) && it.text !in blocked }
+        .sortedWith(compareByDescending<Entry> { it.count }.thenByDescending { it.lastUsed }.thenBy { it.text })
+        .map { it.text }
+        .distinct()
+        .take(n)
+
     fun clear() {
         entries.clear()
         byFirstSyllable.clear()

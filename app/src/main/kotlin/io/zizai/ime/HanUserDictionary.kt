@@ -50,6 +50,9 @@ object HanUserDictionary {
         }
     }
 
+    /** The dictionary if the keyboard has loaded it already, else null (it doesn't touch the disk). */
+    fun loaded(): LearnedDictionary? = dict
+
     fun get(context: Context): LearnedDictionary = dict ?: synchronized(this) {
         dict ?: LearnedDictionary().also { d ->
             val f = File(File(context.applicationContext.filesDir, "zizai"), "han_user.tsv")

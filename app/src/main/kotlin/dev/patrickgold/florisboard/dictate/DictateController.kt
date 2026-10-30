@@ -4832,7 +4832,7 @@ object DictateController {
      * names/jargon are spelled correctly even with the predefined punctuation prompt or with none.
      */
     private fun transcriptionStylePrompt(): String? =
-        DictatePromptDefaults.appendCustomWords(transcriptionStyleBasePrompt(), prefs.dictate.customWords.get())
+        DictatePromptDefaults.appendCustomWords(transcriptionStyleBasePrompt(), io.zizai.dictate.HotWords.withUserPhrases(prefs.dictate.customWords.get(), prefs.dictate.activeInputLanguage.get())) // ZIZAI-HOOK: hot words (P2-07)
 
     /**
      * The style prompt WITHOUT the appended custom-words glossary — the predefined per-language sentence or
