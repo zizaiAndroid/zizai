@@ -1,7 +1,8 @@
 # 字在 Zizai: build and publish the downloadable Chinese packs (docs/IMPLEMENTATION_PLAN.md P1-08).
 #
 # Push a tag like `han-packs-v1` (or run it by hand) to build han-ext-modern.bin from the sources pinned in
-# tools/han-dict-builder/sources.lock and attach it to the release of that tag. The builder is
+# tools/han-dict-builder/sources.lock and attach it to the release of that tag. A retry tag such as
+# `han-packs-v1-r2` publishes into the same `han-packs-v1` release, so tags never have to be moved. The builder is
 # deterministic, so the file must match the size and SHA-256 baked into HanPackManager; the job fails
 # rather than publish anything else. A rebuilt pack gets a new tag (-v2, ...) and new constants.
 name: Han packs
@@ -23,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+      REF: ${{ github.event.inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v5
 
@@ -34,6 +35,10 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      - name: Pick the release
+        # han-packs-v1-r2 → han-packs-v1
+        run: echo "TAG=$(echo "$REF" | grep -oE '^han-packs-v[0-9]+')" >> "$GITHUB_ENV"
+
       - name: Build the packs
         run: ./gradlew --no-configuration-cache :tools:han-dict-builder:run --args="--ext-out build/han-ext"
 
@@ -43,7 +48,7 @@ jobs:
           f=build/han-ext/han-ext-modern.bin
           src=app/src/main/kotlin/io/zizai/ime/HanPackManager.kt
           want_sha=$(grep -oE 'SHA256 = "[0-9a-f]{64}"' "$src" | grep -oE '[0-9a-f]{64}')
-          want_size=$(grep -oE 'SIZE_BYTES = [0-9_]+L' "$src" | grep -oE '[0-9_]+' | tr -d _)
+          want_size=$(grep -oE 'SIZE_BYTES = [0-9_]+L' "$src" | grep -oE '[0-9][0-9_]*' | tr -d _)
           got_sha=$(sha256sum "$f" | cut -c1-64)
           got_size=$(stat -c %s "$f")
           echo "built $got_size bytes, $got_sha"
