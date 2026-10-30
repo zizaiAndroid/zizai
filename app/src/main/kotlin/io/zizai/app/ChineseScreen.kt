@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -35,6 +36,8 @@ import dev.patrickgold.florisboard.R
 import dev.patrickgold.florisboard.lib.compose.FlorisScreen
 import dev.patrickgold.jetpref.datastore.ui.Preference
 import io.zizai.ZizaiPrefs
+import io.zizai.han.parse.Fuzzy
+import io.zizai.han.parse.PinyinScheme
 import io.zizai.ime.HanPackManager
 import kotlinx.coroutines.launch
 import io.zizai.zhtext.ZhScript
@@ -76,6 +79,20 @@ fun ChineseScreen() = FlorisScreen {
             prefs.hardwareMode = it
         }
 
+        val schemes = listOf(
+            PinyinScheme.QUANPIN to stringRes(R.string.zizai__scheme__quanpin),
+            PinyinScheme.XIAOHE to stringRes(R.string.zizai__scheme__xiaohe),
+            PinyinScheme.ZIRANMA to stringRes(R.string.zizai__scheme__ziranma),
+            PinyinScheme.MICROSOFT to stringRes(R.string.zizai__scheme__microsoft),
+        )
+        var scheme by remember { mutableStateOf(prefs.scheme) }
+        ChoicePreference(stringRes(R.string.zizai__scheme__title), schemes, scheme) {
+            scheme = it
+            prefs.scheme = it
+        }
+
+        FuzzyPreference(prefs)
+
         var pageSize by remember { mutableStateOf(prefs.pageSize) }
         ChoicePreference(stringRes(R.string.zizai__page_size__title), (5..10).map { it to "$it" }, pageSize) {
             pageSize = it
@@ -110,6 +127,50 @@ fun ChineseScreen() = FlorisScreen {
                 text = { Text(stringRes(R.string.zizai__cheat_sheet)) },
             )
         }
+    }
+}
+
+/** The fuzzy Pinyin pairs, each on or off (P2-03). */
+@Composable
+private fun FuzzyPreference(prefs: ZizaiPrefs) {
+    var open by remember { mutableStateOf(false) }
+    var on by remember { mutableStateOf(prefs.fuzzy) }
+    val labels = mapOf(
+        Fuzzy.Z_ZH to "z = zh", Fuzzy.C_CH to "c = ch", Fuzzy.S_SH to "s = sh", Fuzzy.N_L to "n = l",
+        Fuzzy.R_L to "r = l", Fuzzy.F_H to "f = h", Fuzzy.AN_ANG to "an = ang", Fuzzy.EN_ENG to "en = eng",
+        Fuzzy.IN_ING to "in = ing", Fuzzy.IAN_IANG to "ian = iang", Fuzzy.UAN_UANG to "uan = uang",
+    )
+    Preference(
+        title = stringRes(R.string.zizai__fuzzy__title),
+        summary = if (on.isEmpty()) stringRes(R.string.zizai__fuzzy__none)
+        else Fuzzy.entries.filter { it in on }.joinToString(", ") { labels.getValue(it) },
+        onClick = { open = true },
+    )
+    if (open) {
+        AlertDialog(
+            onDismissRequest = { open = false },
+            confirmButton = { TextButton(onClick = { open = false }) { Text(stringRes(R.string.zizai__close)) } },
+            title = { Text(stringRes(R.string.zizai__fuzzy__title)) },
+            text = {
+                Column {
+                    for (f in Fuzzy.entries) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().clickable {
+                                on = if (f in on) on - f else on + f
+                                prefs.fuzzy = on
+                            },
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Checkbox(checked = f in on, onCheckedChange = { checked ->
+                                on = if (checked) on + f else on - f
+                                prefs.fuzzy = on
+                            })
+                            Text(labels.getValue(f))
+                        }
+                    }
+                }
+            },
+        )
     }
 }
 

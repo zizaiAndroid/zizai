@@ -107,6 +107,8 @@ data class HanSettings(
     val filter: HomophoneFilter = HomophoneFilter(),
     /** False in incognito mode, password fields and fields that ask for no personalized learning. */
     val learning: Boolean = true,
+    val scheme: io.zizai.han.parse.PinyinScheme = io.zizai.han.parse.PinyinScheme.QUANPIN,
+    val fuzzy: Set<io.zizai.han.parse.Fuzzy> = emptySet(),
 )
 
 /**

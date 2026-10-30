@@ -15,8 +15,10 @@ import io.zizai.han.candidate.CandidateEngine
 import io.zizai.han.candidate.CandidateKind
 import io.zizai.han.candidate.CandidatePager
 import io.zizai.han.lexicon.LexiconReader
+import io.zizai.han.parse.DoublePinyin
 import io.zizai.han.parse.EdgeKind
 import io.zizai.han.parse.PinyinParser
+import io.zizai.han.parse.PinyinScheme
 import io.zizai.han.parse.SyllableLattice
 import io.zizai.han.reading.Mandarin
 import io.zizai.han.reading.Pinyin
@@ -184,7 +186,7 @@ class DefaultHanSession(
     private fun onComposingChar(s: KeyStroke): KeyResult {
         val c = s.codePoint
         return when {
-            c in 'a'.code..'z'.code && !s.shift -> {
+            (c in 'a'.code..'z'.code && !s.shift) || c.toChar() in DoublePinyin.extraKeys(settings().scheme) -> {
                 input.append(c.toChar())
                 refresh()
                 handled(preeditEdit())
@@ -271,7 +273,7 @@ class DefaultHanSession(
     /** The syllables [text] was typed with, from [input]: one edge per character, each a reading of it. */
     private fun readingFor(text: String, input: String): IntArray? {
         val cps = text.codePoints().toArray()
-        val l = PinyinParser.parse(input)
+        val l = parse(input)
         for (path in l.bestPaths(20)) {
             if (path.edges.size != cps.size) continue
             val out = IntArray(cps.size)
@@ -589,7 +591,7 @@ class DefaultHanSession(
 
     private fun refresh(keepTone: Boolean = false) {
         if (!keepTone) toneFilter = 0
-        val l = PinyinParser.parse(input.toString())
+        val l = parse(input.toString())
         lattice = l
         pager = CandidatePager(engine.candidates(l, filter()), pageSize)
         page = 0
@@ -608,9 +610,25 @@ class DefaultHanSession(
         grid = emptyList()
     }
 
+    private fun parse(text: String): SyllableLattice {
+        val s = settings()
+        return if (s.scheme == PinyinScheme.QUANPIN) PinyinParser.parse(text, fuzzy = s.fuzzy)
+        else DoublePinyin.parse(text, s.scheme)
+    }
+
     private fun preeditText(): String {
         val l = lattice
-        val spelled = if (l == null || l.length == 0) "" else l.bestPaths(1).firstOrNull()?.spelling(l.input) ?: l.input
+        val path = if (l == null || l.length == 0) null else l.bestPaths(1).firstOrNull()
+        val spelled = when {
+            l == null || l.length == 0 -> ""
+            path == null -> l.input
+            // Double Pinyin shows the syllables its key pairs spell, not the keys.
+            settings().scheme != PinyinScheme.QUANPIN -> path.edges.joinToString("'") {
+                if (it.kind == EdgeKind.FULL) Pinyin.display(Mandarin.syllables.spellingOf(it.first))
+                else l.input.substring(it.start, it.end)
+            }
+            else -> path.spelling(l.input)
+        }
         return selections.joinToString("") { it.text } + spelled
     }
 

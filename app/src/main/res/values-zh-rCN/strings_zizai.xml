@@ -12,6 +12,14 @@
     <string name="zizai__output_script__hong_kong">繁体（香港）</string>
     <string name="zizai__output_script__as_is">保持识别结果</string>
 
+    <string name="zizai__scheme__title">拼音方案</string>
+    <string name="zizai__scheme__quanpin">全拼</string>
+    <string name="zizai__scheme__xiaohe">小鹤双拼</string>
+    <string name="zizai__scheme__ziranma">自然码双拼</string>
+    <string name="zizai__scheme__microsoft">微软双拼</string>
+    <string name="zizai__fuzzy__title">模糊音</string>
+    <string name="zizai__fuzzy__none">关闭。打开你分不清的音。</string>
+
     <string name="zizai__page_size__title">每页候选数</string>
     <string name="zizai__hardware_mode__title">实体键盘</string>
     <string name="zizai__hardware_mode__auto">自动：用实体键盘打字时切换到浮动候选窗</string>

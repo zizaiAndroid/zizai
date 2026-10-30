@@ -217,6 +217,7 @@ bash tools/fetch-sherpa-onnx.sh
 | P1-18 | Done, minus `replaceText` on API 34+ | Context reading and ranking, read-back restore, the touch 改 chip |
 | P1-19 | Blocked on you | Needs a Cloudflare account for the report Worker |
 | P2-02 | Mostly done | Learning (picks rise after two, 造词 phrases at once, also by initials), Ctrl+Delete blocklist, no learning in incognito, password or no-learning fields, `files/zizai/han_user.tsv` in the backup rules. Not yet: the editor screen and JSON export/import |
+| P2-03 | Mostly done | Fuzzy pairs (all 11), double Pinyin 小鹤, 自然码 and 微软 with golden tests, both in 中文 settings. Not yet: Sogou, Ziguang, Pinyin Jiajia schemes |
 | P1-20 | Partly | Exceptions reset the session; `zizai.onKey` trace sections and a `ZizaiLatency` log. JVM: first page 0.08–0.14 ms. Debug build on the Pixel: p50 ≈ 8 ms, p95 ≈ 14–20 ms, which is debuggable ART; the release-optimized `benchmark` build still has to be measured (it must be enabled as a keyboard) |
 | P1-21, P1-22 | Yours | Store listing and closed test |
 

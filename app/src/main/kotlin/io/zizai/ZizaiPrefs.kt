@@ -12,6 +12,8 @@ package io.zizai
 
 import android.content.Context
 import android.content.SharedPreferences
+import io.zizai.han.parse.Fuzzy
+import io.zizai.han.parse.PinyinScheme
 import io.zizai.zhtext.PunctuationLocale
 import io.zizai.zhtext.ZhScript
 
@@ -51,6 +53,17 @@ class ZizaiPrefs private constructor(private val sp: SharedPreferences) {
         get() = enumOr(KEY_HARDWARE_MODE, HardwareModeSetting.AUTO)
         set(v) = sp.edit().putString(KEY_HARDWARE_MODE, v.name).apply()
 
+    /** Full Pinyin or a double-Pinyin scheme (P2-03). */
+    var scheme: PinyinScheme
+        get() = enumOr(KEY_SCHEME, PinyinScheme.QUANPIN)
+        set(v) = sp.edit().putString(KEY_SCHEME, v.name).apply()
+
+    /** Fuzzy Pinyin pairs that are on; none by default. */
+    var fuzzy: Set<Fuzzy>
+        get() = sp.getStringSet(KEY_FUZZY, emptySet()).orEmpty()
+            .mapNotNull { runCatching { Fuzzy.valueOf(it) }.getOrNull() }.toSet()
+        set(v) = sp.edit().putStringSet(KEY_FUZZY, v.map { it.name }.toSet()).apply()
+
     /** Whether the first-hardware-keyboard card has been shown. */
     var hardwareOnboardingShown: Boolean
         get() = sp.getBoolean(KEY_HW_ONBOARDING, false)
@@ -68,6 +81,8 @@ class ZizaiPrefs private constructor(private val sp: SharedPreferences) {
         private const val KEY_PAGE_SIZE = "page_size"
         private const val KEY_HARDWARE_MODE = "hardware_mode"
         private const val KEY_HW_ONBOARDING = "hardware_onboarding_shown"
+        private const val KEY_SCHEME = "pinyin_scheme"
+        private const val KEY_FUZZY = "fuzzy_pinyin"
 
         @Volatile private var instance: ZizaiPrefs? = null
 

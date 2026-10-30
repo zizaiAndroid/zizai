@@ -27,7 +27,11 @@ object PinyinParser {
     )
     private val RARE = setOf("m", "n", "ng", "hm", "hng")
 
-    fun parse(input: String, table: SyllableTable = Mandarin.syllables): SyllableLattice {
+    /** A fuzzy reading costs a little more than the syllable as typed. */
+    private const val FUZZY_COST = 1.4
+
+    /** Parses [input] as full Pinyin; with [fuzzy], each syllable may also be read as its fuzzy partners. */
+    fun parse(input: String, table: SyllableTable = Mandarin.syllables, fuzzy: Set<Fuzzy> = emptySet()): SyllableLattice {
         val n = input.length
         val outgoing = Array<List<SyllableEdge>>(n + 1) { emptyList() }
         for (start in 0 until n) {
@@ -35,7 +39,7 @@ object PinyinParser {
             val edges = ArrayList<SyllableEdge>(4)
             var end = start + 1
             while (end <= n && end - start <= table.maxLength + 1 && input[end - 1] != '\'') {
-                addEdges(input, start, end, table, edges)
+                addEdges(input, start, end, table, edges, fuzzy)
                 end++
             }
             if (edges.none { it.end == start + 1 }) {
@@ -46,12 +50,18 @@ object PinyinParser {
         return SyllableLattice(input, outgoing)
     }
 
-    private fun addEdges(input: String, start: Int, end: Int, table: SyllableTable, out: MutableList<SyllableEdge>) {
+    private fun addEdges(
+        input: String, start: Int, end: Int, table: SyllableTable, out: MutableList<SyllableEdge>, fuzzy: Set<Fuzzy>,
+    ) {
         val sub = input.substring(start, end)
         val atEnd = end == input.length
         val id = table.idOf(Pinyin.normalizeSpelling(sub))
         if (id >= 0) {
             out.add(SyllableEdge(start, end, if (sub in RARE) EdgeKind.RARE else EdgeKind.FULL, id, id))
+        }
+        for (v in fuzzyVariants(Pinyin.normalizeSpelling(sub), fuzzy)) {
+            val vid = table.idOf(v)
+            if (vid >= 0 && vid != id) out.add(SyllableEdge(start, end, EdgeKind.FULL, vid, vid, cost = FUZZY_COST))
         }
         val isInitial = sub in INITIALS
         if (!isInitial && !atEnd) return

@@ -86,6 +86,8 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         pageSize = prefs.pageSize,
         fullWidthPunctuation = prefs.fullWidthPunctuation,
         learning = learningAllowed(),
+        scheme = prefs.scheme,
+        fuzzy = prefs.fuzzy,
     )
 
     /** Never learn in incognito mode, password fields, or fields that ask for no personalized learning. */
