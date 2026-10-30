@@ -77,7 +77,14 @@ class DefaultHanSession(
     private var recon: Reconversion? = null
 
     private class Selection(val text: String, val consumed: String)
-    private class Reconversion(val target: ReconversionTarget, val syllables: List<Int>, var options: List<String>, var index: Int)
+    /** A flip in progress; [wholeWord] for Ctrl+F2, whose options are words, not characters. */
+    private class Reconversion(
+        val target: ReconversionTarget,
+        val syllables: List<Int>,
+        var options: List<String>,
+        var index: Int,
+        val wholeWord: Boolean = false,
+    )
 
     override fun onKey(stroke: KeyStroke): KeyResult = when (mode) {
         SessionMode.IDLE -> onIdleKey(stroke)
@@ -122,6 +129,7 @@ class DefaultHanSession(
     // ---- Idle ----
 
     private fun onIdleKey(s: KeyStroke): KeyResult {
+        if (s.key == Key.FLIP && s.ctrl && !s.alt && !s.meta) return reconvertWordBeforeCursor()
         if (s.hasCommandModifier) return KeyResult.NotHandled
         return when (s.key) {
             Key.CHAR -> {
@@ -426,6 +434,73 @@ class DefaultHanSession(
 
     // ---- Reconversion ----
 
+    /**
+     * Ctrl+F2 (P2-01): flips the word before the cursor as a unit. Takes the longest run of two to four
+     * characters before the cursor that has same-sounding lexicon words (在见 → 再见, 公式 → 公司), and
+     * falls back to the single character when there is none.
+     */
+    private fun reconvertWordBeforeCursor(): KeyResult {
+        if (mode != SessionMode.IDLE) return KeyResult.NotHandled
+        val before = editor.textBeforeCursor(MAX_WORD_FLIP * 2)?.toString() ?: return KeyResult.NotHandled
+        val cursor = editor.cursorPosition()
+        if (cursor < 0) return KeyResult.NotHandled
+        val chars = before.codePointStrings()
+        for (len in minOf(MAX_WORD_FLIP, chars.size) downTo 2) {
+            val window = chars.takeLast(len)
+            val options = homophoneWords(window)
+            if (options.size < 2) continue
+            val text = window.joinToString("")
+            val target = ReconversionTarget(text, cursor - text.length, cursor, before.dropLast(text.length))
+            val r = Reconversion(target, emptyList(), options, 1, wholeWord = true)
+            recon = r
+            toneFilter = 0
+            mode = SessionMode.RECONVERTING
+            publish()
+            return handled(EditorEdit.MarkComposing(target.start, target.end), EditorEdit.SetPreedit(options[1]))
+        }
+        return reconvertBeforeCursor()
+    }
+
+    /**
+     * [chars] first, then the lexicon words read like them: those using each character's main reading
+     * first (在见 → 再见, not 在线 through 见's rarer xiàn), each group best first.
+     */
+    private fun homophoneWords(chars: List<String>): List<String> {
+        val choices = chars.map { c ->
+            val ch = lexicon.charIndex(c.codePointAt(0))
+            if (ch < 0) return emptyList()
+            (0 until lexicon.readingCount(ch)).map { LexiconReader.readingSyllable(lexicon.reading(ch, it)) }
+                .distinct().take(3)
+        }
+        val original = chars.joinToString("")
+        // text → (readings off the main one, score)
+        val found = HashMap<String, Pair<Int, Int>>()
+        val ids = IntArray(chars.size)
+        fun combine(i: Int, offMain: Int) {
+            if (i == chars.size) {
+                lexicon.forEachWord(ids, ids, ids.size, true) { w ->
+                    val t = lexicon.wordText(w)
+                    val prev = found[t]
+                    val score = lexicon.wordScore(w)
+                    if (t != original && (prev == null || offMain < prev.first || (offMain == prev.first && score > prev.second))) {
+                        found[t] = offMain to score
+                    }
+                    true
+                }
+                return
+            }
+            choices[i].forEachIndexed { k, s ->
+                ids[i] = s
+                combine(i + 1, offMain + if (k == 0) 0 else 1)
+            }
+        }
+        combine(0, 0)
+        if (found.isEmpty()) return emptyList()
+        return listOf(original) + found.entries
+            .sortedWith(compareBy<Map.Entry<String, Pair<Int, Int>>> { it.value.first }.thenByDescending { it.value.second }.thenBy { it.key })
+            .map { it.key }
+    }
+
     override fun startReconversion(target: ReconversionTarget): KeyResult {
         if (mode != SessionMode.IDLE) return KeyResult.NotHandled
         val cp = target.text.codePointAt(0)
@@ -521,6 +596,7 @@ class DefaultHanSession(
             Key.PAGE_DOWN -> flip(r, pageSize)
             Key.PAGE_UP -> flip(r, -pageSize)
             Key.TAB -> {
+                if (r.wholeWord) return handled() // tones filter characters, not words
                 toneFilter = (toneFilter + if (s.shift) -1 else 1).mod(Mandarin.maxTone + 1)
                 val current = r.options[r.index]
                 r.options = reconversionOptions(r)
@@ -583,6 +659,9 @@ class DefaultHanSession(
     private companion object {
         /** UTF-16 units of context read on each side of a flip: three characters, even surrogate pairs. */
         const val CONTEXT_UNITS = 6
+
+        /** The longest word Ctrl+F2 flips as a unit. */
+        const val MAX_WORD_FLIP = 4
     }
 
     private fun filter() = settings().filter.copy(tone = toneFilter)

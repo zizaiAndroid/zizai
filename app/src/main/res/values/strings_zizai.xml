@@ -39,6 +39,6 @@
 
     <string name="zizai__cheat_sheet__title">Keyboard shortcuts</string>
     <string name="zizai__cheat_sheet__summary">For a physical keyboard. Press Ctrl+/ while typing to see them.</string>
-    <string name="zizai__cheat_sheet">Space · 1–9 select\n= − page   ← → highlight   ↓ all characters by tone\nTab tone filter   [ ] first/last character of a word\nEnter letters   Esc cancel   Shift 中/英\nF2 or Alt+Space fix the character before the cursor\nCtrl+Shift+Space dictate   hold Right Ctrl to talk\nCtrl+. punctuation width   Ctrl+/ this sheet</string>
+    <string name="zizai__cheat_sheet">Space · 1–9 select\n= − page   ← → highlight   ↓ all characters by tone\nTab tone filter   [ ] first/last character of a word\nEnter letters   Esc cancel   Shift 中/英\nF2 or Alt+Space fix the character before the cursor   Ctrl+F2 the word\nCtrl+Shift+Space dictate   hold Right Ctrl to talk\nCtrl+. punctuation width   Ctrl+/ this sheet</string>
     <string name="zizai__close">Close</string>
 </resources>

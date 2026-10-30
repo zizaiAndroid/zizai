@@ -117,6 +117,7 @@ class HanSessionTest : FunSpec({
                         "RIGHT" -> KeyStroke.of(Key.RIGHT)
                         "F2" -> KeyStroke.of(Key.FLIP)
                         "S-F2" -> KeyStroke.of(Key.FLIP, shift = true)
+                        "C-F2" -> KeyStroke.of(Key.FLIP, ctrl = true)
                         "PGDN" -> KeyStroke.of(Key.PAGE_DOWN)
                         else -> error(name)
                     }
@@ -253,6 +254,24 @@ class HanSessionTest : FunSpec({
         val options = bank.ui.candidates.map { it.text }
         options.first() shouldBe "行"
         withClue(options) { (options[1] in listOf("航", "杭", "巷", "夯", "沆", "绗")) shouldBe true }
+    }
+
+    test("Ctrl+F2 flips the word before the cursor as a unit") {
+        val r = Rig()
+        r.editor.text.append("明天在见"); r.editor.cursor = 4
+        r.type("{C-F2}")
+        r.ui.candidates.first().text shouldBe "在见"
+        r.text shouldBe "明天再见"
+        r.type("\n").ui.mode shouldBe SessionMode.IDLE
+
+        val company = Rig()
+        company.editor.text.append("我们公式"); company.editor.cursor = 4
+        company.type("{C-F2}")
+        company.ui.candidates.take(3).map { it.text } shouldContain "共识" // gōng shì, as 公式
+
+        val single = Rig()
+        single.editor.text.append("一个呢"); single.editor.cursor = 3
+        single.type("{C-F2}{ESC}").text shouldBe "一个呢"
     }
 
     test("flip: an Extension B character flips whole") {
