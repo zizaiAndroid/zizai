@@ -762,6 +762,35 @@ object ProviderRegistry {
      * know. If this one rejects them instead, the symptom is a 400 on every dictation and the fix is to
      * drop the extras for this id — not a reason to guess at it now.
      */
+    /**
+     * ZIZAI-HOOK: Qwen3-ASR-Flash on Alibaba Cloud Model Studio (字在 Zizai, P2-06): Mandarin (with
+     * Sichuanese, Minnan and Wu) and Cantonese, a glossary as context, inverse text normalization. Speech
+     * goes over `chat/completions` ([TranscriptionApi.QWEN_CHAT_AUDIO]), WAV or MP3 only. The endpoint
+     * carries the workspace id (`https://{WorkspaceId}.ap-southeast-1.maas.aliyuncs.com/...`), so the base
+     * URL is editable and the placeholder has to be replaced with one's own.
+     */
+    val QWEN_SINGAPORE = ProviderPreset(
+        id = "qwen-singapore",
+        displayName = "Alibaba Model Studio (Singapore)",
+        baseUrl = "https://WORKSPACE-ID.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/",
+        capabilities = STT_ONLY,
+        supportsDynamicModels = false,
+        apiKeyUrl = "https://modelstudio.console.alibabacloud.com/",
+        allowsCustomBaseUrl = true,
+        defaultTranscriptionModel = "qwen3-asr-flash",
+        curatedTranscriptionModels = listOf("qwen3-asr-flash"),
+        acceptedAudioContainers = setOf(AudioContainer.WAV, AudioContainer.MP3),
+        transcriptionApi = TranscriptionApi.QWEN_CHAT_AUDIO,
+    )
+
+    /** ZIZAI-HOOK: the same in the Beijing region, reachable from mainland China. */
+    val QWEN_BEIJING = QWEN_SINGAPORE.copy(
+        id = "qwen-beijing",
+        displayName = "Alibaba Model Studio (Beijing)",
+        baseUrl = "https://WORKSPACE-ID.cn-beijing.maas.aliyuncs.com/compatible-mode/v1/",
+        apiKeyUrl = "https://bailian.console.aliyun.com/",
+    )
+
     val SILICONFLOW = ProviderPreset(
         id = "siliconflow",
         displayName = "SiliconFlow",
@@ -957,6 +986,7 @@ object ProviderRegistry {
     val presets: List<ProviderPreset> = listOf(
         CLOUD, OPENAI, GROQ, OPENROUTER, GEMINI, ANTHROPIC, TOGETHER, DEEPINFRA, MISTRAL, SONIOX,
         ELEVENLABS, DEEPGRAM, ASSEMBLYAI, AZURE, XAI, DEEPSEEK, SILICONFLOW, SCALEWAY, OVHCLOUD,
+        QWEN_SINGAPORE, QWEN_BEIJING, // ZIZAI-HOOK: Qwen3-ASR-Flash (P2-06)
         OLLAMA, LOCAL,
     )
 

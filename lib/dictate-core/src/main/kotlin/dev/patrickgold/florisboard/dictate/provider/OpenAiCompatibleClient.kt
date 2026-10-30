@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -253,6 +254,7 @@ class OpenAiCompatibleClient(
         TranscriptionApi.ASSEMBLYAI_ASYNC -> transcribeAssemblyAi(request, onRetry)
         TranscriptionApi.AZURE_FAST_TRANSCRIPTION -> transcribeAzure(request, onRetry)
         TranscriptionApi.XAI_STT -> transcribeXai(request, onRetry)
+        TranscriptionApi.QWEN_CHAT_AUDIO -> QwenAsrClient(config) { r, retry -> executeForBody(r, onRetry = retry) }.transcribe(request, onRetry) // ZIZAI-HOOK
         // On-device transcription never uses this HTTP client; the dictation flow routes local providers
         // to LocalTranscriptionProvider before one is ever constructed.
         TranscriptionApi.LOCAL_ONDEVICE -> error("LOCAL_ONDEVICE is handled by LocalTranscriptionProvider")

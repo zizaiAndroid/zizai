@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -187,6 +188,9 @@ enum class TranscriptionApi {
      * dispatches to the offline engine instead of building an HTTP client.
      */
     LOCAL_ONDEVICE,
+
+    /** ZIZAI-HOOK: Qwen3-ASR-Flash on Alibaba Model Studio, speech on `chat/completions` ([QwenAsrClient]). */
+    QWEN_CHAT_AUDIO,
 }
 
 /**

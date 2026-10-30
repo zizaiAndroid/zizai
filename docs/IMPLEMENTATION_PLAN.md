@@ -223,6 +223,7 @@ bash tools/fetch-sherpa-onnx.sh
 | P2-05 | Mostly done | The touch strip leads with a tone chip (cycles like Tab) and pages through every candidate 40 at a time (◂ / 更多 ▸). Not yet: a grid sheet with tone tabs (needs a hook in the keyboard layout) |
 | P2-09 | Draft done, needs your review | zh-TW (s2twp) and zh-HK (s2hk) UI strings machine-drafted from zh-CN by `han-dict-builder --strings`, branded 字在; screenshots and listings still to do |
 | P2-07 | Done (Chinese hot words) | The user's top 30 Chinese words and phrases join upstream's custom-word glossary for Chinese and Cantonese dictation. Not yet: Qwen glossary context (with P2-06) and the evaluation set |
+| P2-06 | Done, not tried live | QwenAsrClient (chat/completions with a WAV data URL, glossary as system context, asr_options language and ITN), two presets (Singapore, Beijing) with an editable workspace URL; MockWebServer tests. A real Mandarin round-trip needs your Model Studio account |
 | P1-20 | Partly | Exceptions reset the session; `zizai.onKey` trace sections and a `ZizaiLatency` log. JVM: first page 0.08–0.14 ms. Debug build on the Pixel: p50 ≈ 8 ms, p95 ≈ 14–20 ms, which is debuggable ART; the release-optimized `benchmark` build still has to be measured (it must be enabled as a keyboard) |
 | P1-21, P1-22 | Yours | Store listing and closed test |
 
