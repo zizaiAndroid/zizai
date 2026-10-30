@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)). -->
 <full-backup-content>
     <include
         domain="root"
@@ -9,4 +10,5 @@
     <include
         domain="database"
         path="floris_user_dictionary"/>
+    <include domain="file" path="zizai"/> <!-- ZIZAI-HOOK: learned Chinese words (P2-02) -->
 </full-backup-content>

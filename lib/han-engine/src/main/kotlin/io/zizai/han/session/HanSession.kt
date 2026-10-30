@@ -161,7 +161,7 @@ class DefaultHanSession(
         if (s.hasCommandModifier) {
             return when {
                 s.ctrl && s.key == Key.BACKSPACE -> deleteSyllable()
-                s.ctrl && s.key == Key.DELETE -> handled() // demote: needs the user dictionary (later)
+                s.ctrl && s.key == Key.DELETE -> blockCurrent()
                 else -> KeyResult.NotHandled
             }
         }
@@ -236,6 +236,10 @@ class DefaultHanSession(
             else -> lattice?.let { engine.bestSentence(it, filter())?.text } ?: input.toString()
         }
         val text = selections.joinToString("") { it.text } + rest
+        if (c != null && c.end >= input.length) {
+            selections += Selection(c.text, input.toString())
+            learnSelections()
+        }
         clearComposition()
         mode = SessionMode.IDLE
         publish()
@@ -243,10 +247,56 @@ class DefaultHanSession(
     }
 
     private fun commitAll(text: String): KeyResult {
+        learnSelections()
         clearComposition()
         mode = SessionMode.IDLE
         publish()
         return handled(EditorEdit.Commit(text))
+    }
+
+    /**
+     * Teaches the user dictionary what was just committed: each pick, and the whole when it was put
+     * together from several (造词). Only where learning is on, and only for picks whose reading is known.
+     */
+    private fun learnSelections() {
+        if (!settings().learning || selections.isEmpty()) return
+        val user = engine.user
+        val readings = selections.map { readingFor(it.text, it.consumed) }
+        selections.zip(readings).forEach { (sel, syl) -> if (syl != null) user.learn(sel.text, syl, assembled = false) }
+        if (selections.size > 1 && readings.all { it != null }) {
+            user.learn(selections.joinToString("") { it.text }, readings.flatMap { it!!.asList() }.toIntArray(), assembled = true)
+        }
+    }
+
+    /** The syllables [text] was typed with, from [input]: one edge per character, each a reading of it. */
+    private fun readingFor(text: String, input: String): IntArray? {
+        val cps = text.codePoints().toArray()
+        val l = PinyinParser.parse(input)
+        for (path in l.bestPaths(20)) {
+            if (path.edges.size != cps.size) continue
+            val out = IntArray(cps.size)
+            var ok = true
+            for (i in cps.indices) {
+                val e = path.edges[i]
+                val ch = lexicon.charIndex(cps[i])
+                if (e.kind == EdgeKind.RAW || ch < 0) { ok = false; break }
+                val s = (0 until lexicon.readingCount(ch)).map { LexiconReader.readingSyllable(lexicon.reading(ch, it)) }
+                    .firstOrNull { it in e.first..e.last }
+                if (s == null) { ok = false; break }
+                out[i] = s
+            }
+            if (ok) return out
+        }
+        return null
+    }
+
+    /** Ctrl+Delete: the highlighted candidate never shows again (until it is typed and chosen again). */
+    private fun blockCurrent(): KeyResult {
+        val c = current() ?: return handled()
+        if (c.kind == CandidateKind.RAW || c.kind == CandidateKind.SENTENCE) return handled()
+        engine.user.block(c.text)
+        refresh(keepTone = true)
+        return handled(preeditEdit())
     }
 
     private fun cancel(): KeyResult {

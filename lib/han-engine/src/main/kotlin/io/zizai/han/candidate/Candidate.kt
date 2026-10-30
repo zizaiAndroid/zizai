@@ -103,12 +103,20 @@ data class HomophoneFilter(
     }
 }
 
-/** User phrases and learned boosts. Phase 1 ships the stub; P1-07 and later fill it in. */
+/** What the user taught the keyboard: learned words and phrases, and blocked candidates (P2-02). */
 interface UserDictionary {
-    /** Phrases the user made whose reading is exactly [input]. */
-    fun phrases(input: String): List<Candidate>
+    /** The user's words and phrases that read exactly as the whole input, best first. */
+    fun phrases(lattice: io.zizai.han.parse.SyllableLattice): List<Candidate>
+
+    /** Candidates the user removed (Ctrl+Delete); they never show. */
+    fun isBlocked(text: String): Boolean = false
+
+    /** [text] was committed with these syllables; [assembled] if it was put together from several picks. */
+    fun learn(text: String, syllables: IntArray, assembled: Boolean) {}
+
+    fun block(text: String) {}
 
     object None : UserDictionary {
-        override fun phrases(input: String): List<Candidate> = emptyList()
+        override fun phrases(lattice: io.zizai.han.parse.SyllableLattice): List<Candidate> = emptyList()
     }
 }

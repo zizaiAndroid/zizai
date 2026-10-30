@@ -105,6 +105,8 @@ data class HanSettings(
     val fullWidthPunctuation: Boolean = true,
     val punctuationStyle: PunctuationStyle = PunctuationStyle.MAINLAND,
     val filter: HomophoneFilter = HomophoneFilter(),
+    /** False in incognito mode, password fields and fields that ask for no personalized learning. */
+    val learning: Boolean = true,
 )
 
 /**

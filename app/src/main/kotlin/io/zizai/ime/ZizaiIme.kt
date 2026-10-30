@@ -24,7 +24,9 @@ import dev.patrickgold.florisboard.ime.keyboard.KeyData
 import dev.patrickgold.florisboard.ime.nlp.SuggestionCandidate
 import dev.patrickgold.florisboard.ime.text.key.KeyCode
 import dev.patrickgold.florisboard.ime.text.key.KeyType
+import dev.patrickgold.florisboard.keyboardManager
 import dev.patrickgold.florisboard.nlpManager
+import io.zizai.han.candidate.CandidateEngine
 import dev.patrickgold.florisboard.subtypeManager
 import io.zizai.ZizaiPrefs
 import io.zizai.han.session.DefaultHanSession
@@ -56,6 +58,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
 
     private val subtypeManager by ims.subtypeManager()
     private val nlpManager by ims.nlpManager()
+    private val keyboardManager by ims.keyboardManager()
     private val prefs by lazy { ZizaiPrefs.get(ims) } // lazy: the service has no context while constructing
     private val editor = EditorBridge(ims)
     private val hardware = HardwareMode(ims)
@@ -71,13 +74,27 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
             val existing = sessions.value
             if (existing != null && generation == sessionGeneration) return existing
             existing?.reset(ResetReason.MODE_SWITCH)
-            return DefaultHanSession(HanAssets.lexicon(ims), settings = ::settings, editor = editor).also {
+            val lexicon = HanAssets.lexicon(ims)
+            val engine = CandidateEngine(lexicon, HanUserDictionary.get(ims))
+            return DefaultHanSession(lexicon, engine, settings = ::settings, editor = editor).also {
                 sessionGeneration = generation
                 sessions.value = it
             }
         }
 
-    private fun settings() = HanSettings(pageSize = prefs.pageSize, fullWidthPunctuation = prefs.fullWidthPunctuation)
+    private fun settings() = HanSettings(
+        pageSize = prefs.pageSize,
+        fullWidthPunctuation = prefs.fullWidthPunctuation,
+        learning = learningAllowed(),
+    )
+
+    /** Never learn in incognito mode, password fields, or fields that ask for no personalized learning. */
+    private fun learningAllowed(): Boolean {
+        if (keyboardManager.activeState.isIncognitoMode) return false
+        val info = ims.currentInputEditorInfo ?: return false
+        if (info.imeOptions and EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING != 0) return false
+        return KeyRouter.isTextField(info)
+    }
 
     override var chineseMode: Boolean = true
         set(value) {

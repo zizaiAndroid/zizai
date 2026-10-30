@@ -31,17 +31,17 @@ import java.util.PriorityQueue
  */
 class CandidateEngine(
     private val lexicon: LexiconReader,
-    private val user: UserDictionary = UserDictionary.None,
+    val user: UserDictionary = UserDictionary.None,
 ) {
     fun candidates(lattice: SyllableLattice, filter: HomophoneFilter = HomophoneFilter()): Sequence<Candidate> = sequence {
         val n = lattice.length
         if (n == 0) return@sequence
         val seen = HashSet<String>()
         suspend fun SequenceScope<Candidate>.emit(c: Candidate) {
-            if (seen.add(c.text)) yield(c)
+            if (!user.isBlocked(c.text) && seen.add(c.text)) yield(c)
         }
 
-        for (c in user.phrases(lattice.input)) emit(c)
+        for (c in user.phrases(lattice)) emit(c)
 
         val best = lattice.bestPaths(1).firstOrNull() ?: return@sequence
         val sentence = if (best.edges.size >= 2) bestSentence(lattice, filter) else null
