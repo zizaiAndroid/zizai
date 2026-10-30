@@ -113,6 +113,8 @@ fun ChineseScreen() = FlorisScreen {
             prefs.cjkLatinSpacing = it
         }
 
+        HardwareKeyRows(prefs)
+
         ModernPackRow()
 
         ProofreadRows(prefs)

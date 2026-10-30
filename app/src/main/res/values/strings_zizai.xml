@@ -55,6 +55,15 @@
     <string name="zizai__proofread__pick">Choose one of your providers</string>
     <string name="zizai__proofread__no_providers">Add a provider with a chat model in the dictation settings first</string>
 
+    <string name="zizai__compact__title">Compact keyboard</string>
+    <string name="zizai__compact__summary">For keyboards without a number row or Esc: ; and \' pick the 2nd and 3rd candidates, , and . turn pages, holding Backspace cancels</string>
+    <string name="zizai__bind__flip">Flip key</string>
+    <string name="zizai__bind__ptt">Push-to-talk key (hold)</string>
+    <string name="zizai__bind__suspect">Next proofreading suspect</string>
+    <string name="zizai__bind__press">Press the key to use on your keyboard</string>
+    <string name="zizai__bypass__title">Apps that get raw keys</string>
+    <string name="zizai__bypass__none">None. Pick apps (terminals, games) where Zizai should stay out of the way.</string>
+
     <string name="zizai__cheat_sheet__title">Keyboard shortcuts</string>
     <string name="zizai__cheat_sheet__summary">For a physical keyboard. Press Ctrl+/ while typing to see them.</string>
     <string name="zizai__cheat_sheet">Space · 1–9 select\n= − page   ← → highlight   ↓ all characters by tone\nTab tone filter   [ ] first/last character of a word\nEnter letters   Esc cancel   Shift 中/英\nF2 or Alt+Space fix the character before the cursor   Ctrl+F2 the word\nF8 next proofreading suspect\nCtrl+Shift+Space dictate   hold Right Ctrl to talk\nCtrl+. punctuation width   Ctrl+/ this sheet</string>

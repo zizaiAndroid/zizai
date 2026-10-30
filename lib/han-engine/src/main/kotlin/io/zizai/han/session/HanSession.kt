@@ -184,7 +184,8 @@ class DefaultHanSession(
             Key.SPACE -> current()?.let(::select) ?: handled()
             Key.ENTER -> commitRaw()
             Key.ESCAPE -> cancel()
-            Key.BACKSPACE -> deleteLetter()
+            // Compact keyboards have no Esc: holding Backspace (its auto-repeat) cancels the composition.
+            Key.BACKSPACE -> if (settings().compact && s.repeatCount > 0) cancel() else deleteLetter()
             Key.TAB -> cycleTone(if (s.shift) -1 else 1)
             Key.LEFT -> moveHighlight(-1)
             Key.RIGHT -> moveHighlight(1)
@@ -197,6 +198,14 @@ class DefaultHanSession(
 
     private fun onComposingChar(s: KeyStroke): KeyResult {
         val c = s.codePoint
+        if (settings().compact) {
+            when (c) {
+                ';'.code -> return pager?.page(page)?.getOrNull(1)?.let(::select) ?: handled()
+                '\''.code -> return pager?.page(page)?.getOrNull(2)?.let(::select) ?: handled()
+                ','.code -> return turnPage(-1)
+                '.'.code -> return turnPage(1)
+            }
+        }
         return when {
             (c in 'a'.code..'z'.code && !s.shift) || c.toChar() in DoublePinyin.extraKeys(settings().scheme) -> {
                 input.append(c.toChar())

@@ -22,6 +22,14 @@ import io.zizai.han.session.KeyStroke
 /** What the router asks of the IME; [ZizaiIme] implements it. */
 interface KeyRouterHost {
     val editorInfo: EditorInfo?
+
+    /** The keys the user bound (P2-04): flip, push-to-talk, next proofreading suspect. */
+    val flipKey: Int
+    val pushToTalkKey: Int
+    val suspectKey: Int
+
+    /** Apps where every key goes straight through, as if Zizai weren't there (P2-04). */
+    fun bypassed(packageName: String?): Boolean
     val chineseSubtype: Boolean
     var chineseMode: Boolean
     val sessionActive: Boolean
@@ -67,10 +75,11 @@ class KeyRouter(private val host: KeyRouterHost) {
     fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         event ?: return false
         if (keyCode != KeyEvent.KEYCODE_SHIFT_LEFT && keyCode != KeyEvent.KEYCODE_SHIFT_RIGHT) otherKeySinceShift = true
-        if (keyCode != KeyEvent.KEYCODE_CTRL_RIGHT) otherKeySinceRightCtrl = true
+        if (keyCode != host.pushToTalkKey) otherKeySinceRightCtrl = true
 
         // Rule 1: no editor, or one that takes raw keys (terminals, games).
         val info = host.editorInfo ?: return false
+        if (host.bypassed(info.packageName)) return false
         if (info.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL) return false
 
         val consumed = route(keyCode, event, info)
@@ -89,7 +98,7 @@ class KeyRouter(private val host: KeyRouterHost) {
                     host.chineseMode = !host.chineseMode
                 }
             }
-            KeyEvent.KEYCODE_CTRL_RIGHT -> {
+            host.pushToTalkKey -> {
                 handler.removeCallbacks(startPushToTalk)
                 rightCtrlDownAt = -1
                 if (pushToTalkActive) {
@@ -110,7 +119,7 @@ class KeyRouter(private val host: KeyRouterHost) {
                 }
                 return false
             }
-            KeyEvent.KEYCODE_CTRL_RIGHT -> {
+            host.pushToTalkKey -> {
                 // Rule 2: push-to-talk on a held Right Ctrl. Chords still work: the next key's metaState has Ctrl.
                 if (event.repeatCount == 0) {
                     rightCtrlDownAt = SystemClock.uptimeMillis()
@@ -127,7 +136,7 @@ class KeyRouter(private val host: KeyRouterHost) {
             host.toggleDictation()
             return true
         }
-        if (keyCode == KeyEvent.KEYCODE_F8 && !event.isCtrlPressed && !event.isAltPressed) {
+        if (keyCode == host.suspectKey && !event.isCtrlPressed && !event.isAltPressed) {
             if (host.nextSuspect(forward = !event.isShiftPressed)) return true
         }
         if (event.isCtrlPressed && keyCode == KeyEvent.KEYCODE_SLASH) {
@@ -165,7 +174,7 @@ class KeyRouter(private val host: KeyRouterHost) {
             KeyEvent.KEYCODE_DPAD_DOWN -> Key.DOWN
             KeyEvent.KEYCODE_PAGE_UP -> Key.PAGE_UP
             KeyEvent.KEYCODE_PAGE_DOWN -> Key.PAGE_DOWN
-            KeyEvent.KEYCODE_F2 -> Key.FLIP
+            host.flipKey -> Key.FLIP
             else -> null
         }
         val shift = event.isShiftPressed

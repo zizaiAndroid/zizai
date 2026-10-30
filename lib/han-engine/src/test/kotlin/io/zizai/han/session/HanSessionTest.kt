@@ -288,6 +288,32 @@ class HanSessionTest : FunSpec({
         w.text shouldBe "她的书"
     }
 
+    test("compact preset: ; and ' pick 2nd and 3rd, , and . page, holding Backspace cancels") {
+        val compact = HanSettings(compact = true)
+        fun rig() = FakeEditor().let { e -> e to DefaultHanSession(lexicon, settings = { compact }, editor = e) }
+        fun type(e: FakeEditor, s: DefaultHanSession, keys: String) = keys.forEach { c ->
+            val k = KeyStroke.char(c); e.apply(s.onKey(k), k)
+        }
+        val (e1, s1) = rig()
+        type(e1, s1, "shi")
+        val second = s1.ui.value.candidates[1].text
+        val third = s1.ui.value.candidates[2].text
+        type(e1, s1, ";")
+        e1.text.toString() shouldBe second
+        type(e1, s1, "shi'")
+        e1.text.toString() shouldBe second + third
+
+        val (e2, s2) = rig()
+        type(e2, s2, "yi.")
+        s2.ui.value.page shouldBe 1
+        type(e2, s2, ",")
+        s2.ui.value.page shouldBe 0
+        val held = KeyStroke(Key.BACKSPACE, repeatCount = 1)
+        e2.apply(s2.onKey(held), held)
+        s2.ui.value.mode shouldBe SessionMode.IDLE
+        e2.text.toString() shouldBe ""
+    }
+
     test("flip: an Extension B character flips whole") {
         val r = Rig()
         r.editor.text.append("我𠀀"); r.editor.cursor = 3

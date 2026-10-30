@@ -77,6 +77,29 @@ class ZizaiPrefs private constructor(private val sp: SharedPreferences) {
         get() = sp.getString(KEY_PROOFREAD_MODEL, "").orEmpty()
         set(v) = sp.edit().putString(KEY_PROOFREAD_MODEL, v).apply()
 
+    /** The compact-keyboard preset (P2-04). */
+    var compactKeyboard: Boolean
+        get() = sp.getBoolean(KEY_COMPACT, false)
+        set(v) = sp.edit().putBoolean(KEY_COMPACT, v).apply()
+
+    /** Key codes bound to the flip, push-to-talk and the next proofreading suspect (P2-04). */
+    var flipKey: Int
+        get() = sp.getInt(KEY_FLIP_KEY, android.view.KeyEvent.KEYCODE_F2)
+        set(v) = sp.edit().putInt(KEY_FLIP_KEY, v).apply()
+
+    var pushToTalkKey: Int
+        get() = sp.getInt(KEY_PTT_KEY, android.view.KeyEvent.KEYCODE_CTRL_RIGHT)
+        set(v) = sp.edit().putInt(KEY_PTT_KEY, v).apply()
+
+    var suspectKey: Int
+        get() = sp.getInt(KEY_SUSPECT_KEY, android.view.KeyEvent.KEYCODE_F8)
+        set(v) = sp.edit().putInt(KEY_SUSPECT_KEY, v).apply()
+
+    /** Packages where Zizai lets every hardware key through. */
+    var bypassPackages: Set<String>
+        get() = sp.getStringSet(KEY_BYPASS, emptySet()).orEmpty().toSet()
+        set(v) = sp.edit().putStringSet(KEY_BYPASS, v).apply()
+
     /** Whether the first-hardware-keyboard card has been shown. */
     var hardwareOnboardingShown: Boolean
         get() = sp.getBoolean(KEY_HW_ONBOARDING, false)
@@ -97,6 +120,11 @@ class ZizaiPrefs private constructor(private val sp: SharedPreferences) {
         private const val KEY_SCHEME = "pinyin_scheme"
         private const val KEY_FUZZY = "fuzzy_pinyin"
         private const val KEY_PROOFREAD = "proofread_enabled"
+        private const val KEY_COMPACT = "compact_keyboard"
+        private const val KEY_FLIP_KEY = "flip_key"
+        private const val KEY_PTT_KEY = "push_to_talk_key"
+        private const val KEY_SUSPECT_KEY = "suspect_key"
+        private const val KEY_BYPASS = "bypass_packages"
         private const val KEY_PROOFREAD_PROVIDER = "proofread_provider"
         private const val KEY_PROOFREAD_MODEL = "proofread_model"
 

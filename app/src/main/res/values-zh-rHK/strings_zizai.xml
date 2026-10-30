@@ -56,6 +56,15 @@
     <string name="zizai__proofread__pick">從你的服務商中選擇</string>
     <string name="zizai__proofread__no_providers">請先在語音輸入設置中添加帶聊天模型的服務商</string>
 
+    <string name="zizai__compact__title">緊湊鍵盤</string>
+    <string name="zizai__compact__summary">適用於沒有數字行或 Esc 的鍵盤：; 和 \' 選第 2、3 個候選，, 和 . 翻頁，長按退格取消</string>
+    <string name="zizai__bind__flip">改字鍵</string>
+    <string name="zizai__bind__ptt">按住説話鍵</string>
+    <string name="zizai__bind__suspect">下一處可疑錯字</string>
+    <string name="zizai__bind__press">在鍵盤上按下要使用的鍵</string>
+    <string name="zizai__bypass__title">直接接收按鍵的應用</string>
+    <string name="zizai__bypass__none">無。選擇字在不應介入的應用（終端、遊戲）。</string>
+
     <string name="zizai__cheat_sheet__title">快捷鍵</string>
     <string name="zizai__cheat_sheet__summary">實體鍵盤使用。打字時按 Ctrl+/ 查看。</string>
     <string name="zizai__cheat_sheet">空格 · 1–9 選字\n= − 翻頁   ← → 移動   ↓ 按聲調查看全部同音字\nTab 聲調篩選   [ ] 以詞定字\n回車 輸入字母   Esc 取消   Shift 中/英\nF2 或 Alt+空格 改光標前的字   Ctrl+F2 改詞\nF8 下一處可疑錯字\nCtrl+Shift+空格 語音輸入   按住右 Ctrl 説話\nCtrl+. 標點全/半角   Ctrl+/ 本表</string>

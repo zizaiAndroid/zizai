@@ -55,6 +55,15 @@
     <string name="zizai__proofread__pick">从你的服务商中选择</string>
     <string name="zizai__proofread__no_providers">请先在语音输入设置中添加带聊天模型的服务商</string>
 
+    <string name="zizai__compact__title">紧凑键盘</string>
+    <string name="zizai__compact__summary">适用于没有数字行或 Esc 的键盘：; 和 \' 选第 2、3 个候选，, 和 . 翻页，长按退格取消</string>
+    <string name="zizai__bind__flip">改字键</string>
+    <string name="zizai__bind__ptt">按住说话键</string>
+    <string name="zizai__bind__suspect">下一处可疑错字</string>
+    <string name="zizai__bind__press">在键盘上按下要使用的键</string>
+    <string name="zizai__bypass__title">直接接收按键的应用</string>
+    <string name="zizai__bypass__none">无。选择字在不应介入的应用（终端、游戏）。</string>
+
     <string name="zizai__cheat_sheet__title">快捷键</string>
     <string name="zizai__cheat_sheet__summary">实体键盘使用。打字时按 Ctrl+/ 查看。</string>
     <string name="zizai__cheat_sheet">空格 · 1–9 选字\n= − 翻页   ← → 移动   ↓ 按声调查看全部同音字\nTab 声调筛选   [ ] 以词定字\n回车 输入字母   Esc 取消   Shift 中/英\nF2 或 Alt+空格 改光标前的字   Ctrl+F2 改词\nF8 下一处可疑错字\nCtrl+Shift+空格 语音输入   按住右 Ctrl 说话\nCtrl+. 标点全/半角   Ctrl+/ 本表</string>

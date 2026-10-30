@@ -111,6 +111,11 @@ data class HanSettings(
     val fuzzy: Set<io.zizai.han.parse.Fuzzy> = emptySet(),
     /** Flip by Cantonese readings: dictation is in Cantonese (P2-10). */
     val flipCantonese: Boolean = false,
+    /**
+     * The compact-keyboard preset (Appendix A, P2-04), for keyboards with no number row, arrows, Ctrl or
+     * Esc: `;` and `'` pick the 2nd and 3rd candidates, `,` and `.` page, and holding Backspace cancels.
+     */
+    val compact: Boolean = false,
 )
 
 /**

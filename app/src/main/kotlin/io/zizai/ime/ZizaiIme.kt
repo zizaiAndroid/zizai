@@ -92,6 +92,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         scheme = prefs.scheme,
         fuzzy = prefs.fuzzy,
         flipCantonese = appPrefs.dictate.activeInputLanguage.get().startsWith("yue"),
+        compact = prefs.compactKeyboard,
     )
 
     /** Never learn in incognito mode, password fields, or fields that ask for no personalized learning. */
@@ -280,6 +281,10 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     // ---- KeyRouterHost ----
 
     override val editorInfo: EditorInfo? get() = ims.currentInputEditorInfo
+    override val flipKey: Int get() = prefs.flipKey
+    override val pushToTalkKey: Int get() = prefs.pushToTalkKey
+    override val suspectKey: Int get() = prefs.suspectKey
+    override fun bypassed(packageName: String?): Boolean = packageName != null && packageName in prefs.bypassPackages
 
     override val chineseSubtype: Boolean
         get() = subtypeManager.activeSubtype.primaryLocale.languageTag().lowercase().let {
