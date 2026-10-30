@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Machine draft from values-zh-rCN/strings_zizai.xml by OpenCC hong_kong (tools/han-dict-builder, strings mode); review before release. -->
+<!-- 字在 Zizai: strings for Zizai's own screens (docs/IMPLEMENTATION_PLAN.md P1-17). -->
+<resources>
+    <string name="zizai__chinese__title">中文</string>
+    <string name="zizai__chinese__summary">輸出字形、候選詞、實體鍵盤</string>
+
+    <string name="zizai__output_script__title">語音輸入的中文字形</string>
+    <string name="zizai__output_script__simplified">簡體</string>
+    <string name="zizai__output_script__traditional">繁體（OpenCC 標準）</string>
+    <string name="zizai__output_script__taiwan">繁體（台灣）</string>
+    <string name="zizai__output_script__taiwan_phrases">繁體（台灣，含台灣用語，如“軟體”）</string>
+    <string name="zizai__output_script__hong_kong">繁體（香港）</string>
+    <string name="zizai__output_script__as_is">保持識別結果</string>
+
+    <string name="zizai__scheme__title">拼音方案</string>
+    <string name="zizai__scheme__quanpin">全拼</string>
+    <string name="zizai__scheme__xiaohe">小鶴雙拼</string>
+    <string name="zizai__scheme__ziranma">自然碼雙拼</string>
+    <string name="zizai__scheme__microsoft">微軟雙拼</string>
+    <string name="zizai__fuzzy__title">模糊音</string>
+    <string name="zizai__fuzzy__none">關閉。打開你分不清的音。</string>
+
+    <string name="zizai__page_size__title">每頁候選數</string>
+    <string name="zizai__hardware_mode__title">實體鍵盤</string>
+    <string name="zizai__hardware_mode__auto">自動：用實體鍵盤打字時切換到浮動候選窗</string>
+    <string name="zizai__hardware_mode__touch">始終顯示屏幕鍵盤</string>
+    <string name="zizai__hardware_mode__hardware">始終使用浮動候選窗</string>
+
+    <string name="zizai__full_width__title">全角標點</string>
+    <string name="zizai__full_width__summary">中文模式下輸入，。？而不是 ,.?（Ctrl+. 切換）</string>
+    <string name="zizai__cjk_spacing__title">中英文之間加空格</string>
+    <string name="zizai__cjk_spacing__summary">語音輸入時寫成“用 Kotlin 寫”而不是“用Kotlin寫”</string>
+
+    <string name="zizai__modern_pack__title">現代詞庫</string>
+    <string name="zizai__modern_pack__summary">下載 {size} MB 的常用新詞（微信、外賣、朋友圈）和更好的排序。來自 CC-CEDICT 和 OpenSubtitles，CC BY-SA 4.0。</string>
+    <string name="zizai__modern_pack__downloading">正在下載… {progress}%</string>
+    <string name="zizai__modern_pack__installed">已安裝。關閉即可刪除，改用內置詞庫。</string>
+    <string name="zizai__modern_pack__failed">下載失敗。請檢查網絡後重試。</string>
+
+    <string name="zizai__cheat_sheet__title">快捷鍵</string>
+    <string name="zizai__cheat_sheet__summary">實體鍵盤使用。打字時按 Ctrl+/ 查看。</string>
+    <string name="zizai__cheat_sheet">空格 · 1–9 選字\n= − 翻頁   ← → 移動   ↓ 按聲調查看全部同音字\nTab 聲調篩選   [ ] 以詞定字\n回車 輸入字母   Esc 取消   Shift 中/英\nF2 或 Alt+空格 改光標前的字   Ctrl+F2 改詞\nCtrl+Shift+空格 語音輸入   按住右 Ctrl 説話\nCtrl+. 標點全/半角   Ctrl+/ 本表</string>
+    <string name="zizai__close">關閉</string>
+</resources>

@@ -114,13 +114,16 @@ def write(qualifier, entries):
 def main():
     en = read_strings(MAIN_RES / "values" / "strings.xml", MAIN_RES / "values" / "strings_dont_translate.xml")
     zh_cn = read_strings(MAIN_RES / "values-zh-rCN" / "strings.xml")
+    # Drafted from zh-CN by OpenCC (tools/han-dict-builder, strings mode; P2-09).
+    zh_tw = read_strings(MAIN_RES / "values-zh-rTW" / "strings.xml")
+    zh_hk = read_strings(MAIN_RES / "values-zh-rHK" / "strings.xml")
     if not en:
         sys.exit("no upstream strings found; run from the repository")
     counts = {
         "values": write("values", overlay(en, "Zizai Keyboard", "Zizai", EN_KEEP, EN_OVERRIDES)),
         "values-zh-rCN": write("values-zh-rCN", overlay(zh_cn, "字在输入法", "字在", set(), ZH_HANS_OVERRIDES)),
-        "values-zh-rTW": write("values-zh-rTW", overlay({}, "", "", set(), ZH_HANT_OVERRIDES)),
-        "values-zh-rHK": write("values-zh-rHK", overlay({}, "", "", set(), ZH_HANT_OVERRIDES)),
+        "values-zh-rTW": write("values-zh-rTW", overlay(zh_tw, "字在輸入法", "字在", set(), ZH_HANT_OVERRIDES)),
+        "values-zh-rHK": write("values-zh-rHK", overlay(zh_hk, "字在輸入法", "字在", set(), ZH_HANT_OVERRIDES)),
     }
     for qualifier, n in counts.items():
         print(f"{qualifier}: {n} strings")

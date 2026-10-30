@@ -21,6 +21,7 @@ import kotlin.system.exitProcess
  * ```
  * ./gradlew :tools:han-dict-builder:run
  * ./gradlew :tools:han-dict-builder:run --args="--ext-out build/han-ext"
+ * ./gradlew :tools:han-dict-builder:run --args="--strings app/src/main/res"   (Traditional UI drafts, P2-09)
  * ./gradlew :tools:han-dict-builder:run --args="--lock FILE --cache DIR --out DIR"
  * ```
  * Paths default to the repository layout, relative to the repository root.
@@ -31,6 +32,10 @@ fun main(args: Array<String>) {
     val cache = File(opts["--cache"] ?: "build/han-sources")
     val outDir = File(opts["--out"] ?: "app/src/main/assets/han")
     val extOut = opts["--ext-out"]?.let(::File)
+    opts["--strings"]?.let { res ->
+        TraditionalStrings.convert(File(res), TraditionalStrings.converter(File(outDir, "zh-convert.bin")))
+        return
+    }
     try {
         build(lockFile, cache, outDir, extOut)
     } catch (e: IllegalStateException) {
