@@ -36,14 +36,22 @@ object SourceLock {
     }
 }
 
-/** Fails the build on any license that isn't on the allow-list, and on anything GPL, ever. */
+/**
+ * Fails the build on any license that isn't on the allow-list, and on anything GPL, ever. Share-alike
+ * data may only feed the separately downloaded packs, never the bundled core (docs/ARCHITECTURE.md §6.8).
+ */
 object LicenseGate {
     val ALLOWED = setOf("Apache-2.0", "MIT", "BSD-3-Clause", "Unicode-3.0", "CC-BY-4.0")
+
+    /** Sources that only the downloadable packs read, and the extra licenses they may carry. */
+    val PACK_ONLY = setOf("pinyin-flex")
+    val PACK_ALLOWED = ALLOWED + "CC-BY-SA-4.0"
 
     fun check(sources: List<Source>) {
         for (s in sources) {
             check("GPL" !in s.license.uppercase()) { "${s.name}: GPL-family license ${s.license} is never allowed" }
-            check(s.license in ALLOWED) { "${s.name}: license ${s.license} is not on the allow-list $ALLOWED" }
+            val allowed = if (s.name in PACK_ONLY) PACK_ALLOWED else ALLOWED
+            check(s.license in allowed) { "${s.name}: license ${s.license} is not on the allow-list $allowed" }
         }
     }
 }

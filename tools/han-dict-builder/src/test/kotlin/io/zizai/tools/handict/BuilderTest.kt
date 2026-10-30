@@ -57,12 +57,18 @@ class BuilderTest : FunSpec({
         shouldThrow<IllegalStateException> { LicenseGate.check(listOf(src("GPL-3.0"))) }.message shouldContain "never"
         shouldThrow<IllegalStateException> { LicenseGate.check(listOf(src("LGPL-3.0"))) }
         shouldThrow<IllegalStateException> { LicenseGate.check(listOf(src("CC-BY-SA-4.0"))) }
+        // Share-alike only for a named pack source, and GPL not even there.
+        LicenseGate.check(listOf(Source("pinyin-flex", "CC-BY-SA-4.0", "0", "none", "https://example.invalid")))
+        shouldThrow<IllegalStateException> {
+            LicenseGate.check(listOf(Source("pinyin-flex", "GPL-3.0", "0", "none", "https://example.invalid")))
+        }
     }
 
     test("sources.lock parses and passes the gate") {
         val lock = SourceLock.read(File("sources.lock"))
         lock.map { it.name }.take(2) shouldBe listOf("unihan", "aosp-rawdict")
-        lock.map { it.name }.toSet() shouldBe (setOf("unihan", "aosp-rawdict") + OpenCc.DICTIONARIES.values.flatten())
+        lock.map { it.name }.toSet() shouldBe
+            (setOf("unihan", "aosp-rawdict") + OpenCc.DICTIONARIES.values.flatten() + LicenseGate.PACK_ONLY)
         LicenseGate.check(lock)
     }
 

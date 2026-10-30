@@ -37,6 +37,7 @@ application {
 tasks.named<JavaExec>("run") {
     workingDir = rootDir
     maxHeapSize = "2g"
+    jvmArgs("--enable-native-access=ALL-UNNAMED") // sqlite-jdbc loads its native library
 }
 
 tasks.withType<Test> {
@@ -49,6 +50,8 @@ tasks.withType<Test> {
 dependencies {
     implementation(projects.lib.hanEngine)
     implementation(projects.lib.zhText)
+    // Reads the upstream Pinyin pack (a SQLite table) for han-ext-modern.bin; build-time only, Apache-2.0.
+    implementation("org.xerial:sqlite-jdbc:3.49.1.0")
 
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.runner.junit5)

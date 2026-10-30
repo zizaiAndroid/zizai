@@ -11,3 +11,6 @@ opencc-TWPhrasesIT     Apache-2.0   3a4a2ad207f3a9442eb8f399630cf982c2ffc561df9c
 opencc-TWPhrasesName   Apache-2.0   76e643569a30ea54e7ab6e52621fd4c396e01ee6dc2d15b7d25bf23addf4438a  none    https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/TWPhrasesName.txt
 opencc-TWPhrasesOther  Apache-2.0   6d0365fd180283f3e14b44f63d19d1aca045d60b0e000765902ad889a90d7a33  none    https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/TWPhrasesOther.txt
 opencc-HKVariants      Apache-2.0   c3c93c35885902ba2b12a3235a7761b00fb2b027f36aa8314db2f6b6ad51d374  none    https://raw.githubusercontent.com/BYVoid/OpenCC/ver.1.1.9/data/dictionary/HKVariants.txt
+
+# Downloadable pack only (han-ext-modern.bin), never bundled: CC BY-SA 4.0 is allowed here and nowhere else.
+pinyin-flex     CC-BY-SA-4.0 861309d3c2f5461808b3f1dcb28eeb284e9a67c27b2130d03233d927b0eb0159  none    https://github.com/zizaiAndroid/zizai/releases/download/language-packs-v1/net.devemperor.dictate.pinyin.flex
