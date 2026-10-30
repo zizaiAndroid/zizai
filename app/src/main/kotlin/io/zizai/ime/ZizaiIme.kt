@@ -211,9 +211,34 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
      * in Chinese mode, the 改 chip that flips it (P1-18). Null lets upstream assemble its own.
      */
     fun touchCandidates(): List<SuggestionCandidate>? {
-        if (!session.isActive) return flipChip()?.let(::listOf)
-        return session.peekCandidates(TOUCH_CANDIDATES).mapIndexed { i, c -> HanSuggestionCandidate(c.text, i) }
+        if (!session.isActive) {
+            stripOffset = 0
+            return flipChip()?.let(::listOf)
+        }
+        // A new composition (or flip) starts at the first window.
+        val key = session.ui.value.let { "${it.mode}|${it.preedit}|${it.toneFilter}" }
+        if (key != stripKey) {
+            stripKey = key
+            stripOffset = 0
+        }
+        // P2-05: a window of candidates between the tone chip and the paging chips, so every homophone
+        // can be reached by touch without laying hundreds of items out at once.
+        val pulled = session.peekCandidates(stripOffset + TOUCH_CANDIDATES + 1)
+        val window = pulled.drop(stripOffset).take(TOUCH_CANDIDATES)
+        return buildList {
+            if (session.ui.value.mode != io.zizai.han.session.SessionMode.RECONVERTING || window.size > 1) {
+                add(HanSuggestionCandidate(toneLabel(session.ui.value.toneFilter), HanSuggestionCandidate.TONE_CHIP))
+            }
+            if (stripOffset > 0) add(HanSuggestionCandidate("◂", HanSuggestionCandidate.PREVIOUS_CHIP))
+            window.forEachIndexed { i, c -> add(HanSuggestionCandidate(c.text, stripOffset + i)) }
+            if (pulled.size > stripOffset + TOUCH_CANDIDATES) add(HanSuggestionCandidate("更多 ▸", HanSuggestionCandidate.NEXT_CHIP))
+        }
     }
+
+    private var stripOffset = 0
+    private var stripKey = ""
+
+    private fun toneLabel(tone: Int) = "声调 " + arrayOf("全部", "ˉ", "ˊ", "ˇ", "ˋ", "轻")[tone]
 
     private fun flipChip(): SuggestionCandidate? {
         if (hardware.active || !chineseSubtype || !chineseMode) return null
@@ -227,10 +252,23 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     /** From `KeyboardManager.commitCandidate`; true when it was one of ours. */
     fun onTouchCandidate(candidate: SuggestionCandidate): Boolean = guard(false) {
         val han = candidate as? HanSuggestionCandidate ?: return@guard false
-        if (han.index == HanSuggestionCandidate.FLIP_CHIP) {
-            dispatch(KeyStroke(Key.FLIP), fromHardware = false)
-            nlpManager.refreshCandidates()
-            return@guard true
+        when (han.index) {
+            HanSuggestionCandidate.FLIP_CHIP -> {
+                dispatch(KeyStroke(Key.FLIP), fromHardware = false)
+                nlpManager.refreshCandidates()
+                return@guard true
+            }
+            HanSuggestionCandidate.TONE_CHIP -> {
+                dispatch(KeyStroke(Key.TAB), fromHardware = false)
+                nlpManager.refreshCandidates()
+                return@guard true
+            }
+            HanSuggestionCandidate.NEXT_CHIP, HanSuggestionCandidate.PREVIOUS_CHIP -> {
+                val step = if (han.index == HanSuggestionCandidate.NEXT_CHIP) TOUCH_CANDIDATES else -TOUCH_CANDIDATES
+                stripOffset = (stripOffset + step).coerceAtLeast(0)
+                nlpManager.refreshCandidates()
+                return@guard true
+            }
         }
         val size = prefs.pageSize
         (session.onCandidateTapped(han.index / size, han.index % size) as? KeyResult.Handled)?.let { editor.apply(it.edits) }

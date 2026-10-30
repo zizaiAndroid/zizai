@@ -220,6 +220,7 @@ bash tools/fetch-sherpa-onnx.sh
 | P2-03 | Mostly done | Fuzzy pairs (all 11), double Pinyin 小鹤, 自然码 and 微软 with golden tests, both in 中文 settings. Not yet: Sogou, Ziguang, Pinyin Jiajia schemes |
 | P2-01 | Mostly done | Ctrl+F2 flips the 2–4-character word before the cursor (main readings first), falling back to one character. Not yet: flipping a selection |
 | P2-10 | Done | han-yue.bin (Unihan kCantonese plus kSMSZD2003Readings, 659 Jyutping syllables, 30k characters; written-Cantonese characters ranked up via kUnihanCore2020). The flip uses it when the dictation language is Cantonese |
+| P2-05 | Mostly done | The touch strip leads with a tone chip (cycles like Tab) and pages through every candidate 40 at a time (◂ / 更多 ▸). Not yet: a grid sheet with tone tabs (needs a hook in the keyboard layout) |
 | P1-20 | Partly | Exceptions reset the session; `zizai.onKey` trace sections and a `ZizaiLatency` log. JVM: first page 0.08–0.14 ms. Debug build on the Pixel: p50 ≈ 8 ms, p95 ≈ 14–20 ms, which is debuggable ART; the release-optimized `benchmark` build still has to be measured (it must be enabled as a keyboard) |
 | P1-21, P1-22 | Yours | Store listing and closed test |
 
