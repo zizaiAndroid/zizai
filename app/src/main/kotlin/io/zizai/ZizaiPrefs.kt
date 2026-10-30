@@ -64,6 +64,19 @@ class ZizaiPrefs private constructor(private val sp: SharedPreferences) {
             .mapNotNull { runCatching { Fuzzy.valueOf(it) }.getOrNull() }.toSet()
         set(v) = sp.edit().putStringSet(KEY_FUZZY, v.map { it.name }.toSet()).apply()
 
+    /** LLM homophone proofreading of dictation (P2-08): off by default, and with no default model. */
+    var proofreadEnabled: Boolean
+        get() = sp.getBoolean(KEY_PROOFREAD, false)
+        set(v) = sp.edit().putBoolean(KEY_PROOFREAD, v).apply()
+
+    var proofreadProvider: String
+        get() = sp.getString(KEY_PROOFREAD_PROVIDER, "").orEmpty()
+        set(v) = sp.edit().putString(KEY_PROOFREAD_PROVIDER, v).apply()
+
+    var proofreadModel: String
+        get() = sp.getString(KEY_PROOFREAD_MODEL, "").orEmpty()
+        set(v) = sp.edit().putString(KEY_PROOFREAD_MODEL, v).apply()
+
     /** Whether the first-hardware-keyboard card has been shown. */
     var hardwareOnboardingShown: Boolean
         get() = sp.getBoolean(KEY_HW_ONBOARDING, false)
@@ -83,6 +96,9 @@ class ZizaiPrefs private constructor(private val sp: SharedPreferences) {
         private const val KEY_HW_ONBOARDING = "hardware_onboarding_shown"
         private const val KEY_SCHEME = "pinyin_scheme"
         private const val KEY_FUZZY = "fuzzy_pinyin"
+        private const val KEY_PROOFREAD = "proofread_enabled"
+        private const val KEY_PROOFREAD_PROVIDER = "proofread_provider"
+        private const val KEY_PROOFREAD_MODEL = "proofread_model"
 
         @Volatile private var instance: ZizaiPrefs? = null
 

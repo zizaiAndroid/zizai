@@ -30,12 +30,22 @@ import io.zizai.zhtext.ZhText
 class TranscriptPostProcessingSink(private val inner: DictationSink, private val transform: (String) -> String) :
     DictationSink by inner {
 
-    override fun commitText(text: String, verify: Boolean) = inner.commitText(transform(text), verify)
+    override fun commitText(text: String, verify: Boolean): Boolean {
+        val out = transform(text)
+        return inner.commitText(out, verify).also { if (it) proofread(out) }
+    }
     override fun deleteLastText(text: String) = inner.deleteLastText(transform(text))
     override fun setDictationPreview(newText: String, prevText: String) =
         inner.setDictationPreview(transform(newText), transform(prevText))
-    override fun commitDictationFinal(finalText: String, prevText: String) =
-        inner.commitDictationFinal(transform(finalText), transform(prevText))
+    override fun commitDictationFinal(finalText: String, prevText: String): Boolean {
+        val out = transform(finalText)
+        return inner.commitDictationFinal(out, transform(prevText)).also { if (it) proofread(out) }
+    }
+
+    /** Hands committed Chinese dictation to proofreading, when that is on (P2-08). */
+    private fun proofread(text: String) {
+        io.zizai.ime.ZizaiIme.current?.onDictationCommitted(text)
+    }
     override fun clearDictationPreview(prevText: String) = inner.clearDictationPreview(transform(prevText))
     override fun holdsPreview(prevText: String) = inner.holdsPreview(transform(prevText))
 

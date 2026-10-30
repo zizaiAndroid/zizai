@@ -123,6 +123,8 @@ data class ReconversionTarget(
     val end: Int,
     val before: String = "",
     val after: String = "",
+    /** Options to offer right after the original, such as a proofreading model's suggestions (P2-08). */
+    val preferred: List<String> = emptyList(),
 )
 
 /** One row of the expanded grid: a tone-marked syllable and its characters. */

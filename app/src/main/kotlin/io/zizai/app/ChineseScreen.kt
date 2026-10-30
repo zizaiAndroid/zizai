@@ -115,6 +115,8 @@ fun ChineseScreen() = FlorisScreen {
 
         ModernPackRow()
 
+        ProofreadRows(prefs)
+
         val navController = LocalNavController.current
         Preference(
             title = stringRes(R.string.zizai__words__title),
@@ -175,6 +177,64 @@ private fun FuzzyPreference(prefs: ZizaiPrefs) {
                                 prefs.fuzzy = on
                             })
                             Text(labels.getValue(f))
+                        }
+                    }
+                }
+            },
+        )
+    }
+}
+
+/**
+ * LLM homophone proofreading (P2-08): the switch stays disabled until a model is picked from the user's
+ * own configured providers, and says what it sends where.
+ */
+@Composable
+private fun ProofreadRows(prefs: ZizaiPrefs) {
+    var enabled by remember { mutableStateOf(prefs.proofreadEnabled) }
+    var provider by remember { mutableStateOf(prefs.proofreadProvider) }
+    var model by remember { mutableStateOf(prefs.proofreadModel) }
+    var picking by remember { mutableStateOf(false) }
+    val choices = remember { io.zizai.dictate.Proofreader.choices() }
+    val chosen = choices.firstOrNull { it.providerId == provider && it.model == model }
+
+    Preference(
+        title = stringRes(R.string.zizai__proofread__model),
+        summary = chosen?.let { "${it.label} · ${it.model}" }
+            ?: if (choices.isEmpty()) stringRes(R.string.zizai__proofread__no_providers) else stringRes(R.string.zizai__proofread__pick),
+        onClick = { if (choices.isNotEmpty()) picking = true },
+    )
+    Preference(
+        title = stringRes(R.string.zizai__proofread__title),
+        summary = if (chosen == null) stringRes(R.string.zizai__proofread__needs_model) else stringRes(R.string.zizai__proofread__summary),
+        enabledIf = { chosen != null },
+        onClick = { if (chosen != null) { enabled = !enabled; prefs.proofreadEnabled = enabled } },
+        trailing = {
+            Switch(
+                checked = enabled && chosen != null,
+                enabled = chosen != null,
+                onCheckedChange = { enabled = it; prefs.proofreadEnabled = it },
+            )
+        },
+    )
+    if (picking) {
+        AlertDialog(
+            onDismissRequest = { picking = false },
+            confirmButton = { TextButton(onClick = { picking = false }) { Text(stringRes(R.string.zizai__close)) } },
+            title = { Text(stringRes(R.string.zizai__proofread__model)) },
+            text = {
+                Column {
+                    for (c in choices) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().clickable {
+                                provider = c.providerId; model = c.model
+                                prefs.proofreadProvider = c.providerId; prefs.proofreadModel = c.model
+                                picking = false
+                            }.padding(vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = c == chosen, onClick = null)
+                            Text("${c.label} · ${c.model}")
                         }
                     }
                 }

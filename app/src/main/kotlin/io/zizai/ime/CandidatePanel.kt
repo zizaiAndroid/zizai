@@ -143,10 +143,11 @@ class StatusPill(context: Context) : TextView(context) {
         visibility = View.GONE
     }
 
-    fun render(chinese: Boolean, recording: Boolean) {
+    fun render(chinese: Boolean, recording: Boolean, suspects: Int = 0) {
         text = buildString {
             append(if (chinese) "中" else "英")
             if (recording) append("  ● 录音")
+            if (suspects > 0) append("  F8 改 $suspects") // proofreading suspects (P2-08)
         }
     }
 }

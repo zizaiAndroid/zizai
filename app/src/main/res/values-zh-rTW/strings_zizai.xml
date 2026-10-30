@@ -49,8 +49,15 @@
     <string name="zizai__words__blocked">已遮蔽</string>
     <string name="zizai__words__unblock">點垃圾桶取消遮蔽</string>
 
+    <string name="zizai__proofread__title">檢查語音輸入的同音錯別字</string>
+    <string name="zizai__proofread__summary">每次中文語音輸入後，文字會發送給所選模型，由它標出可能的同音錯字（在/再、的/地）。按 F8 逐個檢視；不選擇修改就不會有任何變化。</string>
+    <string name="zizai__proofread__needs_model">請先選擇模型。沒有預設模型：文字會發送給你選擇的服務商。</string>
+    <string name="zizai__proofread__model">校對模型</string>
+    <string name="zizai__proofread__pick">從你的服務商中選擇</string>
+    <string name="zizai__proofread__no_providers">請先在語音輸入設定中新增帶聊天模型的服務商</string>
+
     <string name="zizai__cheat_sheet__title">快捷鍵</string>
     <string name="zizai__cheat_sheet__summary">實體鍵盤使用。打字時按 Ctrl+/ 檢視。</string>
-    <string name="zizai__cheat_sheet">空格 · 1–9 選字\n= − 翻頁   ← → 移動   ↓ 按聲調檢視全部同音字\nTab 聲調篩選   [ ] 以詞定字\n回車 輸入字母   Esc 取消   Shift 中/英\nF2 或 Alt+空格 改游標前的字   Ctrl+F2 改詞\nCtrl+Shift+空格 語音輸入   按住右 Ctrl 說話\nCtrl+. 標點全/半形   Ctrl+/ 本表</string>
+    <string name="zizai__cheat_sheet">空格 · 1–9 選字\n= − 翻頁   ← → 移動   ↓ 按聲調檢視全部同音字\nTab 聲調篩選   [ ] 以詞定字\n回車 輸入字母   Esc 取消   Shift 中/英\nF2 或 Alt+空格 改游標前的字   Ctrl+F2 改詞\nF8 下一處可疑錯字\nCtrl+Shift+空格 語音輸入   按住右 Ctrl 說話\nCtrl+. 標點全/半形   Ctrl+/ 本表</string>
     <string name="zizai__close">關閉</string>
 </resources>

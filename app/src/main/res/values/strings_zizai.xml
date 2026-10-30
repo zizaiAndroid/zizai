@@ -48,8 +48,15 @@
     <string name="zizai__words__blocked">Blocked</string>
     <string name="zizai__words__unblock">Tap the bin to unblock</string>
 
+    <string name="zizai__proofread__title">Check dictation for homophone errors</string>
+    <string name="zizai__proofread__summary">After each Chinese dictation, the text is sent to the chosen model, which marks likely homophone mistakes (在/再, 的/地). Press F8 to go through them; nothing changes unless you pick a fix.</string>
+    <string name="zizai__proofread__needs_model">Pick a model first. There is no default: the text goes to the provider you choose.</string>
+    <string name="zizai__proofread__model">Proofreading model</string>
+    <string name="zizai__proofread__pick">Choose one of your providers</string>
+    <string name="zizai__proofread__no_providers">Add a provider with a chat model in the dictation settings first</string>
+
     <string name="zizai__cheat_sheet__title">Keyboard shortcuts</string>
     <string name="zizai__cheat_sheet__summary">For a physical keyboard. Press Ctrl+/ while typing to see them.</string>
-    <string name="zizai__cheat_sheet">Space · 1–9 select\n= − page   ← → highlight   ↓ all characters by tone\nTab tone filter   [ ] first/last character of a word\nEnter letters   Esc cancel   Shift 中/英\nF2 or Alt+Space fix the character before the cursor   Ctrl+F2 the word\nCtrl+Shift+Space dictate   hold Right Ctrl to talk\nCtrl+. punctuation width   Ctrl+/ this sheet</string>
+    <string name="zizai__cheat_sheet">Space · 1–9 select\n= − page   ← → highlight   ↓ all characters by tone\nTab tone filter   [ ] first/last character of a word\nEnter letters   Esc cancel   Shift 中/英\nF2 or Alt+Space fix the character before the cursor   Ctrl+F2 the word\nF8 next proofreading suspect\nCtrl+Shift+Space dictate   hold Right Ctrl to talk\nCtrl+. punctuation width   Ctrl+/ this sheet</string>
     <string name="zizai__close">Close</string>
 </resources>

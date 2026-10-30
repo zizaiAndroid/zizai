@@ -181,6 +181,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     }
 
     fun onFinishInputView() {
+        proofread = null // suspects belong to the field they were found in
         resetAll(ResetReason.FIELD_CHANGED)
         hardware.exit()
     }
@@ -375,7 +376,72 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         hardware.pill.render(
             chinese = chineseSubtype && chineseMode,
             recording = DictateController.state.value is DictateController.UiState.Recording,
+            suspects = proofread?.suspects?.size ?: 0,
         )
+    }
+
+    // ---- Proofreading (P2-08) ----
+
+    /** The last dictation's text, where it was inserted, and what the model found in it. */
+    private class ProofreadSpan(val start: Int, val text: String, val suspects: MutableList<io.zizai.zhtext.Suspect>)
+
+    private var proofread: ProofreadSpan? = null
+    private var suspectIndex = -1
+    private var proofreadJob: kotlinx.coroutines.Job? = null
+
+    /** From the dictation sink, once [text] is in the editor. Asks the chosen model in the background. */
+    fun onDictationCommitted(text: String) {
+        if (!io.zizai.dictate.Proofreader.applies(prefs, text)) return
+        val cursor = editor.cursorPosition()
+        if (cursor < text.length) return
+        val start = cursor - text.length
+        proofreadJob?.cancel()
+        proofreadJob = (ims as LifecycleOwner).lifecycleScope.launch {
+            val found = io.zizai.dictate.Proofreader.check(prefs, text)
+            proofread = if (found.isEmpty()) null else ProofreadSpan(start, text, found.toMutableList())
+            suspectIndex = -1
+            renderPill()
+        }
+    }
+
+    /**
+     * Selects the next suspect and opens the flip on it, the model's suggestions first. A suspect whose
+     * text no longer reads back as it did (the user changed it, or the field moved on) is dropped; nothing
+     * changes without the user confirming.
+     */
+    override fun nextSuspect(forward: Boolean): Boolean = guard(false) {
+        val span = proofread ?: return@guard false
+        if (session.isActive) return@guard false
+        val et = ims.currentInputConnection?.getExtractedText(android.view.inputmethod.ExtractedTextRequest(), 0)
+        val full = et?.text?.toString() ?: return@guard false
+        repeat(span.suspects.size) {
+            if (span.suspects.isEmpty()) return@repeat
+            suspectIndex = (suspectIndex + if (forward) 1 else -1).mod(span.suspects.size)
+            val s = span.suspects[suspectIndex]
+            val at = span.start + s.start - et.startOffset
+            if (at < 0 || at + s.original.length > full.length || full.substring(at, at + s.original.length) != s.original) {
+                span.suspects.removeAt(suspectIndex)
+                suspectIndex -= 1
+                return@repeat
+            }
+            val target = io.zizai.han.session.ReconversionTarget(
+                s.original, span.start + s.start, span.start + s.end,
+                before = span.text.substring(maxOf(0, s.start - 6), s.start),
+                after = span.text.substring(s.end, minOf(span.text.length, s.end + 6)),
+                preferred = s.suggestions,
+            )
+            val r = session.startReconversion(target)
+            if (r is KeyResult.Handled) {
+                enterHardwareMode()
+                editor.apply(r.edits)
+                verifyReconversion()
+                renderPill()
+                return@guard true
+            }
+        }
+        if (span.suspects.isEmpty()) proofread = null
+        renderPill()
+        false
     }
 
     /** Any exception inside our code resets the session and lets the key through (P1-20). */

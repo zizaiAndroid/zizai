@@ -511,6 +511,16 @@ class DefaultHanSession(
 
     override fun startReconversion(target: ReconversionTarget): KeyResult {
         if (mode != SessionMode.IDLE) return KeyResult.NotHandled
+        if (target.preferred.isNotEmpty() && target.text.codePointCount(0, target.text.length) > 1) {
+            // A suspect word (他的 → 她的): its suggestions are the options, as Ctrl+F2's word flip has.
+            val options = (listOf(target.text) + target.preferred).distinct()
+            val r = Reconversion(target, emptyList(), options, 1, wholeWord = true, lex = this.lexicon)
+            recon = r
+            toneFilter = 0
+            mode = SessionMode.RECONVERTING
+            publish()
+            return handled(EditorEdit.MarkComposing(target.start, target.end), EditorEdit.SetPreedit(options[1]))
+        }
         val lexicon = if (flipsCantonese()) cantonese!! else this.lexicon
         val cp = target.text.codePointAt(0)
         val ch = lexicon.charIndex(cp)
@@ -560,7 +570,7 @@ class DefaultHanSession(
             val score = maxOf(wordScore(prev + c, prev.isNotEmpty()), wordScore(c + next, next.isNotEmpty()))
             if (score > 0) c to score else null
         }.sortedByDescending { it.second }.map { it.first }
-        return (listOf(r.target.text) + inWords + all).distinct()
+        return (listOf(r.target.text) + r.target.preferred + inWords + all).distinct()
     }
 
     /** The best lexicon score of a word spelled exactly [text], or 0. */

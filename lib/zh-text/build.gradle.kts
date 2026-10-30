@@ -46,6 +46,8 @@ kover {
 }
 
 dependencies {
+    implementation(libs.kotlinx.serialization.json) // the proofreading contract's JSON (P2-08)
+
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.property)
     testImplementation(libs.kotest.runner.junit5)

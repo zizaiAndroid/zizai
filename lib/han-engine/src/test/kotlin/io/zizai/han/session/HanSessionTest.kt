@@ -274,6 +274,20 @@ class HanSessionTest : FunSpec({
         single.type("{C-F2}{ESC}").text shouldBe "一个呢"
     }
 
+    test("a flip can lead with preferred options, for characters and words") {
+        val r = Rig()
+        r.editor.text.append("我在见"); r.editor.cursor = 3
+        r.editor.apply(r.session.startReconversion(ReconversionTarget("在", 1, 2, "我", "见", preferred = listOf("再"))), KeyStroke.of(Key.OTHER))
+        r.text shouldBe "我再见"
+        r.ui.candidates.take(2).map { it.text } shouldBe listOf("在", "再")
+        r.type("\n")
+
+        val w = Rig()
+        w.editor.text.append("他的书"); w.editor.cursor = 0
+        w.editor.apply(w.session.startReconversion(ReconversionTarget("他的", 0, 2, preferred = listOf("她的"))), KeyStroke.of(Key.OTHER))
+        w.text shouldBe "她的书"
+    }
+
     test("flip: an Extension B character flips whole") {
         val r = Rig()
         r.editor.text.append("我𠀀"); r.editor.cursor = 3

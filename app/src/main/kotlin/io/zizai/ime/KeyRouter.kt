@@ -35,6 +35,9 @@ interface KeyRouterHost {
     fun pushToTalk(down: Boolean)
     fun toggleFullWidth()
 
+    /** F8 / Shift+F8: the next or previous proofreading suspect (P2-08). False when there is none. */
+    fun nextSuspect(forward: Boolean): Boolean
+
     /** Ctrl+/ shows or hides the shortcut cheat sheet; any other key hides it. */
     fun toggleCheatSheet()
     fun hideCheatSheet()
@@ -123,6 +126,9 @@ class KeyRouter(private val host: KeyRouterHost) {
             host.enterHardwareMode()
             host.toggleDictation()
             return true
+        }
+        if (keyCode == KeyEvent.KEYCODE_F8 && !event.isCtrlPressed && !event.isAltPressed) {
+            if (host.nextSuspect(forward = !event.isShiftPressed)) return true
         }
         if (event.isCtrlPressed && keyCode == KeyEvent.KEYCODE_SLASH) {
             host.toggleCheatSheet()
