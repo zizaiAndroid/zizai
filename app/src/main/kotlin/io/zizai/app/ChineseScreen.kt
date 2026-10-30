@@ -33,6 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dev.patrickgold.florisboard.R
+import dev.patrickgold.florisboard.app.LocalNavController
+import dev.patrickgold.florisboard.app.Routes
 import dev.patrickgold.florisboard.lib.compose.FlorisScreen
 import dev.patrickgold.jetpref.datastore.ui.Preference
 import io.zizai.ZizaiPrefs
@@ -112,6 +114,13 @@ fun ChineseScreen() = FlorisScreen {
         }
 
         ModernPackRow()
+
+        val navController = LocalNavController.current
+        Preference(
+            title = stringRes(R.string.zizai__words__title),
+            summary = stringRes(R.string.zizai__words__summary),
+            onClick = { navController.navigate(Routes.Settings.ChineseWords) },
+        )
 
         var cheatSheet by remember { mutableStateOf(false) }
         Preference(

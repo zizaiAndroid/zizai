@@ -86,6 +86,36 @@ class LearnedDictionary(private val now: () -> Long = System::currentTimeMillis)
         .distinct()
         .take(n)
 
+    /** Every entry, most used first, for the dictionary screen. */
+    fun entries(): List<Entry> = entries.values
+        .sortedWith(compareByDescending<Entry> { it.count }.thenByDescending { it.lastUsed }.thenBy { it.text })
+
+    fun blockedTexts(): List<String> = blocked.sorted()
+
+    fun remove(text: String, syllables: IntArray) {
+        val e = entries.remove(key(text, syllables)) ?: return
+        byFirstSyllable[syllables[0]]?.remove(e)
+        onChanged?.invoke()
+    }
+
+    fun unblock(text: String) {
+        if (blocked.remove(text)) onChanged?.invoke()
+    }
+
+    /** Adds an imported entry: counts and recency take the larger of the two, so nothing is lost. */
+    fun merge(text: String, syllables: IntArray, count: Int, lastUsed: Long, assembled: Boolean) {
+        if (text.isEmpty() || syllables.isEmpty() || syllables.size != text.codePointCount(0, text.length)) return
+        val key = key(text, syllables)
+        val e = entries[key] ?: Entry(text, syllables, 0, 0, false).also {
+            entries[key] = it
+            byFirstSyllable.getOrPut(syllables[0]) { ArrayList() } += it
+        }
+        e.count = maxOf(e.count, count)
+        e.lastUsed = maxOf(e.lastUsed, lastUsed)
+        e.assembled = e.assembled || assembled
+        onChanged?.invoke()
+    }
+
     fun clear() {
         entries.clear()
         byFirstSyllable.clear()

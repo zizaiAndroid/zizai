@@ -37,6 +37,17 @@
     <string name="zizai__modern_pack__installed">已安装。关闭即可删除，改用内置词库。</string>
     <string name="zizai__modern_pack__failed">下载失败。请检查网络后重试。</string>
 
+    <string name="zizai__words__title">我的词</string>
+    <string name="zizai__words__summary">键盘学到的词和短语，以及你屏蔽的候选</string>
+    <string name="zizai__words__export">导出到文件</string>
+    <string name="zizai__words__import">从文件导入</string>
+    <string name="zizai__words__import_summary">合并到现有词库，不会丢失</string>
+    <string name="zizai__words__exported">已导出</string>
+    <string name="zizai__words__imported">已导入</string>
+    <string name="zizai__words__empty">还没有学到词。选过两次的词和你组成的短语会出现在这里。</string>
+    <string name="zizai__words__blocked">已屏蔽</string>
+    <string name="zizai__words__unblock">点垃圾桶取消屏蔽</string>
+
     <string name="zizai__cheat_sheet__title">快捷键</string>
     <string name="zizai__cheat_sheet__summary">实体键盘使用。打字时按 Ctrl+/ 查看。</string>
     <string name="zizai__cheat_sheet">空格 · 1–9 选字\n= − 翻页   ← → 移动   ↓ 按声调查看全部同音字\nTab 声调筛选   [ ] 以词定字\n回车 输入字母   Esc 取消   Shift 中/英\nF2 或 Alt+空格 改光标前的字   Ctrl+F2 改词\nCtrl+Shift+空格 语音输入   按住右 Ctrl 说话\nCtrl+. 标点全/半角   Ctrl+/ 本表</string>

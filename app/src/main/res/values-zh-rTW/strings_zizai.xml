@@ -38,6 +38,17 @@
     <string name="zizai__modern_pack__installed">已安裝。關閉即可刪除，改用內建詞庫。</string>
     <string name="zizai__modern_pack__failed">下載失敗。請檢查網路後重試。</string>
 
+    <string name="zizai__words__title">我的詞</string>
+    <string name="zizai__words__summary">鍵盤學到的詞和短語，以及你遮蔽的候選</string>
+    <string name="zizai__words__export">匯出到檔案</string>
+    <string name="zizai__words__import">從檔案匯入</string>
+    <string name="zizai__words__import_summary">合併到現有詞庫，不會丟失</string>
+    <string name="zizai__words__exported">已匯出</string>
+    <string name="zizai__words__imported">已匯入</string>
+    <string name="zizai__words__empty">還沒有學到詞。選過兩次的詞和你組成的短語會出現在這裡。</string>
+    <string name="zizai__words__blocked">已遮蔽</string>
+    <string name="zizai__words__unblock">點垃圾桶取消遮蔽</string>
+
     <string name="zizai__cheat_sheet__title">快捷鍵</string>
     <string name="zizai__cheat_sheet__summary">實體鍵盤使用。打字時按 Ctrl+/ 檢視。</string>
     <string name="zizai__cheat_sheet">空格 · 1–9 選字\n= − 翻頁   ← → 移動   ↓ 按聲調檢視全部同音字\nTab 聲調篩選   [ ] 以詞定字\n回車 輸入字母   Esc 取消   Shift 中/英\nF2 或 Alt+空格 改游標前的字   Ctrl+F2 改詞\nCtrl+Shift+空格 語音輸入   按住右 Ctrl 說話\nCtrl+. 標點全/半形   Ctrl+/ 本表</string>
