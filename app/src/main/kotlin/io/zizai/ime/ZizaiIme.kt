@@ -34,7 +34,11 @@ import io.zizai.han.session.Key
 import io.zizai.han.session.KeyResult
 import io.zizai.han.session.KeyStroke
 import io.zizai.han.session.ResetReason
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -57,9 +61,21 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     private val hardware = HardwareMode(ims)
     private val router = KeyRouter(this)
 
-    private val session: HanSession by lazy {
-        DefaultHanSession(HanAssets.lexicon(ims), settings = ::settings, editor = editor)
-    }
+    /** The session, rebuilt when the lexicon changes (the modern pack was installed or deleted, P1-08). */
+    private val sessions = MutableStateFlow<HanSession?>(null)
+    private var sessionGeneration = -1
+
+    private val session: HanSession
+        get() {
+            val generation = HanAssets.generation.value
+            val existing = sessions.value
+            if (existing != null && generation == sessionGeneration) return existing
+            existing?.reset(ResetReason.MODE_SWITCH)
+            return DefaultHanSession(HanAssets.lexicon(ims), settings = ::settings, editor = editor).also {
+                sessionGeneration = generation
+                sessions.value = it
+            }
+        }
 
     private fun settings() = HanSettings(pageSize = prefs.pageSize, fullWidthPunctuation = prefs.fullWidthPunctuation)
 
@@ -79,7 +95,10 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
             chineseMode = !chineseMode
         }
         (ims as LifecycleOwner).lifecycleScope.launch {
-            combine(session.ui, DictateController.state) { ui, _ -> ui }.collect { ui ->
+            session // create it, so the flow below has one to follow
+            @OptIn(ExperimentalCoroutinesApi::class)
+            val ui = sessions.filterNotNull().flatMapLatest { it.ui }
+            combine(ui, DictateController.state) { ui, _ -> ui }.collect { ui ->
                 hardware.panel.render(if (hardware.active) ui else io.zizai.han.session.HanUiState.Idle)
                 renderPill()
                 if (hardware.active) hardware.position()

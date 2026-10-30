@@ -23,6 +23,12 @@
     <string name="zizai__cjk_spacing__title">Space between Chinese and English</string>
     <string name="zizai__cjk_spacing__summary">In dictation: 用 Kotlin 写 instead of 用Kotlin写</string>
 
+    <string name="zizai__modern_pack__title">Modern vocabulary</string>
+    <string name="zizai__modern_pack__summary">Download {size} MB of everyday words (微信, 外卖, 朋友圈) and better ranking. From CC-CEDICT and OpenSubtitles, CC BY-SA 4.0.</string>
+    <string name="zizai__modern_pack__downloading">Downloading… {progress}%</string>
+    <string name="zizai__modern_pack__installed">Installed. Turn off to delete it and use the built-in words.</string>
+    <string name="zizai__modern_pack__failed">The download failed. Check the connection and try again.</string>
+
     <string name="zizai__cheat_sheet__title">Keyboard shortcuts</string>
     <string name="zizai__cheat_sheet__summary">For a physical keyboard. Press Ctrl+/ while typing to see them.</string>
     <string name="zizai__cheat_sheet">Space · 1–9 select\n= − page   ← → highlight   ↓ all characters by tone\nTab tone filter   [ ] first/last character of a word\nEnter letters   Esc cancel   Shift 中/英\nF2 or Alt+Space fix the character before the cursor\nCtrl+Shift+Space dictate   hold Right Ctrl to talk\nCtrl+. punctuation width   Ctrl+/ this sheet</string>

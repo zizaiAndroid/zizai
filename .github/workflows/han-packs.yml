@@ -1,0 +1,62 @@
+# 字在 Zizai: build and publish the downloadable Chinese packs (docs/IMPLEMENTATION_PLAN.md P1-08).
+#
+# Push a tag like `han-packs-v1` (or run it by hand) to build han-ext-modern.bin from the sources pinned in
+# tools/han-dict-builder/sources.lock and attach it to the release of that tag. The builder is
+# deterministic, so the file must match the size and SHA-256 baked into HanPackManager; the job fails
+# rather than publish anything else. A rebuilt pack gets a new tag (-v2, ...) and new constants.
+name: Han packs
+
+on:
+  push:
+    tags: ["han-packs-v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to attach the pack to
+        default: han-packs-v1
+
+permissions:
+  contents: write
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build the packs
+        run: ./gradlew --no-configuration-cache :tools:han-dict-builder:run --args="--ext-out build/han-ext"
+
+      - name: Check against HanPackManager
+        run: |
+          set -euo pipefail
+          f=build/han-ext/han-ext-modern.bin
+          src=app/src/main/kotlin/io/zizai/ime/HanPackManager.kt
+          want_sha=$(grep -oE 'SHA256 = "[0-9a-f]{64}"' "$src" | grep -oE '[0-9a-f]{64}')
+          want_size=$(grep -oE 'SIZE_BYTES = [0-9_]+L' "$src" | grep -oE '[0-9_]+' | tr -d _)
+          got_sha=$(sha256sum "$f" | cut -c1-64)
+          got_size=$(stat -c %s "$f")
+          echo "built $got_size bytes, $got_sha"
+          [ "$got_sha" = "$want_sha" ] && [ "$got_size" = "$want_size" ] || {
+            echo "::error::han-ext-modern.bin ($got_size, $got_sha) does not match HanPackManager ($want_size, $want_sha)"
+            exit 1
+          }
+
+      - name: Publish to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "Chinese packs ($TAG)" \
+            --notes "Downloadable Chinese data for 字在 Zizai. han-ext-modern.bin is CC BY-SA 4.0; see ATTRIBUTION.md."
+          gh release upload "$TAG" build/han-ext/han-ext-modern.bin build/han-ext/ATTRIBUTION.md --clobber

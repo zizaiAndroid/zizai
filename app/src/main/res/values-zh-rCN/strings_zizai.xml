@@ -23,6 +23,12 @@
     <string name="zizai__cjk_spacing__title">中英文之间加空格</string>
     <string name="zizai__cjk_spacing__summary">语音输入时写成“用 Kotlin 写”而不是“用Kotlin写”</string>
 
+    <string name="zizai__modern_pack__title">现代词库</string>
+    <string name="zizai__modern_pack__summary">下载 {size} MB 的常用新词（微信、外卖、朋友圈）和更好的排序。来自 CC-CEDICT 和 OpenSubtitles，CC BY-SA 4.0。</string>
+    <string name="zizai__modern_pack__downloading">正在下载… {progress}%</string>
+    <string name="zizai__modern_pack__installed">已安装。关闭即可删除，改用内置词库。</string>
+    <string name="zizai__modern_pack__failed">下载失败。请检查网络后重试。</string>
+
     <string name="zizai__cheat_sheet__title">快捷键</string>
     <string name="zizai__cheat_sheet__summary">实体键盘使用。打字时按 Ctrl+/ 查看。</string>
     <string name="zizai__cheat_sheet">空格 · 1–9 选字\n= − 翻页   ← → 移动   ↓ 按声调查看全部同音字\nTab 声调筛选   [ ] 以词定字\n回车 输入字母   Esc 取消   Shift 中/英\nF2 或 Alt+空格 改光标前的字\nCtrl+Shift+空格 语音输入   按住右 Ctrl 说话\nCtrl+. 标点全/半角   Ctrl+/ 本表</string>

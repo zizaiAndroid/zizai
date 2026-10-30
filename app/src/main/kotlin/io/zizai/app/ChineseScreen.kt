@@ -21,6 +21,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +35,8 @@ import dev.patrickgold.florisboard.R
 import dev.patrickgold.florisboard.lib.compose.FlorisScreen
 import dev.patrickgold.jetpref.datastore.ui.Preference
 import io.zizai.ZizaiPrefs
+import io.zizai.ime.HanPackManager
+import kotlinx.coroutines.launch
 import io.zizai.zhtext.ZhScript
 import org.florisboard.lib.compose.stringRes
 
@@ -90,6 +94,8 @@ fun ChineseScreen() = FlorisScreen {
             prefs.cjkLatinSpacing = it
         }
 
+        ModernPackRow()
+
         var cheatSheet by remember { mutableStateOf(false) }
         Preference(
             title = stringRes(R.string.zizai__cheat_sheet__title),
@@ -103,6 +109,36 @@ fun ChineseScreen() = FlorisScreen {
                 title = { Text(stringRes(R.string.zizai__cheat_sheet__title)) },
                 text = { Text(stringRes(R.string.zizai__cheat_sheet)) },
             )
+        }
+    }
+}
+
+/** Downloads or deletes the modern vocabulary pack (P1-08). */
+@Composable
+private fun ModernPackRow() {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var installed by remember { mutableStateOf(HanPackManager.isInstalled(context)) }
+    var failed by remember { mutableStateOf(false) }
+    val progress by HanPackManager.progress.collectAsState()
+    val sizeMb = "%.1f".format(HanPackManager.SIZE_BYTES / 1_000_000.0)
+    val summary = when {
+        progress != null -> stringRes(R.string.zizai__modern_pack__downloading, "progress" to "${progress}")
+        failed -> stringRes(R.string.zizai__modern_pack__failed)
+        installed -> stringRes(R.string.zizai__modern_pack__installed)
+        else -> stringRes(R.string.zizai__modern_pack__summary, "size" to sizeMb)
+    }
+    SwitchRow(stringRes(R.string.zizai__modern_pack__title), summary, installed || progress != null) { on ->
+        if (progress != null) return@SwitchRow
+        failed = false
+        if (on) {
+            scope.launch {
+                failed = runCatching { HanPackManager.install(context) }.isFailure
+                installed = HanPackManager.isInstalled(context)
+            }
+        } else {
+            HanPackManager.delete(context)
+            installed = HanPackManager.isInstalled(context)
         }
     }
 }
