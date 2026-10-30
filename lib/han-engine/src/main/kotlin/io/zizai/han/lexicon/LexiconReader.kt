@@ -12,6 +12,7 @@ package io.zizai.han.lexicon
 
 import io.zizai.han.HanEngine
 import io.zizai.han.reading.Mandarin
+import io.zizai.han.reading.Phonology
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
@@ -29,7 +30,7 @@ fun interface WordVisitor {
  *
  * Indices returned here (character, posting, word) are positions in their sections, valid for this file.
  */
-class LexiconReader(buffer: ByteBuffer) {
+class LexiconReader(buffer: ByteBuffer, val phonology: Phonology = Mandarin) {
     private val buf: ByteBuffer = buffer.duplicate().order(ByteOrder.BIG_ENDIAN)
 
     private val charBase: Int
@@ -212,7 +213,7 @@ class LexiconReader(buffer: ByteBuffer) {
     }
 
     private fun checkSyllables(base: Int) {
-        val table = Mandarin.syllables
+        val table = phonology.syllables
         check(buf.getInt(base) == table.size) { "lexicon has ${buf.getInt(base)} syllables, engine has ${table.size}" }
         var at = base + 4
         for (id in 0 until table.size) {
@@ -236,10 +237,11 @@ class LexiconReader(buffer: ByteBuffer) {
         fun readingTone(packed: Int): Int = packed and 7
 
         /** Maps [length] bytes of [channel] from [offset]; Android passes an AssetFileDescriptor's channel. */
-        fun map(channel: FileChannel, offset: Long, length: Long): LexiconReader =
-            LexiconReader(channel.map(FileChannel.MapMode.READ_ONLY, offset, length))
+        fun map(channel: FileChannel, offset: Long, length: Long, phonology: Phonology = Mandarin): LexiconReader =
+            LexiconReader(channel.map(FileChannel.MapMode.READ_ONLY, offset, length), phonology)
 
-        fun open(file: File): LexiconReader = RandomAccessFile(file, "r").use { map(it.channel, 0, it.length()) }
+        fun open(file: File, phonology: Phonology = Mandarin): LexiconReader =
+            RandomAccessFile(file, "r").use { map(it.channel, 0, it.length(), phonology) }
 
         private fun tagName(tag: Int) = String(CharArray(4) { ((tag ushr (24 - 8 * it)) and 0xFF).toChar() })
     }

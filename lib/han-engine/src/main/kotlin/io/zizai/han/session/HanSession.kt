@@ -52,6 +52,8 @@ class DefaultHanSession(
     private val engine: CandidateEngine = CandidateEngine(lexicon),
     private val settings: () -> HanSettings = { HanSettings() },
     private val editor: EditorContext = EditorContext.None,
+    /** Cantonese readings (han-yue.bin), for flipping Cantonese dictation (P2-10). */
+    private val cantonese: LexiconReader? = null,
 ) : HanSession {
     private val state = MutableStateFlow(HanUiState.Idle)
     override val ui: StateFlow<HanUiState> = state.asStateFlow()
@@ -84,6 +86,8 @@ class DefaultHanSession(
         var options: List<String>,
         var index: Int,
         val wholeWord: Boolean = false,
+        /** Whose readings and homophones the flip uses: Mandarin, or Cantonese. */
+        val lex: LexiconReader,
     )
 
     override fun onKey(stroke: KeyStroke): KeyResult = when (mode) {
@@ -441,6 +445,8 @@ class DefaultHanSession(
      */
     private fun reconvertWordBeforeCursor(): KeyResult {
         if (mode != SessionMode.IDLE) return KeyResult.NotHandled
+        // The word lists are Mandarin; Cantonese flips one character at a time until Jyutping words come.
+        if (flipsCantonese()) return reconvertBeforeCursor()
         val before = editor.textBeforeCursor(MAX_WORD_FLIP * 2)?.toString() ?: return KeyResult.NotHandled
         val cursor = editor.cursorPosition()
         if (cursor < 0) return KeyResult.NotHandled
@@ -451,7 +457,7 @@ class DefaultHanSession(
             if (options.size < 2) continue
             val text = window.joinToString("")
             val target = ReconversionTarget(text, cursor - text.length, cursor, before.dropLast(text.length))
-            val r = Reconversion(target, emptyList(), options, 1, wholeWord = true)
+            val r = Reconversion(target, emptyList(), options, 1, wholeWord = true, lex = lexicon)
             recon = r
             toneFilter = 0
             mode = SessionMode.RECONVERTING
@@ -501,15 +507,19 @@ class DefaultHanSession(
             .map { it.key }
     }
 
+    private fun flipsCantonese() = settings().flipCantonese && cantonese != null
+
     override fun startReconversion(target: ReconversionTarget): KeyResult {
         if (mode != SessionMode.IDLE) return KeyResult.NotHandled
+        val lexicon = if (flipsCantonese()) cantonese!! else this.lexicon
         val cp = target.text.codePointAt(0)
         val ch = lexicon.charIndex(cp)
         if (ch < 0) return KeyResult.NotHandled
         val own = (0 until lexicon.readingCount(ch)).map { LexiconReader.readingSyllable(lexicon.reading(ch, it)) }
         // The reading the surrounding word gives it comes first: 银行 makes 行 háng, not xíng.
-        val syllables = (listOfNotNull(contextSyllable(target)) + own).distinct()
-        val r = Reconversion(target, syllables, emptyList(), 0)
+        val context = if (lexicon === this.lexicon) contextSyllable(target) else null // Mandarin words only
+        val syllables = (listOfNotNull(context) + own).distinct()
+        val r = Reconversion(target, syllables, emptyList(), 0, lex = lexicon)
         toneFilter = 0
         r.options = reconversionOptions(r)
         if (r.options.size < 2) return KeyResult.NotHandled
@@ -526,6 +536,7 @@ class DefaultHanSession(
      * best first. Only the main reading is boosted, or a rare one would jump ahead (在 → 才 in 我才).
      */
     private fun reconversionOptions(r: Reconversion): List<String> {
+        val lexicon = r.lex
         val all = LinkedHashSet<String>()
         val main = HashSet<String>()
         val filter = settings().filter.copy(tone = toneFilter)

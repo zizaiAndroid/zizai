@@ -57,13 +57,19 @@ fun build(lockFile: File, cache: File, outDir: File, extOut: File? = null) {
 
     val bytes = LexiconWriter.write(lex)
     val convert = OpenCc.write(OpenCc.DICTIONARIES.mapValues { (_, names) -> OpenCc.read(names.map(::file)) })
+    val yueLex = CantoneseLexicon.build(unihan, lex)
+    val yue = LexiconWriter.write(yueLex, io.zizai.han.reading.Cantonese)
     outDir.mkdirs()
     File(outDir, "han-core.bin").writeBytes(bytes)
     File(outDir, "zh-convert.bin").writeBytes(convert)
+    File(outDir, "han-yue.bin").writeBytes(yue)
     val coreSources = sources.filter { it.name !in LicenseGate.PACK_ONLY }
-    File(outDir, "manifest.json").writeText(manifest(coreSources, mapOf("han-core.bin" to bytes, "zh-convert.bin" to convert), lex))
+    File(outDir, "manifest.json").writeText(
+        manifest(coreSources, mapOf("han-core.bin" to bytes, "zh-convert.bin" to convert, "han-yue.bin" to yue), lex),
+    )
     println("Wrote han-core.bin, ${bytes.size} bytes: ${lex.chars.size} characters, ${lex.postings.sumOf { it.size }} postings, ${lex.words.size} words")
     println("Wrote zh-convert.bin, ${convert.size} bytes")
+    println("Wrote han-yue.bin, ${yue.size} bytes: ${yueLex.chars.size} characters, ${yueLex.postings.sumOf { it.size }} postings")
 
     if (extOut != null) buildModernPack(unihan, aosp, file("pinyin-flex"), sources, extOut)
 }

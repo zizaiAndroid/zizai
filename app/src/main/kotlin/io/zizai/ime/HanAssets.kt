@@ -13,6 +13,7 @@ package io.zizai.ime
 import android.content.Context
 import android.util.Log
 import io.zizai.han.lexicon.LexiconReader
+import io.zizai.han.reading.Cantonese
 import io.zizai.zhtext.ZhConverter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +30,7 @@ import java.nio.channels.FileChannel
 object HanAssets {
     @Volatile private var lexicon: LexiconReader? = null
     @Volatile private var converter: ZhConverter? = null
+    @Volatile private var cantonese: LexiconReader? = null
 
     private val _generation = MutableStateFlow(0)
 
@@ -40,6 +42,11 @@ object HanAssets {
 
     fun converter(context: Context): ZhConverter =
         converter ?: synchronized(this) { converter ?: ZhConverter.open(map(context, "han/zh-convert.bin")).also { converter = it } }
+
+    /** Cantonese readings (han-yue.bin), for flipping Cantonese dictation (P2-10). */
+    fun cantonese(context: Context): LexiconReader = cantonese ?: synchronized(this) {
+        cantonese ?: LexiconReader(map(context, "han/han-yue.bin"), Cantonese).also { cantonese = it }
+    }
 
     /** Drops the mapped lexicon after the pack was installed or deleted. */
     fun reload() {

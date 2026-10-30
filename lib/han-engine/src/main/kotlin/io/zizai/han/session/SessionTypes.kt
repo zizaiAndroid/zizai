@@ -109,6 +109,8 @@ data class HanSettings(
     val learning: Boolean = true,
     val scheme: io.zizai.han.parse.PinyinScheme = io.zizai.han.parse.PinyinScheme.QUANPIN,
     val fuzzy: Set<io.zizai.han.parse.Fuzzy> = emptySet(),
+    /** Flip by Cantonese readings: dictation is in Cantonese (P2-10). */
+    val flipCantonese: Boolean = false,
 )
 
 /**

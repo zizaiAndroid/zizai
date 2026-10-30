@@ -117,3 +117,5 @@ tools/han-dict-builder/sources.lock.
     Apache License, Version 2.0. Compiled into app/src/main/assets/han/zh-convert.bin
     for Simplified/Traditional conversion; lib/zh-text/src/test/resources/opencc
     holds OpenCC's own test cases, unmodified.
+    The same Unihan data also gives app/src/main/assets/han/han-yue.bin its
+    Cantonese readings (kCantonese, kSMSZD2003Readings, kUnihanCore2020).

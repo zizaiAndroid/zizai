@@ -26,6 +26,7 @@ sealed interface Phonology {
     companion object {
         fun byId(id: Int): Phonology = when (id) {
             Mandarin.id -> Mandarin
+            Cantonese.id -> Cantonese
             else -> throw IllegalArgumentException("Unknown phonology id $id")
         }
     }
@@ -37,4 +38,14 @@ data object Mandarin : Phonology {
     override val maxTone = 5
     const val NEUTRAL_TONE = 5
     override val syllables: SyllableTable = SyllableTable(MandarinInventory.SPELLINGS)
+}
+
+/**
+ * Cantonese with Jyutping spellings, tones 1–6 (P2-10). For now it only gives characters their
+ * Cantonese readings, so the flip works on Cantonese dictation; Jyutping typing comes in Phase 3.
+ */
+data object Cantonese : Phonology {
+    override val id = 1
+    override val maxTone = 6
+    override val syllables: SyllableTable = SyllableTable(CantoneseInventory.SPELLINGS)
 }

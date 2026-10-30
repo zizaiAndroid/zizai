@@ -19,6 +19,7 @@ import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorInfo
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import dev.patrickgold.florisboard.app.FlorisPreferenceStore
 import dev.patrickgold.florisboard.dictate.DictateController
 import dev.patrickgold.florisboard.ime.keyboard.KeyData
 import dev.patrickgold.florisboard.ime.nlp.SuggestionCandidate
@@ -59,6 +60,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     private val subtypeManager by ims.subtypeManager()
     private val nlpManager by ims.nlpManager()
     private val keyboardManager by ims.keyboardManager()
+    private val appPrefs by FlorisPreferenceStore
     private val prefs by lazy { ZizaiPrefs.get(ims) } // lazy: the service has no context while constructing
     private val editor = EditorBridge(ims)
     private val hardware = HardwareMode(ims)
@@ -76,7 +78,8 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
             existing?.reset(ResetReason.MODE_SWITCH)
             val lexicon = HanAssets.lexicon(ims)
             val engine = CandidateEngine(lexicon, HanUserDictionary.get(ims))
-            return DefaultHanSession(lexicon, engine, settings = ::settings, editor = editor).also {
+            val cantonese = runCatching { HanAssets.cantonese(ims) }.getOrNull()
+            return DefaultHanSession(lexicon, engine, settings = ::settings, editor = editor, cantonese = cantonese).also {
                 sessionGeneration = generation
                 sessions.value = it
             }
@@ -88,6 +91,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         learning = learningAllowed(),
         scheme = prefs.scheme,
         fuzzy = prefs.fuzzy,
+        flipCantonese = appPrefs.dictate.activeInputLanguage.get().startsWith("yue"),
     )
 
     /** Never learn in incognito mode, password fields, or fields that ask for no personalized learning. */

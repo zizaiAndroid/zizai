@@ -114,9 +114,9 @@ class CoreLexicon(val chars: List<CharRecord>, val postings: List<List<Posting>>
             return a.size - b.size
         }
 
-        private fun tierRank(tier: Int) = if (tier == 0) 9 else tier
+        internal fun tierRank(tier: Int) = if (tier == 0) 9 else tier
 
-        private fun flagsOf(u: UnihanChar?): Int {
+        internal fun flagsOf(u: UnihanChar?): Int {
             u ?: return 0
             var f = 0
             if (u.gb2312) f = f or LexiconFormat.FLAG_GB2312

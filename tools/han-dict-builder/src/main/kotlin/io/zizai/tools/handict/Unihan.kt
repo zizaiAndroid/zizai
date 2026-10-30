@@ -22,6 +22,12 @@ class UnihanChar(val codePoint: Int) {
     /** Toned readings in source order, with their kHanyuPinlu count (0 when absent). */
     val readings = LinkedHashMap<Reading, Int>()
 
+    /** Cantonese readings from kCantonese, as (Jyutping syllable, tone), most common first. */
+    val cantonese = ArrayList<Pair<String, Int>>()
+
+    /** Regions whose core set (kUnihanCore2020) has it: G mainland, H Hong Kong, T Taiwan, … */
+    var core2020 = ""
+
     /** Readings listed in kMandarin, the modern standard ones. */
     val mandarin = LinkedHashSet<Reading>()
 
@@ -49,6 +55,7 @@ class UnihanChar(val codePoint: Int) {
 object Unihan {
     private val READING_FIELDS = listOf("kMandarin", "kHanyuPinlu", "kTGHZ2013", "kXHC1983", "kHanyuPinyin")
     private val PINLU = Regex("""([^\s(]+)\((\d+)\)""")
+    private val YUE = Regex("""粵([a-z]+[1-6])""")
 
     var unparsedReadings = 0
         private set
@@ -75,19 +82,30 @@ object Unihan {
                     }
                 }
             }
+            // kCantonese holds the main reading; kSMSZD2003Readings adds the others (行: hang4, then hong4).
+            val yue = (fields["kCantonese"]?.split(' ').orEmpty() +
+                YUE.findAll(fields["kSMSZD2003Readings"].orEmpty()).map { it.groupValues[1] }).distinct()
+            for (r in yue) {
+                val tone = r.lastOrNull()?.digitToIntOrNull() ?: continue
+                c.cantonese += r.dropLast(1) to tone
+            }
+            fields["kUnihanCore2020"]?.let { c.core2020 = it }
             fields["kTGH"]?.let { v -> c.tghIndex = v.split(' ').first().substringAfter(':').toInt() }
             fields["kBigFive"]?.let { c.big5 = it.trimEnd('\'').toInt(16) } // a trailing ' marks a duplicate code
             c.gb2312 = "kGB0" in fields
             fields["kTotalStrokes"]?.let { c.strokes = it.split(' ').first().toInt() }
             fields["kSimplifiedVariant"]?.let { c.simplifiedVariants += codePoints(it) }
             fields["kTraditionalVariant"]?.let { c.traditionalVariants += codePoints(it) }
-            if (c.readings.isNotEmpty() || c.tghIndex > 0) out[cp] = c
+            if (c.readings.isNotEmpty() || c.tghIndex > 0 || c.cantonese.isNotEmpty()) out[cp] = c
         }
         return out
     }
 
     private val WANTED = READING_FIELDS.toSet() +
-        setOf("kTGH", "kBigFive", "kGB0", "kTotalStrokes", "kSimplifiedVariant", "kTraditionalVariant")
+        setOf(
+            "kTGH", "kBigFive", "kGB0", "kTotalStrokes", "kSimplifiedVariant", "kTraditionalVariant",
+            "kCantonese", "kSMSZD2003Readings", "kUnihanCore2020",
+        )
 
     private fun collect(reader: BufferedReader, raw: TreeMap<Int, MutableMap<String, String>>) {
         reader.forEachLine { line ->

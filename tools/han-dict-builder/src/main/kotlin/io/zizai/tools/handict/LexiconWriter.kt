@@ -13,15 +13,16 @@ package io.zizai.tools.handict
 import io.zizai.han.HanEngine
 import io.zizai.han.lexicon.LexiconFormat
 import io.zizai.han.reading.Mandarin
+import io.zizai.han.reading.Phonology
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 
 /** Serializes a [CoreLexicon] in the layout documented on [LexiconFormat]. */
 object LexiconWriter {
-    fun write(lex: CoreLexicon): ByteArray {
+    fun write(lex: CoreLexicon, phonology: Phonology = Mandarin): ByteArray {
         val sections = linkedMapOf<Int, ByteArray>()
         sections[LexiconFormat.SYLL] = section { out ->
-            val table = Mandarin.syllables
+            val table = phonology.syllables
             out.writeInt(table.size)
             for (s in table.spellings()) {
                 out.writeByte(s.length)
