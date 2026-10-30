@@ -61,8 +61,10 @@ object PinyinParser {
             isInitial -> out.add(SyllableEdge(start, end, EdgeKind.INITIAL, range.first, range.last))
             id < 0 -> out.add(SyllableEdge(start, end, EdgeKind.PREFIX, range.first, range.last))
             // A complete last syllable can also be the start of a longer one: `xia` → xian, xiang, xiao.
+            // Costly enough that a very common completion doesn't beat the exact match (weixin: 卫星,
+            // which is wei'xing, over 微信), yet a half-typed word still wins (beijin: 北京).
             range.first != range.last -> out.add(
-                SyllableEdge(start, end, EdgeKind.PREFIX, range.first, range.last, cost = 2.0),
+                SyllableEdge(start, end, EdgeKind.PREFIX, range.first, range.last, cost = 3.0),
             )
         }
     }

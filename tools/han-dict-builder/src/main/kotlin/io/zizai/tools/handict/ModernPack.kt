@@ -84,11 +84,22 @@ object ModernPack {
             if (r.weight <= 0) null else aospScore[key(r.text, syl)]?.let { it - r.weight * SLOPE }
         }.sorted()
         val offset = if (diffs.isEmpty()) 0.0 else diffs[diffs.size / 2]
-        return segmented.map { (r, syl, _) ->
-            val score = if (r.weight <= 0) 0.0 else (r.weight * SLOPE + offset).coerceIn(0.0, 255.0)
+        return segmented.map { (r, syl, n) ->
+            var score = if (r.weight <= 0) 0.0 else (r.weight * SLOPE + offset).coerceIn(0.0, 255.0)
+            // A word common in the 2018 subtitles but missing from AOSP's 2009 list is most likely newer
+            // usage (微信, 朋友圈), so it gets a little ahead of the old list's words of equal count.
+            if (n > 1 && r.weight >= NEW_WORD_MIN_WEIGHT && key(r.text, syl) !in aospScore) {
+                score = (score + NEW_WORD_BONUS).coerceAtMost(255.0)
+            }
             AospEntry(r.text, exp(score / 16.0) - 1.0, syl)
         }
     }
+
+    /** At least ~30 occurrences in the corpus, so rare compositions don't get the bonus. */
+    private const val NEW_WORD_MIN_WEIGHT = 1.5
+
+    /** Score units, about a factor of 1.9 in frequency. */
+    private const val NEW_WORD_BONUS = 10.0
 
     /** Score units per log10 unit: 16 · ln(10). */
     private val SLOPE = 16 * ln(10.0)

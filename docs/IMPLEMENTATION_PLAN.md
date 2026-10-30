@@ -209,7 +209,7 @@ bash tools/fetch-sherpa-onnx.sh
 |---|---|---|
 | S1–S3 | Done | Results below |
 | P1-01 – P1-07 | Done | Engine, data and session; JVM tests, about 130 golden inputs |
-| P1-08 | Done | han-ext-modern.bin (6.9 MB, CC BY-SA) published on the `han-packs-v1` release; 中文 settings switch downloads or deletes it; retry tags (`han-packs-v1-r2`) publish to the same release |
+| P1-08 | Done | han-ext-modern.bin (6.9 MB, CC BY-SA) published on the `han-packs-v2` release (v2: newer words ranked up); 中文 settings switch downloads or deletes it; retry tags (`han-packs-v1-r2`) publish to the same release |
 | P1-09, P1-10 | Done | OpenCC 1.1.9 test cases pass; dictation clean-up hooked into `DictateController.sink` |
 | P1-11 – P1-15 | Done | Checked on the Pixel 8 Pro (Keep, search fields) |
 | P1-16 | Done | Smartbar candidates for the touch keyboard; no expanded grid sheet yet |

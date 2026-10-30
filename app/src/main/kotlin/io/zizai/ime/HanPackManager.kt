@@ -34,10 +34,15 @@ import kotlin.coroutines.coroutineContext
 object HanPackManager {
     const val FILE_NAME = "han-ext-modern.bin"
 
-    /** Bump the `-v1` when the pack is rebuilt: installed apps verify against the size and hash below. */
-    private const val URL = "${ZizaiFlags.RELEASES_BASE}/han-packs-v1/$FILE_NAME"
+    /**
+     * Bump this when the pack is rebuilt, with a new release tag and the size and hash below: installed
+     * apps verify against them. The local file carries the version, so an older pack is never mistaken
+     * for the current one.
+     */
+    private const val VERSION = 2
+    private const val URL = "${ZizaiFlags.RELEASES_BASE}/han-packs-v$VERSION/$FILE_NAME"
     const val SIZE_BYTES = 6_851_468L
-    private const val SHA256 = "04b0b7993d687c889815b89ad75875d167944667af458a665310284c8ff13b35"
+    private const val SHA256 = "f9514d9de1a238ce0c4c12e3aebe75a2589c4937e1205e953576f7c2c38ea4a1"
 
     private val client by lazy {
         OkHttpClient.Builder().connectTimeout(30, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS).build()
@@ -48,7 +53,9 @@ object HanPackManager {
     /** Download progress in percent, or null when no download is running. */
     val progress: StateFlow<Int?> = _progress.asStateFlow()
 
-    fun packFile(context: Context): File = File(File(context.noBackupFilesDir, "han"), FILE_NAME)
+    private fun packDir(context: Context) = File(context.noBackupFilesDir, "han")
+
+    fun packFile(context: Context): File = File(packDir(context), "han-ext-modern-v$VERSION.bin")
 
     fun isInstalled(context: Context): Boolean = packFile(context).let { it.exists() && it.length() == SIZE_BYTES }
 
@@ -61,14 +68,22 @@ object HanPackManager {
         } finally {
             _progress.value = null
         }
+        deleteOlderPacks(appContext)
         HanAssets.reload()
     }
 
     /** Removes the pack and switches back to the bundled core. Returns true if it is gone. */
     fun delete(context: Context): Boolean {
+        deleteOlderPacks(context)
         val gone = packFile(context).let { !it.exists() || it.delete() }
         HanAssets.reload()
         return gone
+    }
+
+    /** Packs from earlier versions, including v1's unversioned file name. */
+    private fun deleteOlderPacks(context: Context) {
+        val current = packFile(context).name
+        packDir(context).listFiles()?.filter { it.name.startsWith("han-ext-modern") && it.name != current }?.forEach { it.delete() }
     }
 
     private suspend fun download(context: Context, onProgress: (Long) -> Unit): Unit = withContext(Dispatchers.IO) {

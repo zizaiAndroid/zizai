@@ -67,11 +67,12 @@ class CandidateEngine(
             }
         }
         val whole = mergeSorted(wholeStreams)
-        // The sentence leads, unless a whole-input word exists: then it follows the best of those.
+        // The sentence leads, unless a whole-input word exists: then it follows the best of those, and only
+        // if it is built from words (a run of single characters, 为心 for weixin, is noise next to a word).
         if (sentence != null && !(whole.hasNext())) emit(sentence)
         if (whole.hasNext()) {
             emit(whole.next())
-            sentence?.let { emit(it) }
+            sentence?.takeIf { it.wordParts > 0 }?.let { emit(it) }
         }
         for (c in whole) emit(c)
 
@@ -136,7 +137,10 @@ class CandidateEngine(
         parts.reverse()
         // One unit is just a word or character, listed anyway; only raw letters is no conversion at all.
         if (parts.size < 2 || parts.all { part -> part.all { it in 'a'..'z' } }) return null
-        return Candidate(parts.joinToString(""), n, CandidateKind.SENTENCE, -cost[n])
+        return Candidate(
+            parts.joinToString(""), n, CandidateKind.SENTENCE, -cost[n],
+            wordParts = parts.count { it.codePointCount(0, it.length) > 1 },
+        )
     }
 
     // ---- Internals ----

@@ -42,6 +42,8 @@ data class Candidate(
     val kind: CandidateKind,
     val score: Double,
     val toneMask: Int = 0,
+    /** For a sentence: how many of its parts are words rather than single characters. */
+    val wordParts: Int = 0,
 ) {
     /** 以词定字: the word's first character, still consuming the whole word's input. */
     fun firstCharacter(): Candidate = copy(text = String(Character.toChars(text.codePointAt(0))), kind = CandidateKind.CHAR)
