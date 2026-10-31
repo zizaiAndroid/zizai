@@ -17,7 +17,7 @@ import io.zizai.han.reading.SyllableTable
 enum class Fuzzy { Z_ZH, C_CH, S_SH, N_L, R_L, F_H, AN_ANG, EN_ENG, IN_ING, IAN_IANG, UAN_UANG }
 
 /** How the letters spell syllables: full Pinyin, or a double-Pinyin (双拼) scheme of two keys per syllable. */
-enum class PinyinScheme { QUANPIN, XIAOHE, ZIRANMA, MICROSOFT }
+enum class PinyinScheme { QUANPIN, XIAOHE, ZIRANMA, MICROSOFT, SOGOU, ZIGUANG, JIAJIA }
 
 /** The spellings a fuzzy speaker might mean by [spelling], not including itself. */
 internal fun fuzzyVariants(spelling: String, fuzzy: Set<Fuzzy>): List<String> {
@@ -65,10 +65,25 @@ internal fun fuzzyVariants(spelling: String, fuzzy: Set<Fuzzy>): List<String> {
  * reading per key pair; an odd last key is an initial still waiting for its final.
  */
 object DoublePinyin {
-    private class Table(val initials: Map<Char, String>, val finals: Map<Char, List<String>>, val zeroInitialKey: Char?)
+    /**
+     * A scheme's keys. A syllable without an initial is typed as [zeroInitialKey] plus its final key, or
+     * with [naturalZero] as its own first letter plus its final key (`ah` ang, `aa` a, `ai` ai); some
+     * schemes take both.
+     */
+    private class Table(
+        val initials: Map<Char, String>,
+        val finals: Map<Char, List<String>>,
+        val zeroInitialKey: Char?,
+        val naturalZero: Boolean = zeroInitialKey == null,
+    )
 
     private val INITIALS: Map<Char, String> = "bpmfdtnlgkhjqxrzcsyw".associateWith { it.toString() } +
         mapOf('v' to "zh", 'i' to "ch", 'u' to "sh")
+
+    /** Jiajia (拼音加加) swaps sh and ch; Ziguang (紫光) puts ch on `a`. */
+    private val INITIALS_JIAJIA = INITIALS + mapOf('i' to "sh", 'u' to "ch")
+    private val INITIALS_ZIGUANG = "bpmfdtnlgkhjqxrzcsyw".associateWith { it.toString() } +
+        mapOf('u' to "zh", 'a' to "ch", 'i' to "sh")
 
     private fun finals(vararg pairs: Pair<Char, String>) = pairs.associate { (k, v) -> k to v.split('/') }
 
@@ -105,27 +120,68 @@ object DoublePinyin {
         zeroInitialKey = 'o',
     )
 
+    /** Microsoft's layout with ve on `t` too; zero initials either way. */
+    private val SOGOU = Table(
+        INITIALS,
+        finals(
+            'q' to "iu", 'w' to "ia/ua", 'r' to "uan/van/er", 't' to "ue/ve", 'y' to "uai/v", 'u' to "u", 'i' to "i",
+            'o' to "uo/o", 'p' to "un/vn", 'a' to "a", 's' to "ong/iong", 'd' to "iang/uang", 'f' to "en",
+            'g' to "eng", 'h' to "ang", 'j' to "an", 'k' to "ao", 'l' to "ai", ';' to "ing", 'z' to "ei",
+            'x' to "ie", 'c' to "iao", 'v' to "ui/ve", 'b' to "ou", 'n' to "in", 'm' to "ian", 'e' to "e",
+        ),
+        zeroInitialKey = 'o',
+        naturalZero = true,
+    )
+
+    private val ZIGUANG = Table(
+        INITIALS_ZIGUANG,
+        finals(
+            'q' to "ao", 'w' to "en", 'r' to "an", 't' to "eng", 'y' to "in/uai", 'u' to "u", 'i' to "i",
+            'o' to "uo/o", 'p' to "ai", 'a' to "a", 's' to "ang", 'd' to "ie", 'f' to "ian", 'g' to "iang/uang",
+            'h' to "ong/iong", 'j' to "iu/er", 'k' to "ei", 'l' to "uan/van", ';' to "ing", 'z' to "ou",
+            'x' to "ia/ua", 'b' to "iao", 'n' to "ui/ue/ve", 'm' to "un/vn", 'v' to "v", 'e' to "e",
+        ),
+        zeroInitialKey = 'o',
+    )
+
+    private val JIAJIA = Table(
+        INITIALS_JIAJIA,
+        finals(
+            'q' to "er/ing", 'w' to "ei", 'r' to "en", 't' to "eng", 'y' to "ong/iong", 'u' to "u", 'i' to "i",
+            'o' to "uo/o", 'p' to "ou", 'a' to "a", 's' to "ai", 'd' to "ao", 'f' to "an", 'g' to "ang",
+            'h' to "iang/uang", 'j' to "ian", 'k' to "iao", 'l' to "in", 'z' to "un/vn", 'x' to "ue/ve/uai",
+            'c' to "uan/van", 'v' to "ui/v", 'b' to "ia/ua", 'n' to "iu", 'm' to "ie", 'e' to "e",
+        ),
+        zeroInitialKey = 'o',
+        naturalZero = true,
+    )
+
     private fun table(scheme: PinyinScheme) = when (scheme) {
         PinyinScheme.XIAOHE -> XIAOHE
         PinyinScheme.ZIRANMA -> ZIRANMA
         PinyinScheme.MICROSOFT -> MICROSOFT
+        PinyinScheme.SOGOU -> SOGOU
+        PinyinScheme.ZIGUANG -> ZIGUANG
+        PinyinScheme.JIAJIA -> JIAJIA
         PinyinScheme.QUANPIN -> error("full Pinyin has no double-Pinyin table")
     }
 
-    /** Keys the scheme uses besides letters (Microsoft types ing on `;`). */
-    fun extraKeys(scheme: PinyinScheme): Set<Char> = if (scheme == PinyinScheme.MICROSOFT) setOf(';') else emptySet()
+    /** Keys the scheme uses besides letters (Microsoft, Sogou and Ziguang type ing on `;`). */
+    fun extraKeys(scheme: PinyinScheme): Set<Char> =
+        if (scheme != PinyinScheme.QUANPIN && table(scheme).finals.containsKey(';')) setOf(';') else emptySet()
 
     /** The syllable ids two keys may spell under [scheme]. */
     fun syllables(k1: Char, k2: Char, scheme: PinyinScheme, table: SyllableTable = Mandarin.syllables): List<Int> {
         val t = table(scheme)
         val spellings = LinkedHashSet<String>()
-        val zeroInitial = if (t.zeroInitialKey != null) k1 == t.zeroInitialKey else k1 in "aeo"
-        if (zeroInitial) {
+        val fixed = k1 == t.zeroInitialKey
+        val natural = t.naturalZero && k1 in "aeo"
+        if (fixed || natural) {
             // Syllables without an initial: o + final key (Microsoft), or the final's own first letter.
             for (f in t.finals[k2].orEmpty()) {
-                if (t.zeroInitialKey != null || f.startsWith(k1)) spellings += f
+                if (fixed || f.startsWith(k1)) spellings += f
             }
-            if (t.zeroInitialKey == null) {
+            if (natural) {
                 if (k1 == k2) spellings += k1.toString() // aa, ee, oo
                 spellings += "$k1$k2" // ai, an, ao, ei, en, er, ou
             }

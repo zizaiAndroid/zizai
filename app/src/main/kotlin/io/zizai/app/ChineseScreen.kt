@@ -103,6 +103,9 @@ fun ChineseScreen() = FlorisScreen {
             PinyinScheme.XIAOHE to stringRes(R.string.zizai__scheme__xiaohe),
             PinyinScheme.ZIRANMA to stringRes(R.string.zizai__scheme__ziranma),
             PinyinScheme.MICROSOFT to stringRes(R.string.zizai__scheme__microsoft),
+            PinyinScheme.SOGOU to stringRes(R.string.zizai__scheme__sogou),
+            PinyinScheme.ZIGUANG to stringRes(R.string.zizai__scheme__ziguang),
+            PinyinScheme.JIAJIA to stringRes(R.string.zizai__scheme__jiajia),
         )
         var scheme by remember { mutableStateOf(prefs.scheme) }
         ChoicePreference(stringRes(R.string.zizai__scheme__title), schemes, scheme) {

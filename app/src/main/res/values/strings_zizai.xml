@@ -22,6 +22,9 @@
     <string name="zizai__scheme__xiaohe">Double Pinyin: Xiaohe (小鹤双拼)</string>
     <string name="zizai__scheme__ziranma">Double Pinyin: Ziranma (自然码)</string>
     <string name="zizai__scheme__microsoft">Double Pinyin: Microsoft (微软双拼)</string>
+    <string name="zizai__scheme__sogou">Double Pinyin: Sogou (搜狗双拼)</string>
+    <string name="zizai__scheme__ziguang">Double Pinyin: Ziguang (紫光双拼)</string>
+    <string name="zizai__scheme__jiajia">Double Pinyin: Pinyin Jiajia (拼音加加)</string>
     <string name="zizai__fuzzy__title">Fuzzy Pinyin</string>
     <string name="zizai__fuzzy__none">Off. Turn on pairs of sounds you don\'t distinguish.</string>
 

@@ -217,7 +217,7 @@ bash tools/fetch-sherpa-onnx.sh
 | P1-18 | Done, minus `replaceText` on API 34+ | Context reading and ranking, read-back restore, the touch 改 chip |
 | P1-19 | Blocked on you | Needs a Cloudflare account for the report Worker |
 | P2-02 | Done | Learning (picks rise after two, 造词 phrases at once, also by initials), Ctrl+Delete blocklist, no learning in incognito, password or no-learning fields, `files/zizai/han_user.tsv` in the backup rules; 我的词 screen with delete, unblock and JSON export/import |
-| P2-03 | Mostly done | Fuzzy pairs (all 11), double Pinyin 小鹤, 自然码 and 微软 with golden tests, both in 中文 settings. Not yet: Sogou, Ziguang, Pinyin Jiajia schemes |
+| P2-03 | Done | Fuzzy pairs (all 11), double Pinyin 小鹤, 自然码, 微软, 搜狗, 紫光 and 拼音加加 with golden tests, all in 中文 settings |
 | P2-01 | Mostly done | Ctrl+F2 flips the 2–4-character word before the cursor (main readings first), falling back to one character. Not yet: flipping a selection |
 | P2-10 | Done | han-yue.bin (Unihan kCantonese plus kSMSZD2003Readings with rime-cantonese since P3-01: 737 Jyutping syllables, 32k characters; written-Cantonese characters ranked up via kUnihanCore2020). The flip uses it when the dictation language is Cantonese |
 | P3-01 | Mostly done | 中文 settings > Typing language: Cantonese types Jyutping (initials, apostrophes, tone filter 1–6, optional lazy sounds) against han-yue.bin, now with rime-cantonese's reading shares, 112k words and essay frequencies, bundled rather than a separate pack. Learned words go to `han_user_yue.tsv`. Not yet: a Hong Kong subtype that picks Cantonese and Traditional output by itself |

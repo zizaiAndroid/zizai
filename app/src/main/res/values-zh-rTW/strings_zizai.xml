@@ -23,6 +23,9 @@
     <string name="zizai__scheme__xiaohe">小鶴雙拼</string>
     <string name="zizai__scheme__ziranma">自然碼雙拼</string>
     <string name="zizai__scheme__microsoft">微軟雙拼</string>
+    <string name="zizai__scheme__sogou">雙拼：搜狗</string>
+    <string name="zizai__scheme__ziguang">雙拼：紫光</string>
+    <string name="zizai__scheme__jiajia">雙拼：拼音加加</string>
     <string name="zizai__fuzzy__title">模糊音</string>
     <string name="zizai__fuzzy__none">關閉。開啟你分不清的音。</string>
 

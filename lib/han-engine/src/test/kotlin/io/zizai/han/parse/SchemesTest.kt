@@ -45,6 +45,23 @@ class SchemesTest : FunSpec({
             Triple("jntm", "jin tian", "今天"), Triple("dmhw", "dian hua", "电话"), Triple("bzj;", "bei jing", "北京"),
             Triple("uiji", "shi ji", "实际"), Triple("xtxi", "xue xi", "学习"), Triple("lyx;", "lv xing", "旅行"),
         ),
+        PinyinScheme.SOGOU to listOf(
+            Triple("vsgo", "zhong guo", "中国"), Triple("nihk", "ni hao", "你好"), Triple("womf", "wo men", "我们"),
+            Triple("jntm", "jin tian", "今天"), Triple("dmhw", "dian hua", "电话"), Triple("bzj;", "bei jing", "北京"),
+            Triple("uiji", "shi ji", "实际"), Triple("xtxi", "xue xi", "学习"), Triple("lyx;", "lv xing", "旅行"),
+        ),
+        PinyinScheme.ZIGUANG to listOf(
+            Triple("uhgo", "zhong guo", "中国"), Triple("nihq", "ni hao", "你好"), Triple("womw", "wo men", "我们"),
+            Triple("jytf", "jin tian", "今天"), Triple("dfhx", "dian hua", "电话"), Triple("bkj;", "bei jing", "北京"),
+            Triple("iiji", "shi ji", "实际"), Triple("xnxi", "xue xi", "学习"), Triple("lvx;", "lv xing", "旅行"),
+            Triple("asat", "chang cheng", "长城"),
+        ),
+        PinyinScheme.JIAJIA to listOf(
+            Triple("vygo", "zhong guo", "中国"), Triple("nihd", "ni hao", "你好"), Triple("womr", "wo men", "我们"),
+            Triple("jltj", "jin tian", "今天"), Triple("djhb", "dian hua", "电话"), Triple("bwjq", "bei jing", "北京"),
+            Triple("iiji", "shi ji", "实际"), Triple("xxxi", "xue xi", "学习"), Triple("lvxq", "lv xing", "旅行"),
+            Triple("ugut", "chang cheng", "长城"),
+        ),
     )
 
     for ((scheme, cases) in golden) {
@@ -67,6 +84,12 @@ class SchemesTest : FunSpec({
         spell("ol", PinyinScheme.MICROSOFT) shouldBe "ai"
         spell("or", PinyinScheme.MICROSOFT).split(' ').first() shouldBe "er"
         spell("oo", PinyinScheme.MICROSOFT) shouldBe "o"
+        spell("aa", PinyinScheme.SOGOU) shouldBe "a"
+        spell("oj", PinyinScheme.SOGOU) shouldBe "an"
+        spell("os", PinyinScheme.ZIGUANG) shouldBe "ang"
+        spell("oj", PinyinScheme.ZIGUANG) shouldBe "er"
+        spell("af", PinyinScheme.JIAJIA) shouldBe "an"
+        spell("eq", PinyinScheme.JIAJIA) shouldBe "er"
     }
 
     test("ü after j, q, x is written u; after n, l it stays") {
