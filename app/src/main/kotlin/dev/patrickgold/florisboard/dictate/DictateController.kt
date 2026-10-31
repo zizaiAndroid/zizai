@@ -1090,6 +1090,7 @@ object DictateController {
         runCatching {
             context.startActivity(
                 Intent(Intent.ACTION_VIEW, Uri.parse("ui://florisboard/$route"))
+                    .setPackage(context.packageName) // ZIZAI-HOOK: not upstream Dictate's settings
                     // BROWSABLE is required: FlorisAppActivity.onNewIntent only routes a VIEW intent to the
                     // nav-graph deep-link handler when it carries this category, otherwise it treats the
                     // intent as an extension-import and lands on the wrong screen.
@@ -1108,6 +1109,7 @@ object DictateController {
         runCatching {
             context.startActivity(
                 Intent(Intent.ACTION_VIEW, Uri.parse("ui://florisboard/settings/dictate/cloud"))
+                    .setPackage(context.packageName) // ZIZAI-HOOK: not upstream Dictate's settings
                     .addCategory(Intent.CATEGORY_BROWSABLE)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             )

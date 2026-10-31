@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -926,6 +927,7 @@ private fun openProviderSettings(context: Context) {
     runCatching {
         context.startActivity(
             Intent(Intent.ACTION_VIEW, Uri.parse("ui://florisboard/settings/dictate/providers"))
+                .setPackage(context.packageName) // ZIZAI-HOOK: not upstream Dictate's settings
                 // BROWSABLE is required, or FlorisAppActivity treats the intent as an extension
                 // import and lands on the wrong screen.
                 .addCategory(Intent.CATEGORY_BROWSABLE)

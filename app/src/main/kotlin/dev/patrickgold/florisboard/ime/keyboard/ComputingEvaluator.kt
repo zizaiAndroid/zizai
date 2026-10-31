@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -209,6 +210,7 @@ fun ComputingEvaluator.computeLabel(data: KeyData): String? {
             KeyCode.KESHIDA -> {
                 evaluator.context()?.getString(R.string.key__view_keshida)
             }
+            KeyCode.LANGUAGE_SWITCH -> io.zizai.ime.ZizaiIme.current?.languageKeyLabel() // ZIZAI-HOOK: 中/英
             else -> null
         }
     }
@@ -398,7 +400,7 @@ fun ComputingEvaluator.computeImageVector(data: KeyData): ImageVector? {
             Icons.Outlined.CloudSync
         }
         KeyCode.LANGUAGE_SWITCH -> {
-            Icons.Default.Language
+            if (io.zizai.ime.ZizaiIme.current?.languageKeyLabel() != null) null else Icons.Default.Language // ZIZAI-HOOK
         }
         KeyCode.SYSTEM_PREV_INPUT_METHOD -> {
             // One-tap switch back to the previously used keyboard/IME (issue #122).

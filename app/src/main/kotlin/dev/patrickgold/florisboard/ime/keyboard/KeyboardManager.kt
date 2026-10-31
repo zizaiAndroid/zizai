@@ -632,7 +632,7 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
      * @return If the language switch should be shown.
      */
     fun shouldShowLanguageSwitch(): Boolean {
-        return subtypeManager.subtypes.size > 1
+        return subtypeManager.subtypes.size > 1 || io.zizai.ime.ZizaiIme.current?.ownsLanguageKey() == true // ZIZAI-HOOK: 中/英
     }
 
     fun executeSwipeAction(swipeAction: SwipeAction) {
@@ -1271,6 +1271,7 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
      * FlorisBoard internal or system-wide.
      */
     private fun handleLanguageSwitch() {
+        if (io.zizai.ime.ZizaiIme.current?.onLanguageKey() == true) return // ZIZAI-HOOK: 中/英
         when (prefs.keyboard.utilityKeyAction.get()) {
             UtilityKeyAction.DYNAMIC_SWITCH_LANGUAGE_EMOJIS,
             UtilityKeyAction.SWITCH_LANGUAGE -> subtypeManager.switchToNextSubtype()
@@ -2436,7 +2437,7 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
                     IncognitoMode.DYNAMIC_ON_OFF -> !editorInfo.imeOptions.flagNoPersonalizedLearning
                 }
                 KeyCode.LANGUAGE_SWITCH -> {
-                    subtypeManager.subtypes.size > 1
+                    shouldShowLanguageSwitch() // ZIZAI-HOOK: was subtypes.size > 1
                 }
                 KeyCode.SPLIT_LAYOUT -> {
                     // Two halves of a window this narrow would be two rows of slivers (issue #362), so

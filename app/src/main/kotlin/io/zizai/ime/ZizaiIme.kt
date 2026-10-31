@@ -120,9 +120,30 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
 
     override var chineseMode: Boolean = true
         set(value) {
+            val changed = field != value
             field = value
             renderPill()
+            if (changed) keyboardManager.updateActiveEvaluators() // the 中/英 key's label
         }
+
+    /**
+     * Whether the key left of the space bar is our 中/英 toggle: with Chinese as the only language there
+     * is no other language to switch to, and no other way to type English on the touch keyboard. With
+     * more languages the key keeps switching between them, and English is one of those.
+     */
+    fun ownsLanguageKey(): Boolean = chineseSubtype && subtypeManager.subtypes.size == 1
+
+    /** 中 or 英 on the language key while [ownsLanguageKey], else null for upstream's globe. */
+    fun languageKeyLabel(): String? = if (ownsLanguageKey()) (if (chineseMode) "中" else "英") else null
+
+    /** From `KeyboardManager.handleLanguageSwitch`; true when the key toggled 中/英. */
+    fun onLanguageKey(): Boolean = guard(false) {
+        if (!ownsLanguageKey()) return@guard false
+        if (session.isActive) commitRawComposition()
+        chineseMode = !chineseMode
+        nlpManager.refreshCandidates()
+        true
+    }
 
     // ---- Hooks ----
 
@@ -212,7 +233,9 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
             data.code == KeyCode.DELETE -> KeyStroke(Key.BACKSPACE)
             data.code == KeyCode.SPACE -> KeyStroke(Key.SPACE)
             data.code == KeyCode.ENTER -> KeyStroke(Key.ENTER)
-            data.type == KeyType.CHARACTER -> {
+            // A real character key has its character as the code; actions (the Smartbar's settings gear,
+            // say) have negative codes even when typed CHARACTER, and their text is a name ("settings").
+            data.type == KeyType.CHARACTER && data.code > 0 -> {
                 val text = data.asString(isForDisplay = false)
                 if (text.isEmpty()) return@guard false
                 val cp = text.codePointAt(0)
