@@ -78,7 +78,7 @@ class CandidatePanel(context: Context) : TextView(context) {
                 append(state.page + 1)
                 append(if (state.hasNextPage) " ▸" else "  ")
             }
-            if (state.toneFilter != 0) append("   声调 ").append(TONE_NAMES[state.toneFilter])
+            if (state.toneFilter != 0) append("   ").append(state.toneLabel())
         }
         sb.append(info, ForegroundColorSpan(dim), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         sb.setSpan(RelativeSizeSpan(0.8f), 0, sb.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -123,7 +123,6 @@ class CandidatePanel(context: Context) : TextView(context) {
     }
 
     private companion object {
-        val TONE_NAMES = arrayOf("全部", "1 ˉ", "2 ˊ", "3 ˇ", "4 ˋ", "轻声")
         const val GRID_WINDOW = 16
     }
 }

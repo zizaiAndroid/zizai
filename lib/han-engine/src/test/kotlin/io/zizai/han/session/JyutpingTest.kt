@@ -56,6 +56,18 @@ class JyutpingTest : FunSpec({
         top("mg") shouldContain "唔該"
     }
 
+    test("Tab cycles all six Cantonese tones and back, with digit labels") {
+        val editor = FakeEditor()
+        val session = DefaultHanSession(yue, settings = { HanSettings() }, editor = editor)
+        for (c in "hai") KeyStroke.char(c).let { editor.apply(session.onKey(it), it) }
+        val labels = (1..7).map {
+            val tab = KeyStroke.of(Key.TAB)
+            editor.apply(session.onKey(tab), tab)
+            session.ui.value.toneLabel()
+        }
+        labels shouldBe listOf("聲調 1", "聲調 2", "聲調 3", "聲調 4", "聲調 5", "聲調 6", "聲調 全部")
+    }
+
     test("lazy sounds find the standard readings only when on") {
         top("leihou", lazy = true) shouldContain "你好"
         (("你好" in top("leihou", lazy = false))) shouldBe false

@@ -28,6 +28,8 @@ import dev.patrickgold.florisboard.ime.text.key.KeyType
 import dev.patrickgold.florisboard.keyboardManager
 import dev.patrickgold.florisboard.nlpManager
 import io.zizai.han.candidate.CandidateEngine
+import io.zizai.han.candidate.HomophoneFilter
+import io.zizai.han.candidate.ScriptFilter
 import dev.patrickgold.florisboard.subtypeManager
 import io.zizai.ZizaiPrefs
 import io.zizai.han.session.DefaultHanSession
@@ -100,6 +102,12 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         flipCantonese = appPrefs.dictate.activeInputLanguage.get().startsWith("yue"),
         compact = prefs.compactKeyboard,
         lazySounds = prefs.lazySounds,
+        // Cantonese is written in Traditional characters (係, 嚟); the Simplified default would hide them.
+        filter = if (prefs.typingLanguage == ZizaiPrefs.TypingLanguage.CANTONESE) {
+            HomophoneFilter(script = ScriptFilter.TRADITIONAL)
+        } else {
+            HomophoneFilter()
+        },
     )
 
     /** Never learn in incognito mode, password fields, or fields that ask for no personalized learning. */
@@ -236,7 +244,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         val window = pulled.drop(stripOffset).take(TOUCH_CANDIDATES)
         return buildList {
             if (session.ui.value.mode != io.zizai.han.session.SessionMode.RECONVERTING || window.size > 1) {
-                add(HanSuggestionCandidate(toneLabel(session.ui.value.toneFilter), HanSuggestionCandidate.TONE_CHIP))
+                add(HanSuggestionCandidate(session.ui.value.toneLabel(), HanSuggestionCandidate.TONE_CHIP))
             }
             if (stripOffset > 0) add(HanSuggestionCandidate("◂", HanSuggestionCandidate.PREVIOUS_CHIP))
             window.forEachIndexed { i, c -> add(HanSuggestionCandidate(c.text, stripOffset + i)) }
@@ -246,8 +254,6 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
 
     private var stripOffset = 0
     private var stripKey = ""
-
-    private fun toneLabel(tone: Int) = "声调 " + arrayOf("全部", "ˉ", "ˊ", "ˇ", "ˋ", "轻")[tone]
 
     private fun flipChip(): SuggestionCandidate? {
         if (hardware.active || !chineseSubtype || !chineseMode) return null

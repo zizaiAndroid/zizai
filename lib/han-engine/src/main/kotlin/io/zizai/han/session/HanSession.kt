@@ -792,6 +792,7 @@ class DefaultHanSession(
                     hasPreviousPage = p > 0,
                     hasNextPage = (p + 1) * pageSize < r.options.size,
                     toneFilter = toneFilter,
+                    maxTone = r.lex.phonology.maxTone,
                 )
             }
             else -> {
@@ -805,6 +806,7 @@ class DefaultHanSession(
                     hasPreviousPage = page > 0,
                     hasNextPage = pg?.hasPage(page + 1) == true,
                     toneFilter = toneFilter,
+                    maxTone = lexicon.phonology.maxTone,
                     grid = if (mode == SessionMode.EXPANDED) grid else emptyList(),
                     gridRow = gridRow,
                     gridColumn = gridColumn,

@@ -153,13 +153,25 @@ data class HanUiState(
     val page: Int = 0,
     val hasPreviousPage: Boolean = false,
     val hasNextPage: Boolean = false,
-    /** 0 for all tones, else 1–5. */
+    /** 0 for all tones, else 1 to [maxTone]. */
     val toneFilter: Int = 0,
+    /** 5 for Mandarin (the fifth is the neutral tone), 6 for Cantonese. */
+    val maxTone: Int = 5,
     val grid: List<GridRow> = emptyList(),
     val gridRow: Int = 0,
     val gridColumn: Int = 0,
 ) {
+    /**
+     * The tone filter's label: 声调 全部 / ˉ ˊ ˇ ˋ 轻 for Mandarin, 聲調 全部 / 1–6 for Cantonese, which
+     * writes tones as digits.
+     */
+    fun toneLabel(): String {
+        if (maxTone > 5) return "聲調 " + if (toneFilter == 0) "全部" else "$toneFilter"
+        return "声调 " + MANDARIN_TONES.getOrElse(toneFilter) { "$toneFilter" }
+    }
+
     companion object {
         val Idle = HanUiState()
+        private val MANDARIN_TONES = arrayOf("全部", "ˉ", "ˊ", "ˇ", "ˋ", "轻")
     }
 }
