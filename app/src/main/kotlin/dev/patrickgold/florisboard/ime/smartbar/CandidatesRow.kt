@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2024-2025 The FlorisBoard Contributors
  *
@@ -137,6 +138,7 @@ fun CandidatesRow(modifier: Modifier = Modifier) {
         }
     }
 
+    if (io.zizai.ime.HanCandidateStrip.handles(candidates)) { io.zizai.ime.HanCandidateStrip.Strip(candidates, modifier); return } // ZIZAI-HOOK
     CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
     SnyggRow(
         elementName = FlorisImeUi.SmartbarCandidatesRow.elementName,

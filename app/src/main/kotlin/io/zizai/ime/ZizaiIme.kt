@@ -230,6 +230,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     fun touchCandidates(): List<SuggestionCandidate>? {
         if (!session.isActive) {
             stripOffset = 0
+            stripHistory.clear()
             return flipChip()?.let(::listOf)
         }
         // A new composition (or flip) starts at the first window.
@@ -237,23 +238,27 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         if (key != stripKey) {
             stripKey = key
             stripOffset = 0
+            stripHistory.clear()
         }
-        // P2-05: a window of candidates between the tone chip and the paging chips, so every homophone
-        // can be reached by touch without laying hundreds of items out at once.
+        // P2-05: up to ten candidates at a time, drawn by HanCandidateStrip in one row with ◂ and ▸, so
+        // every homophone can be reached by touch. The tone filter stays on Tab for hardware keyboards.
         val pulled = session.peekCandidates(stripOffset + TOUCH_CANDIDATES + 1)
         val window = pulled.drop(stripOffset).take(TOUCH_CANDIDATES)
         return buildList {
-            if (session.ui.value.mode != io.zizai.han.session.SessionMode.RECONVERTING || window.size > 1) {
-                add(HanSuggestionCandidate(session.ui.value.toneLabel(), HanSuggestionCandidate.TONE_CHIP))
-            }
             if (stripOffset > 0) add(HanSuggestionCandidate("◂", HanSuggestionCandidate.PREVIOUS_CHIP))
             window.forEachIndexed { i, c -> add(HanSuggestionCandidate(c.text, stripOffset + i)) }
-            if (pulled.size > stripOffset + TOUCH_CANDIDATES) add(HanSuggestionCandidate("更多 ▸", HanSuggestionCandidate.NEXT_CHIP))
+            if (pulled.size > stripOffset + TOUCH_CANDIDATES) add(HanSuggestionCandidate("▸", HanSuggestionCandidate.NEXT_CHIP))
         }
     }
 
     private var stripOffset = 0
     private var stripKey = ""
+
+    /** Where each earlier window started, for ◂: windows differ in size with how many words fit. */
+    private val stripHistory = ArrayDeque<Int>()
+
+    /** How many candidates the strip last fitted on screen; ▸ continues after them. */
+    @Volatile var stripShown = TOUCH_CANDIDATES
 
     private fun flipChip(): SuggestionCandidate? {
         if (hardware.active || !chineseSubtype || !chineseMode) return null
@@ -273,14 +278,14 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
                 nlpManager.refreshCandidates()
                 return@guard true
             }
-            HanSuggestionCandidate.TONE_CHIP -> {
-                dispatch(KeyStroke(Key.TAB), fromHardware = false)
+            HanSuggestionCandidate.NEXT_CHIP -> {
+                stripHistory.addLast(stripOffset)
+                stripOffset += stripShown.coerceAtLeast(1)
                 nlpManager.refreshCandidates()
                 return@guard true
             }
-            HanSuggestionCandidate.NEXT_CHIP, HanSuggestionCandidate.PREVIOUS_CHIP -> {
-                val step = if (han.index == HanSuggestionCandidate.NEXT_CHIP) TOUCH_CANDIDATES else -TOUCH_CANDIDATES
-                stripOffset = (stripOffset + step).coerceAtLeast(0)
+            HanSuggestionCandidate.PREVIOUS_CHIP -> {
+                stripOffset = stripHistory.removeLastOrNull() ?: 0
                 nlpManager.refreshCandidates()
                 return@guard true
             }
@@ -473,7 +478,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     }
 
     companion object {
-        private const val TOUCH_CANDIDATES = 40
+        const val TOUCH_CANDIDATES = 10
 
         /** The live instance, for hooks in upstream classes that can't reach the service's field. */
         @Volatile var current: ZizaiIme? = null

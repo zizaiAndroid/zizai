@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -134,7 +135,7 @@ fun Smartbar(showPromptRow: Boolean = true) {
         exit = VerticalExitTransition,
     ) {
         Column {
-            if (showDictatePromptRow) {
+            if (showDictatePromptRow && !io.zizai.ime.HanCandidateStrip.rememberActive()) { // ZIZAI-HOOK: the candidates take its line
                 DictatePromptRow(dictatePrompts)
             }
             when (extendedActionsPlacement) {
@@ -456,7 +457,7 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
     SnyggRow(
         modifier = modifier
             .fillMaxWidth()
-            .height(FlorisImeSizing.smartbarHeight),
+            .height(FlorisImeSizing.smartbarHeight * io.zizai.ime.HanCandidateStrip.lines()), // ZIZAI-HOOK
     ) {
         when (smartbarLayout) {
             SmartbarLayout.SUGGESTIONS_ONLY -> {

@@ -27,9 +27,6 @@ data class HanSuggestionCandidate(override val text: CharSequence, val index: In
         /** The index of the 改 chip, which starts a flip instead of picking a candidate. */
         const val FLIP_CHIP = -1
 
-        /** Cycles the tone filter, like Tab. */
-        const val TONE_CHIP = -2
-
         /** Show the next or previous window of candidates. */
         const val NEXT_CHIP = -3
         const val PREVIOUS_CHIP = -4
