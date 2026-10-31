@@ -21,6 +21,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import dev.patrickgold.florisboard.app.FlorisPreferenceStore
 import dev.patrickgold.florisboard.dictate.DictateController
+import dev.patrickgold.florisboard.ime.core.Subtype
+import dev.patrickgold.florisboard.lib.FlorisLocale
 import dev.patrickgold.florisboard.ime.keyboard.KeyData
 import dev.patrickgold.florisboard.ime.nlp.SuggestionCandidate
 import dev.patrickgold.florisboard.ime.text.key.KeyCode
@@ -43,6 +45,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
@@ -127,21 +130,41 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         }
 
     /**
-     * Whether the key left of the space bar is our 中/英 toggle: with Chinese as the only language there
-     * is no other language to switch to, and no other way to type English on the touch keyboard. With
-     * more languages the key keeps switching between them, and English is one of those.
+     * Whether the key left of the space bar is ours to act on: with Chinese as the only language there
+     * is nothing to switch to, so its first tap adds English. English is upstream's own language, with
+     * its suggestions, autocorrect and glide typing, which the Pinyin language can't offer.
      */
     fun ownsLanguageKey(): Boolean = chineseSubtype && subtypeManager.subtypes.size == 1
 
-    /** 中 or 英 on the language key while [ownsLanguageKey], else null for upstream's globe. */
-    fun languageKeyLabel(): String? = if (ownsLanguageKey()) (if (chineseMode) "中" else "英") else null
+    /**
+     * 中 or 英 on the language key when the languages are just Chinese and English (or Chinese alone,
+     * before English is added), so the key reads as the 中/英 switch it is; else null for the globe.
+     */
+    fun languageKeyLabel(): String? {
+        val subtypes = subtypeManager.subtypes
+        return when {
+            ownsLanguageKey() -> "中"
+            subtypes.size == 2 && subtypes.count(::isPinyin) == 1 && subtypes.any { it.primaryLocale.language == "en" } ->
+                if (chineseSubtype) "中" else "英"
+            else -> null
+        }
+    }
 
-    /** From `KeyboardManager.handleLanguageSwitch`; true when the key toggled 中/英. */
+    private fun isPinyin(subtype: Subtype) =
+        subtype.primaryLocale.languageTag().lowercase().let { it.startsWith("zh") && "pinyin" in it }
+
+    /** From `KeyboardManager.handleLanguageSwitch`; true when it added English and switched to it. */
     fun onLanguageKey(): Boolean = guard(false) {
         if (!ownsLanguageKey()) return@guard false
+        val english = subtypeManager.getSubtypePresetForLocale(FlorisLocale.from("en", "US"))?.toSubtype()
+            ?: return@guard false
         if (session.isActive) commitRawComposition()
-        chineseMode = !chineseMode
-        nlpManager.refreshCandidates()
+        subtypeManager.addSubtype(english)
+        // The list is saved asynchronously; switch once English is in it.
+        (ims as LifecycleOwner).lifecycleScope.launch {
+            val added = subtypeManager.subtypesFlow.first { list -> list.any { it.primaryLocale.language == "en" } }
+            added.firstOrNull { it.primaryLocale.language == "en" }?.let { subtypeManager.switchToSubtypeById(it.id) }
+        }
         true
     }
 
