@@ -14,6 +14,7 @@ import android.inputmethodservice.InputMethodService
 import android.view.inputmethod.ExtractedTextRequest
 import io.zizai.han.session.EditorContext
 import io.zizai.han.session.EditorEdit
+import io.zizai.han.session.EditorSelection
 
 /**
  * Applies the session's [EditorEdit]s through the current `InputConnection`, in one batch edit, and
@@ -61,5 +62,15 @@ class EditorBridge(private val ims: InputMethodService) : EditorContext {
     override fun cursorPosition(): Int {
         val et = ims.currentInputConnection?.getExtractedText(ExtractedTextRequest(), 0) ?: return -1
         return et.startOffset + et.selectionStart
+    }
+
+    override fun selection(): EditorSelection? {
+        val ic = ims.currentInputConnection ?: return null
+        val et = ic.getExtractedText(ExtractedTextRequest(), 0) ?: return null
+        val start = minOf(et.selectionStart, et.selectionEnd)
+        val end = maxOf(et.selectionStart, et.selectionEnd)
+        if (start < 0 || start == end) return null
+        val text = ic.getSelectedText(0)?.toString() ?: return null
+        return EditorSelection(et.startOffset + start, et.startOffset + end, text)
     }
 }

@@ -33,6 +33,11 @@ class FakeEditor : EditorContext {
     override fun textAfterCursor(n: Int): CharSequence = text.substring(cursor, minOf(text.length, cursor + n))
     override fun cursorPosition(): Int = cursor
 
+    /** A selection from [selectionStart] to the cursor, when set. */
+    var selectionStart = -1
+    override fun selection(): EditorSelection? =
+        if (selectionStart in 0 until cursor) EditorSelection(selectionStart, cursor, text.substring(selectionStart, cursor)) else null
+
     fun apply(result: KeyResult, stroke: KeyStroke) {
         when (result) {
             KeyResult.NotHandled -> appHandles(stroke)
@@ -272,6 +277,25 @@ class HanSessionTest : FunSpec({
         val single = Rig()
         single.editor.text.append("一个呢"); single.editor.cursor = 3
         single.type("{C-F2}{ESC}").text shouldBe "一个呢"
+    }
+
+    test("F2 with a selection flips exactly the selection") {
+        val word = Rig()
+        word.editor.text.append("明天在见吧"); word.editor.selectionStart = 2; word.editor.cursor = 4
+        word.type("{F2}")
+        word.text shouldBe "明天再见吧"
+        word.ui.candidates.first().text shouldBe "在见"
+
+        val char = Rig()
+        char.editor.text.append("银行"); char.editor.selectionStart = 0; char.editor.cursor = 1
+        char.type("{F2}")
+        char.ui.candidates.first().text shouldBe "银"
+        char.text.substring(1) shouldBe "行"
+
+        val long = Rig()
+        long.editor.text.append("今天天气很好"); long.editor.selectionStart = 0; long.editor.cursor = 6
+        long.type("{F2}")
+        long.ui.mode shouldBe SessionMode.IDLE
     }
 
     test("a flip can lead with preferred options, for characters and words") {

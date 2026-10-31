@@ -135,6 +135,7 @@ class DefaultHanSession(
     // ---- Idle ----
 
     private fun onIdleKey(s: KeyStroke): KeyResult {
+        if (s.key == Key.FLIP && !s.alt && !s.meta) editor.selection()?.let { return reconvertSelection(it) }
         if (s.key == Key.FLIP && s.ctrl && !s.alt && !s.meta) return reconvertWordBeforeCursor()
         if (s.hasCommandModifier) return KeyResult.NotHandled
         return when (s.key) {
@@ -464,18 +465,39 @@ class DefaultHanSession(
         val chars = before.codePointStrings()
         for (len in minOf(MAX_WORD_FLIP, chars.size) downTo 2) {
             val window = chars.takeLast(len)
-            val options = homophoneWords(window)
-            if (options.size < 2) continue
             val text = window.joinToString("")
-            val target = ReconversionTarget(text, cursor - text.length, cursor, before.dropLast(text.length))
-            val r = Reconversion(target, emptyList(), options, 1, wholeWord = true, lex = lexicon)
-            recon = r
-            toneFilter = 0
-            mode = SessionMode.RECONVERTING
-            publish()
-            return handled(EditorEdit.MarkComposing(target.start, target.end), EditorEdit.SetPreedit(options[1]))
+            flipWord(window, ReconversionTarget(text, cursor - text.length, cursor, before.dropLast(text.length)))
+                ?.let { return it }
         }
         return reconvertBeforeCursor()
+    }
+
+    /**
+     * F2 or Ctrl+F2 with text selected flips exactly that: one character like F2, two to four like
+     * Ctrl+F2's word flip. Longer selections are left to the app.
+     */
+    private fun reconvertSelection(sel: EditorSelection): KeyResult {
+        if (mode != SessionMode.IDLE) return KeyResult.NotHandled
+        val chars = sel.text.codePointStrings()
+        val before = editor.textBeforeCursor(CONTEXT_UNITS)?.toString().orEmpty()
+        val after = editor.textAfterCursor(CONTEXT_UNITS)?.toString().orEmpty()
+        val target = ReconversionTarget(sel.text, sel.start, sel.end, before, after)
+        return when {
+            chars.size == 1 -> startReconversion(target)
+            chars.size <= MAX_WORD_FLIP && !flipsCantonese() -> flipWord(chars, target) ?: KeyResult.NotHandled
+            else -> KeyResult.NotHandled
+        }
+    }
+
+    /** Starts a whole-word flip of [chars] at [target], or null when no other word reads like it. */
+    private fun flipWord(chars: List<String>, target: ReconversionTarget): KeyResult? {
+        val options = homophoneWords(chars)
+        if (options.size < 2) return null
+        recon = Reconversion(target, emptyList(), options, 1, wholeWord = true, lex = lexicon)
+        toneFilter = 0
+        mode = SessionMode.RECONVERTING
+        publish()
+        return handled(EditorEdit.MarkComposing(target.start, target.end), EditorEdit.SetPreedit(options[1]))
     }
 
     /**

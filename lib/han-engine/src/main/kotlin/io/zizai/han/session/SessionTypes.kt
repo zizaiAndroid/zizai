@@ -86,11 +86,17 @@ interface EditorContext {
     /** Absolute UTF-16 offset of the cursor, or -1 if unknown. */
     fun cursorPosition(): Int
 
+    /** The selected text and where it is, or null when nothing is selected or the editor won't say. */
+    fun selection(): EditorSelection? = null
+
     object None : EditorContext {
         override fun textBeforeCursor(n: Int): CharSequence? = null
         override fun cursorPosition(): Int = -1
     }
 }
+
+/** A non-empty selection: [text] spans [start] to [end] in UTF-16 units. */
+data class EditorSelection(val start: Int, val end: Int, val text: String)
 
 enum class PunctuationStyle {
     /** Mainland: “ ” and ‘ ’. */
