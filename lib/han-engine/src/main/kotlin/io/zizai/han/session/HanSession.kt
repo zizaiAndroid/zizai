@@ -17,9 +17,11 @@ import io.zizai.han.candidate.CandidatePager
 import io.zizai.han.lexicon.LexiconReader
 import io.zizai.han.parse.DoublePinyin
 import io.zizai.han.parse.EdgeKind
+import io.zizai.han.parse.JyutpingParser
 import io.zizai.han.parse.PinyinParser
 import io.zizai.han.parse.PinyinScheme
 import io.zizai.han.parse.SyllableLattice
+import io.zizai.han.reading.Cantonese
 import io.zizai.han.reading.Mandarin
 import io.zizai.han.reading.Pinyin
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -354,7 +356,7 @@ class DefaultHanSession(
     }
 
     private fun cycleTone(step: Int): KeyResult {
-        toneFilter = (toneFilter + step).mod(Mandarin.maxTone + 1)
+        toneFilter = (toneFilter + step).mod(lexicon.phonology.maxTone + 1)
         if (mode == SessionMode.EXPANDED) {
             buildGrid()
             publish()
@@ -405,7 +407,7 @@ class DefaultHanSession(
     private fun buildGrid() {
         val first = lattice?.bestPaths(1)?.firstOrNull()?.edges?.firstOrNull() ?: return
         val syllable = first.first
-        val rows = (1..Mandarin.maxTone).filter { toneFilter == 0 || it == toneFilter }.map { tone ->
+        val rows = (1..lexicon.phonology.maxTone).filter { toneFilter == 0 || it == toneFilter }.map { tone ->
             val chars = ArrayList<String>()
             val start = lexicon.postingStart(syllable)
             for (p in start until start + lexicon.postingCount(syllable)) {
@@ -415,7 +417,7 @@ class DefaultHanSession(
                     chars += String(Character.toChars(cp))
                 }
             }
-            GridRow(Pinyin.toneMarked(Mandarin.syllables.spellingOf(syllable), tone), tone, chars)
+            GridRow(toneLabel(syllable, tone), tone, chars)
         }.filter { it.characters.isNotEmpty() }
         grid = rows
         gridRow = gridRow.coerceIn(0, maxOf(0, rows.size - 1))
@@ -627,7 +629,7 @@ class DefaultHanSession(
             Key.PAGE_UP -> flip(r, -pageSize)
             Key.TAB -> {
                 if (r.wholeWord) return handled() // tones filter characters, not words
-                toneFilter = (toneFilter + if (s.shift) -1 else 1).mod(Mandarin.maxTone + 1)
+                toneFilter = (toneFilter + if (s.shift) -1 else 1).mod(r.lex.phonology.maxTone + 1)
                 val current = r.options[r.index]
                 r.options = reconversionOptions(r)
                 r.index = r.options.indexOf(current).coerceAtLeast(0)
@@ -721,8 +723,18 @@ class DefaultHanSession(
 
     private fun parse(text: String): SyllableLattice {
         val s = settings()
-        return if (s.scheme == PinyinScheme.QUANPIN) PinyinParser.parse(text, fuzzy = s.fuzzy)
-        else DoublePinyin.parse(text, s.scheme)
+        return when {
+            // Typing Cantonese: the lexicon decides, and Jyutping is the spelling (P3-01).
+            lexicon.phonology == Cantonese -> JyutpingParser.parse(text, lazy = s.lazySounds)
+            s.scheme == PinyinScheme.QUANPIN -> PinyinParser.parse(text, fuzzy = s.fuzzy)
+            else -> DoublePinyin.parse(text, s.scheme)
+        }
+    }
+
+    /** shì for Pinyin; hai6 for Jyutping, which writes tones as digits. */
+    private fun toneLabel(syllable: Int, tone: Int): String {
+        val spelling = lexicon.phonology.syllables.spellingOf(syllable)
+        return if (lexicon.phonology == Mandarin) Pinyin.toneMarked(spelling, tone) else "$spelling$tone"
     }
 
     private fun preeditText(): String {
@@ -733,7 +745,7 @@ class DefaultHanSession(
             path == null -> l.input
             // Double Pinyin shows the syllables its key pairs spell, not the keys.
             settings().scheme != PinyinScheme.QUANPIN -> path.edges.joinToString("'") {
-                if (it.kind == EdgeKind.FULL) Pinyin.display(Mandarin.syllables.spellingOf(it.first))
+                if (it.kind == EdgeKind.FULL) Pinyin.display(lexicon.phonology.syllables.spellingOf(it.first))
                 else l.input.substring(it.start, it.end)
             }
             else -> path.spelling(l.input)

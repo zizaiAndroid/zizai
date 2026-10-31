@@ -119,3 +119,12 @@ tools/han-dict-builder/sources.lock.
     holds OpenCC's own test cases, unmodified.
     The same Unihan data also gives app/src/main/assets/han/han-yue.bin its
     Cantonese readings (kCantonese, kSMSZD2003Readings, kUnihanCore2020).
+
+    rime-cantonese (jyut6ping3.chars.dict.yaml, jyut6ping3.words.dict.yaml,
+    essay-cantonese.txt) — https://github.com/rime/rime-cantonese
+    Copyright (c) Cantonese Computational Linguistics Infrastructure Development
+    Workgroup (CanCLID) and contributors. Licensed under CC BY 4.0
+    (https://creativecommons.org/licenses/by/4.0/). Reading shares, words and
+    frequencies in app/src/main/assets/han/han-yue.bin, rearranged into Zizai's
+    binary lexicon format, with essay words given each character's main reading.
+    jyut6ping3.maps (ODbL) is not used.

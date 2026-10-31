@@ -68,7 +68,7 @@ class BuilderTest : FunSpec({
         val lock = SourceLock.read(File("sources.lock"))
         lock.map { it.name }.take(2) shouldBe listOf("unihan", "aosp-rawdict")
         lock.map { it.name }.toSet() shouldBe
-            (setOf("unihan", "aosp-rawdict") + OpenCc.DICTIONARIES.values.flatten() + LicenseGate.PACK_ONLY)
+            (setOf("unihan", "aosp-rawdict", "yue-chars", "yue-words", "yue-essay") + OpenCc.DICTIONARIES.values.flatten() + LicenseGate.PACK_ONLY)
         LicenseGate.check(lock)
     }
 

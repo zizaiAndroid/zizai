@@ -81,6 +81,23 @@ fun ChineseScreen() = FlorisScreen {
             prefs.hardwareMode = it
         }
 
+        val languages = listOf(
+            ZizaiPrefs.TypingLanguage.MANDARIN to stringRes(R.string.zizai__typing_language__mandarin),
+            ZizaiPrefs.TypingLanguage.CANTONESE to stringRes(R.string.zizai__typing_language__cantonese),
+        )
+        var language by remember { mutableStateOf(prefs.typingLanguage) }
+        ChoicePreference(stringRes(R.string.zizai__typing_language__title), languages, language) {
+            language = it
+            prefs.typingLanguage = it
+        }
+        if (language == ZizaiPrefs.TypingLanguage.CANTONESE) {
+            var lazy by remember { mutableStateOf(prefs.lazySounds) }
+            SwitchRow(stringRes(R.string.zizai__lazy_sounds__title), stringRes(R.string.zizai__lazy_sounds__summary), lazy) {
+                lazy = it
+                prefs.lazySounds = it
+            }
+        }
+
         val schemes = listOf(
             PinyinScheme.QUANPIN to stringRes(R.string.zizai__scheme__quanpin),
             PinyinScheme.XIAOHE to stringRes(R.string.zizai__scheme__xiaohe),

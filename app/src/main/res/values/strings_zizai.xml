@@ -12,6 +12,11 @@
     <string name="zizai__output_script__hong_kong">Traditional, Hong Kong (香港)</string>
     <string name="zizai__output_script__as_is">Leave as recognized</string>
 
+    <string name="zizai__typing_language__title">Typing language</string>
+    <string name="zizai__typing_language__mandarin">Mandarin, in Pinyin (普通话)</string>
+    <string name="zizai__typing_language__cantonese">Cantonese, in Jyutping (粵拼)</string>
+    <string name="zizai__lazy_sounds__title">Lazy sounds (懶音)</string>
+    <string name="zizai__lazy_sounds__summary">Also find standard spellings: l for n, o for ngo, gok for gwok, -n for -ng, -t for -k.</string>
     <string name="zizai__scheme__title">Pinyin scheme</string>
     <string name="zizai__scheme__quanpin">Full Pinyin (全拼)</string>
     <string name="zizai__scheme__xiaohe">Double Pinyin: Xiaohe (小鹤双拼)</string>

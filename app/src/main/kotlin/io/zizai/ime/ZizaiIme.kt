@@ -69,18 +69,24 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     /** The session, rebuilt when the lexicon changes (the modern pack was installed or deleted, P1-08). */
     private val sessions = MutableStateFlow<HanSession?>(null)
     private var sessionGeneration = -1
+    private var sessionLanguage: ZizaiPrefs.TypingLanguage? = null
 
     private val session: HanSession
         get() {
             val generation = HanAssets.generation.value
+            val language = prefs.typingLanguage
             val existing = sessions.value
-            if (existing != null && generation == sessionGeneration) return existing
+            if (existing != null && generation == sessionGeneration && language == sessionLanguage) return existing
             existing?.reset(ResetReason.MODE_SWITCH)
-            val lexicon = HanAssets.lexicon(ims)
-            val engine = CandidateEngine(lexicon, HanUserDictionary.get(ims))
             val cantonese = runCatching { HanAssets.cantonese(ims) }.getOrNull()
+            // Typing Cantonese: the Cantonese lexicon is the main one, and the parser follows it (P3-01).
+            val yue = language == ZizaiPrefs.TypingLanguage.CANTONESE && cantonese != null
+            val lexicon = if (yue) cantonese!! else HanAssets.lexicon(ims)
+            val learned = if (yue) HanUserDictionary.cantonese.get(ims) else HanUserDictionary.get(ims)
+            val engine = CandidateEngine(lexicon, learned)
             return DefaultHanSession(lexicon, engine, settings = ::settings, editor = editor, cantonese = cantonese).also {
                 sessionGeneration = generation
+                sessionLanguage = language
                 sessions.value = it
             }
         }
@@ -93,6 +99,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         fuzzy = prefs.fuzzy,
         flipCantonese = appPrefs.dictate.activeInputLanguage.get().startsWith("yue"),
         compact = prefs.compactKeyboard,
+        lazySounds = prefs.lazySounds,
     )
 
     /** Never learn in incognito mode, password fields, or fields that ask for no personalized learning. */

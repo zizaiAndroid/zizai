@@ -13,6 +13,7 @@ package io.zizai.han.candidate
 import io.zizai.han.parse.EdgeKind
 import io.zizai.han.parse.SyllableLattice
 import io.zizai.han.reading.Mandarin
+import io.zizai.han.reading.Phonology
 
 /**
  * What the user typed, learned on commit (docs/IMPLEMENTATION_PLAN.md P2-02), and what they blocked.
@@ -22,7 +23,11 @@ import io.zizai.han.reading.Mandarin
  * from several picks (造词) shows from the first time. Nothing here knows about privacy: the session
  * doesn't call [learn] where learning is off.
  */
-class LearnedDictionary(private val now: () -> Long = System::currentTimeMillis) : UserDictionary {
+class LearnedDictionary(
+    /** Whose syllables the entries are spelled in: Mandarin, or Cantonese for Jyutping typing. */
+    private val phonology: Phonology = Mandarin,
+    private val now: () -> Long = System::currentTimeMillis,
+) : UserDictionary {
     class Entry(val text: String, val syllables: IntArray, var count: Int, var lastUsed: Long, var assembled: Boolean)
 
     private val entries = HashMap<String, Entry>()
@@ -130,7 +135,7 @@ class LearnedDictionary(private val now: () -> Long = System::currentTimeMillis)
     fun serialize(): String = buildString {
         for (e in entries.values.sortedWith(compareBy({ it.text }, { it.syllables.joinToString() }))) {
             append(e.text).append('\t')
-            append(e.syllables.joinToString(" ") { Mandarin.syllables.spellingOf(it) }).append('\t')
+            append(e.syllables.joinToString(" ") { phonology.syllables.spellingOf(it) }).append('\t')
             append(e.count).append('\t').append(e.lastUsed).append('\t').append(if (e.assembled) 1 else 0).append('\n')
         }
         for (b in blocked.sorted()) append("!blocked\t").append(b).append('\n')
@@ -148,7 +153,7 @@ class LearnedDictionary(private val now: () -> Long = System::currentTimeMillis)
                 continue
             }
             if (f.size != 5) continue
-            val ids = f[1].split(' ').map { Mandarin.syllables.idOf(it) }
+            val ids = f[1].split(' ').map { phonology.syllables.idOf(it) }
             if (ids.any { it < 0 }) continue
             val syllables = ids.toIntArray()
             if (syllables.size != f[0].codePointCount(0, f[0].length)) continue

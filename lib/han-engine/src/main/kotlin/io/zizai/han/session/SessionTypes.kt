@@ -116,6 +116,8 @@ data class HanSettings(
      * Esc: `;` and `'` pick the 2nd and 3rd candidates, `,` and `.` page, and holding Backspace cancels.
      */
     val compact: Boolean = false,
+    /** Jyutping's lazy sounds (懶音): l for n, no initial for ng, and so on (P3-01). */
+    val lazySounds: Boolean = false,
 )
 
 /**

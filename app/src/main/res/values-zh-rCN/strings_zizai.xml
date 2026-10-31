@@ -12,6 +12,11 @@
     <string name="zizai__output_script__hong_kong">繁体（香港）</string>
     <string name="zizai__output_script__as_is">保持识别结果</string>
 
+    <string name="zizai__typing_language__title">输入语言</string>
+    <string name="zizai__typing_language__mandarin">普通话（拼音）</string>
+    <string name="zizai__typing_language__cantonese">粤语（粤拼）</string>
+    <string name="zizai__lazy_sounds__title">懒音</string>
+    <string name="zizai__lazy_sounds__summary">也找标准拼法：l 当 n、o 当 ngo、gok 当 gwok、-n 当 -ng、-t 当 -k。</string>
     <string name="zizai__scheme__title">拼音方案</string>
     <string name="zizai__scheme__quanpin">全拼</string>
     <string name="zizai__scheme__xiaohe">小鹤双拼</string>

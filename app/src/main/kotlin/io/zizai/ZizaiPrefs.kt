@@ -58,6 +58,16 @@ class ZizaiPrefs private constructor(private val sp: SharedPreferences) {
         get() = enumOr(KEY_SCHEME, PinyinScheme.QUANPIN)
         set(v) = sp.edit().putString(KEY_SCHEME, v.name).apply()
 
+    /** What the keyboard types: Mandarin in Pinyin, or Cantonese in Jyutping (P3-01). */
+    var typingLanguage: TypingLanguage
+        get() = enumOr(KEY_TYPING_LANGUAGE, TypingLanguage.MANDARIN)
+        set(v) = sp.edit().putString(KEY_TYPING_LANGUAGE, v.name).apply()
+
+    /** Jyutping lazy sounds (懶音): off by default. */
+    var lazySounds: Boolean
+        get() = sp.getBoolean(KEY_LAZY_SOUNDS, false)
+        set(v) = sp.edit().putBoolean(KEY_LAZY_SOUNDS, v).apply()
+
     /** Fuzzy Pinyin pairs that are on; none by default. */
     var fuzzy: Set<Fuzzy>
         get() = sp.getStringSet(KEY_FUZZY, emptySet()).orEmpty()
@@ -110,6 +120,8 @@ class ZizaiPrefs private constructor(private val sp: SharedPreferences) {
 
     enum class HardwareModeSetting { AUTO, TOUCH, HARDWARE }
 
+    enum class TypingLanguage { MANDARIN, CANTONESE }
+
     companion object {
         private const val KEY_OUTPUT_SCRIPT = "output_script"
         private const val KEY_CJK_SPACING = "cjk_latin_spacing"
@@ -119,6 +131,8 @@ class ZizaiPrefs private constructor(private val sp: SharedPreferences) {
         private const val KEY_HW_ONBOARDING = "hardware_onboarding_shown"
         private const val KEY_SCHEME = "pinyin_scheme"
         private const val KEY_FUZZY = "fuzzy_pinyin"
+        private const val KEY_TYPING_LANGUAGE = "typing_language"
+        private const val KEY_LAZY_SOUNDS = "lazy_sounds"
         private const val KEY_PROOFREAD = "proofread_enabled"
         private const val KEY_COMPACT = "compact_keyboard"
         private const val KEY_FLIP_KEY = "flip_key"

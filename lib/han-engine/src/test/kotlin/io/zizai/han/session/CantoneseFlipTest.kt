@@ -46,8 +46,8 @@ class CantoneseFlipTest : FunSpec({
 
     test("the Cantonese table reads the bundled file") {
         yue.phonology shouldBe Cantonese
-        yue.charCount shouldBe 29936
-        Cantonese.syllables.size shouldBe 659
+        yue.charCount shouldBe 32265
+        Cantonese.syllables.size shouldBe 737
     }
 
     test("common Cantonese homophone errors flip to the right character") {

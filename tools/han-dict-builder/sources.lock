@@ -14,3 +14,8 @@ opencc-HKVariants      Apache-2.0   c3c93c35885902ba2b12a3235a7761b00fb2b027f36a
 
 # Downloadable pack only (han-ext-modern.bin), never bundled: CC BY-SA 4.0 is allowed here and nowhere else.
 pinyin-flex     CC-BY-SA-4.0 861309d3c2f5461808b3f1dcb28eeb284e9a67c27b2130d03233d927b0eb0159  none    https://github.com/zizaiAndroid/zizai/releases/download/language-packs-v1/net.devemperor.dictate.pinyin.flex
+
+# rime-cantonese (CanCLID), CC BY 4.0, for Cantonese typing and flipping (P3-01). Not jyut6ping3.maps (ODbL).
+yue-chars       CC-BY-4.0    9b053a594c80eae76545bcdd83239884a49b1ba48b89ca0ab9e8daac79f33013  none    https://raw.githubusercontent.com/rime/rime-cantonese/259f0e48bba840c3a2e0d117539e96937f3d89bc/jyut6ping3.chars.dict.yaml
+yue-words       CC-BY-4.0    54d174ad2bb997e4a678b7b076b84e4dc5914481b32467cdea3b43e88b7d5474  none    https://raw.githubusercontent.com/rime/rime-cantonese/259f0e48bba840c3a2e0d117539e96937f3d89bc/jyut6ping3.words.dict.yaml
+yue-essay       CC-BY-4.0    d08836175f598219f43c2f2f9e12e12711212dbefe08d57b2eddb7a9d9f22a5d  none    https://raw.githubusercontent.com/rime/rime-cantonese/259f0e48bba840c3a2e0d117539e96937f3d89bc/essay-cantonese.txt
