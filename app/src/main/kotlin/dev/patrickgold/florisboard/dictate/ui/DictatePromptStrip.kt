@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -92,7 +93,7 @@ fun DictatePromptStrip(
         prompts.forEach { prompt ->
             DictatePromptChip(
                 icon = dictatePromptIcon(prompt),
-                text = prompt.name.orEmpty(),
+                text = io.zizai.dictate.PromptNames.display(prompt.name), // ZIZAI-HOOK
                 onClick = { DictateController.applyPrompt(context, prompt) },
                 onLongClick = { editPromptInSettings(prompt) },
                 modifier = Modifier.padding(horizontal = 3.dp),
@@ -127,11 +128,16 @@ fun DictatePromptRow(
     // Slightly taller than the Smartbar and with a touch of vertical padding inside each chip, so the
     // always-on row gives the prompt buttons a more comfortable hit area than the compact Smartbar.
     val rowChipPadding = PaddingValues(horizontal = 2.dp, vertical = 5.dp)
+    val carouselScope = androidx.compose.runtime.rememberCoroutineScope() // ZIZAI-HOOK
+    io.zizai.dictate.PromptCarousel.Effects(listOf(io.zizai.dictate.PromptCarousel.LIVE) + prompts.map { it.id }) // ZIZAI-HOOK
 
     val liveChip: @Composable () -> Unit = {
         DictateLivePromptChip(
-            onClick = { DictateController.startLivePrompt(context) },
-            modifier = Modifier.padding(horizontal = 1.5.dp),
+            onClick = {
+                io.zizai.dictate.PromptCarousel.select(io.zizai.dictate.PromptCarousel.LIVE, carouselScope) // ZIZAI-HOOK
+                DictateController.startLivePrompt(context)
+            },
+            modifier = Modifier.padding(horizontal = 1.5.dp).then(io.zizai.dictate.PromptCarousel.card(io.zizai.dictate.PromptCarousel.LIVE)), // ZIZAI-HOOK
             tapPadding = rowChipPadding,
             // Compact row: show only the voice icon to leave more width for the saved-prompt chips.
             iconOnly = true,
@@ -142,8 +148,9 @@ fun DictatePromptRow(
     val promptChip: @Composable (PromptModel) -> Unit = { prompt ->
         DictatePromptChip(
             icon = dictatePromptIcon(prompt),
-            text = prompt.name.orEmpty(),
+            text = io.zizai.dictate.PromptNames.display(prompt.name), // ZIZAI-HOOK
             onClick = {
+                io.zizai.dictate.PromptCarousel.select(prompt.id, carouselScope) // ZIZAI-HOOK
                 // While a recording/transcription is in flight, queue the prompt instead of applying it;
                 // otherwise apply it right away. Queuing is a silent state change, so give a haptic tick.
                 if (isCapturing) {
@@ -154,7 +161,7 @@ fun DictatePromptRow(
                 }
             },
             onLongClick = { editPromptInSettings(prompt) },
-            modifier = Modifier.padding(horizontal = 1.5.dp),
+            modifier = Modifier.padding(horizontal = 1.5.dp).then(io.zizai.dictate.PromptCarousel.card(prompt.id)), // ZIZAI-HOOK
             tapPadding = rowChipPadding,
             highlighted = pending.any { it.id == prompt.id },
         )
@@ -162,7 +169,7 @@ fun DictatePromptRow(
 
     // One shared scroll state so the (optional) second row scrolls together with the first — it's really
     // one strip that happens to wrap onto two lines (#194), not two independently-scrolling rows.
-    val scrollState = rememberScrollState()
+    val scrollState = io.zizai.dictate.PromptCarousel.scroll // ZIZAI-HOOK: kept while the row is hidden
     if (rows >= 2) {
         // Reading order stays left-to-right: the live chip + first half on the top line, the rest below;
         // both lines share the one horizontal scroll.
@@ -170,6 +177,7 @@ fun DictatePromptRow(
         Column(
             modifier = modifier
                 .fillMaxWidth()
+                .then(io.zizai.dictate.PromptCarousel.viewport()) // ZIZAI-HOOK
                 .horizontalScroll(scrollState)
                 .padding(horizontal = 4.dp),
         ) {
@@ -187,6 +195,7 @@ fun DictatePromptRow(
             modifier = modifier
                 .fillMaxWidth()
                 .height(FlorisImeSizing.smartbarHeight * 1.25f)
+                .then(io.zizai.dictate.PromptCarousel.viewport()) // ZIZAI-HOOK
                 .horizontalScroll(scrollState)
                 .padding(horizontal = 4.dp),
             verticalAlignment = Alignment.CenterVertically,

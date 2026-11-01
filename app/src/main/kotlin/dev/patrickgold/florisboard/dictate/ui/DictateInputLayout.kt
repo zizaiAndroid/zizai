@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -146,7 +147,7 @@ fun DictateInputLayout(
             prompts.forEach { prompt ->
                 DictatePromptChip(
                     icon = dictatePromptIcon(prompt),
-                    text = prompt.name.orEmpty(),
+                    text = io.zizai.dictate.PromptNames.display(prompt.name), // ZIZAI-HOOK
                     modifier = panelChipSpacing,
                     iconSize = panelIconSize,
                     tapPadding = panelTapPadding,
