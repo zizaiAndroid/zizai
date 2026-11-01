@@ -62,7 +62,44 @@ EN_OVERRIDES.update({
     "settings__localization__subtype_presets": "Choose a language",
     "settings__localization__subtype_presets_view_all": "All languages",
     "settings__localization__subtype_no_subtypes_configured_warning": "No language yet. Tap Add a language below.",
+    "settings__localization__display_keyboard_labels_in_subtype_language": "Show key labels in the active language",
+    "select_subtype_panel__header": "Choose a language",
+    "settings__localization__subtype_error_already_exists": "You already have this language.",
+    "settings__localization__subtype_language_pack_auto_message": "This input method turns what you type into characters using a table of about 3 MB. It is fetched once, right after you save this language.",
+    "settings__localization__subtype_delete_confirmation_title": "Remove language",
+    "settings__localization__subtype_delete_confirmation_warning": "Remove this language from the keyboard?",
+    "snygg__rule_element__subtype_panel": "Language panel",
+    "snygg__rule_element__subtype_panel_header": "Language panel header",
+    "snygg__rule_element__subtype_panel_list": "Language panel list",
+    "snygg__rule_element__subtype_panel_list_item": "Language panel list item",
+    "snygg__rule_element__subtype_panel_list_item_icon_leading": "Language panel list item icon (leading)",
+    "snygg__rule_element__subtype_panel_list_item_text": "Language panel list item text",
+    "enum__spelling_language_mode__use_keyboard_subtypes": "Use your keyboard languages",
+    "enum__swipe_action__switch_to_prev_subtype": "Switch to previous language",
+    "enum__swipe_action__switch_to_next_subtype": "Switch to next language",
 })
+
+# The same, in Chinese: 子类型 is no clearer than "subtype".
+_ZH_LANGUAGE = {
+    "settings__localization__display_keyboard_labels_in_subtype_language": ("按键标签使用键盘的语言", "按鍵標籤使用鍵盤的語言"),
+    "select_subtype_panel__header": ("选择语言", "選擇語言"),
+    "settings__localization__suggested_subtype_presets_none_found": ("没有建议。用下面的按钮查看所有语言。", "沒有建議。用下面的按鈕查看所有語言。"),
+    "settings__localization__subtype_no_subtypes_configured_warning": ("还没有语言。点下面的“添加语言”。", "還沒有語言。點下面的「新增語言」。"),
+    "settings__localization__subtype_error_already_exists": ("你已经有这个语言了。", "你已經有這個語言了。"),
+    "settings__localization__subtype_language_pack_auto_message": (
+        "此输入法使用一个约 3 MB 的码表把你键入的内容转换成汉字。保存此语言后会自动下载一次。",
+        "此輸入法使用一個約 3 MB 的碼表把你鍵入的內容轉換成漢字。儲存此語言後會自動下載一次。"),
+    "settings__localization__subtype_delete_confirmation_warning": ("从键盘移除这个语言？", "從鍵盤移除這個語言？"),
+    "snygg__rule_element__subtype_panel": ("语言面板", "語言面板"),
+    "snygg__rule_element__subtype_panel_header": ("语言面板标题", "語言面板標題"),
+    "snygg__rule_element__subtype_panel_list": ("语言面板列表", "語言面板列表"),
+    "snygg__rule_element__subtype_panel_list_item": ("语言面板列表项", "語言面板列表項"),
+    "snygg__rule_element__subtype_panel_list_item_icon_leading": ("语言面板列表项图标", "語言面板列表項圖示"),
+    "snygg__rule_element__subtype_panel_list_item_text": ("语言面板列表项文本", "語言面板列表項文字"),
+    "enum__spelling_language_mode__use_keyboard_subtypes": ("使用键盘的语言", "使用鍵盤的語言"),
+    "enum__swipe_action__switch_to_prev_subtype": ("切换到上一个语言", "切換到上一個語言"),
+    "enum__swipe_action__switch_to_next_subtype": ("切换到下一个语言", "切換到下一個語言"),
+}
 
 ZH_HANS_OVERRIDES = {
     "app_name": "字在", "app_name_full": "字在输入法",
@@ -82,6 +119,9 @@ ZH_HANT_OVERRIDES = {
     "settings__localization__subtype_presets": "選擇語言",
     "settings__localization__subtype_presets_view_all": "所有語言",
 }
+for _key, (_hans, _hant) in _ZH_LANGUAGE.items():
+    ZH_HANS_OVERRIDES[_key] = _hans
+    ZH_HANT_OVERRIDES[_key] = _hant
 
 STRING_RE = re.compile(r'(<string\s+name="([^"]+)"[^>]*>)(.*?)(</string>)', re.DOTALL)
 SELF_CLOSING_RE = re.compile(r'<string\s+name="([^"]+)"[^>]*/>')

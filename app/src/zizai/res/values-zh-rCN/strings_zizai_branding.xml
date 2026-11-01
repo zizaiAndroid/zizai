@@ -81,15 +81,25 @@
     <string name="dictate__title">字在</string>
     <string name="dictate__voice_ime_label">字在语音输入</string>
     <string name="dictate__wear_install_title">在手表上安装字在</string>
+    <string name="enum__spelling_language_mode__use_keyboard_subtypes" comment="Enum value label">使用键盘的语言</string>
+    <string name="enum__swipe_action__switch_to_next_subtype" comment="Enum value label">切换到下一个语言</string>
+    <string name="enum__swipe_action__switch_to_prev_subtype" comment="Enum value label">切换到上一个语言</string>
     <string name="ext__home__info">您可以从字在插件商店下载并安装扩展，或者导入您从互联网上下载的任何匹配和兼容的扩展文件。</string>
     <string name="prefs__media__sticker_add__summary">把图片复制到文件夹。你也可以从任意应用把图片分享到字在。</string>
     <string name="prefs__media__sticker_import_whatsapp__summary">在 WhatsApp 的贴纸文件夹中打开文件选择器。三星键盘等把自己的贴纸存放在其他应用无法读取的位置 — 那些请分享到字在。</string>
+    <string name="select_subtype_panel__header">选择语言</string>
+    <string name="settings__localization__display_keyboard_labels_in_subtype_language" comment="Label of Display keyboard labels in subtype language preference">按键标签使用键盘的语言</string>
     <string name="settings__localization__group_subtypes__label" comment="Label of subtypes group">我的语言</string>
     <string name="settings__localization__subtype_add_title" comment="Title of subtype dialog when adding a new subtype">添加语言</string>
+    <string name="settings__localization__subtype_delete_confirmation_warning" comment="Warning message in the confirmation dialog to confirm the user's intent to delete">从键盘移除这个语言？</string>
     <string name="settings__localization__subtype_edit_title" comment="Title of subtype dialog when editing an existing subtype">编辑语言</string>
+    <string name="settings__localization__subtype_error_already_exists" comment="Error message shown in subtype dialog when a subtype to add already exists">你已经有这个语言了。</string>
+    <string name="settings__localization__subtype_language_pack_auto_message">此输入法使用一个约 3 MB 的码表把你键入的内容转换成汉字。保存此语言后会自动下载一次。</string>
+    <string name="settings__localization__subtype_no_subtypes_configured_warning" comment="Warning message that no subtype has been defined">还没有语言。点下面的“添加语言”。</string>
     <string name="settings__localization__subtype_presets" comment="Subtype presets dialog title">选择语言</string>
     <string name="settings__localization__subtype_presets_view_all" comment="View all presets button">所有语言</string>
     <string name="settings__localization__suggested_subtype_presets" comment="Suggested presets title">常用语言</string>
+    <string name="settings__localization__suggested_subtype_presets_none_found" comment="Suggested presets none found">没有建议。用下面的按钮查看所有语言。</string>
     <string name="setup__finish_up__add_key_hint">提示：您尚未添加 AI 密钥。可随时在设置 → 字在 → AI 服务商中添加，即可开始听写。</string>
     <string name="setup__grant_mic_permission__description">字在需要麦克风访问权限来录制您的语音以进行转录。</string>
     <string name="setup__grant_notification_permission__description">自安卓 13 以来，应用在发送通知前
@@ -102,5 +112,11 @@
     <string name="setup__provider__intro">字在借助在线 AI 服务将您的语音转换为文字。要使用它，您需要拥有该服务的个人密钥。</string>
     <string name="setup__provider__title">选择字在的转写方式</string>
     <string name="setup__provider__what_is_key">API 密钥就像一个个人密码，让字在代您使用该服务。创建它是免费的，大约需要两分钟。</string>
+    <string name="snygg__rule_element__subtype_panel">语言面板</string>
+    <string name="snygg__rule_element__subtype_panel_header">语言面板标题</string>
+    <string name="snygg__rule_element__subtype_panel_list">语言面板列表</string>
+    <string name="snygg__rule_element__subtype_panel_list_item">语言面板列表项</string>
+    <string name="snygg__rule_element__subtype_panel_list_item_icon_leading">语言面板列表项图标</string>
+    <string name="snygg__rule_element__subtype_panel_list_item_text">语言面板列表项文本</string>
     <string name="sticker__source_hint">这些只是起点，不是保证 — 文件夹不存在时，选择器会照常打开。像三星键盘这类把贴纸留给自己的应用，只能分享到字在。</string>
 </resources>

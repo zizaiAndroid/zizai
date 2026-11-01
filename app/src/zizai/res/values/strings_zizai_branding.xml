@@ -82,6 +82,9 @@
     <string name="dictate__title" comment="Title of the Dictate settings screen and home tile">Zizai</string>
     <string name="dictate__voice_ime_label" comment="Name of the Dictate voice input method shown in system keyboard settings (issue #67)">Zizai voice input</string>
     <string name="dictate__wear_install_title" comment="Title of the button that opens the Play Store to install the Wear OS app">Install Zizai on your watch</string>
+    <string name="enum__spelling_language_mode__use_keyboard_subtypes" comment="Enum value label">Use your keyboard languages</string>
+    <string name="enum__swipe_action__switch_to_next_subtype" comment="Enum value label">Switch to next language</string>
+    <string name="enum__swipe_action__switch_to_prev_subtype" comment="Enum value label">Switch to previous language</string>
     <string name="ext__home__info">You can download and install extensions from the Zizai Keyboard Addons Store or import any extension file you have downloaded from the internet.</string>
     <string name="florisboard__changelog_url" translatable="false">https://github.com/zizaiAndroid/zizai/releases</string>
     <string name="florisboard__commit_by_hash_url" translatable="false">https://github.com/zizaiAndroid/zizai/commit/{hash}</string>
@@ -94,9 +97,15 @@
     <string name="florisboard__website_url" translatable="false">https://github.com/zizaiAndroid/zizai</string>
     <string name="prefs__media__sticker_add__summary" comment="Preference summary; mentions the share sheet as the other way in">Copy images into the folder. You can also share an image to Zizai from any app.</string>
     <string name="prefs__media__sticker_import_whatsapp__summary" comment="Preference summary explaining what other apps allow">Opens the file picker at WhatsApp\'s sticker folder. Keyboards such as Samsung\'s keep their stickers where no other app may read them — share those to Zizai instead.</string>
+    <string name="select_subtype_panel__header">Choose a language</string>
+    <string name="settings__localization__display_keyboard_labels_in_subtype_language" comment="Label of Display keyboard labels in subtype language preference">Show key labels in the active language</string>
     <string name="settings__localization__group_subtypes__label" comment="Label of subtypes group">Your languages</string>
     <string name="settings__localization__subtype_add_title" comment="Title of subtype dialog when adding a new subtype">Add language</string>
+    <string name="settings__localization__subtype_delete_confirmation_title" comment="Title of the subtype delete confirmation dialog">Remove language</string>
+    <string name="settings__localization__subtype_delete_confirmation_warning" comment="Warning message in the confirmation dialog to confirm the user's intent to delete">Remove this language from the keyboard?</string>
     <string name="settings__localization__subtype_edit_title" comment="Title of subtype dialog when editing an existing subtype">Edit language</string>
+    <string name="settings__localization__subtype_error_already_exists" comment="Error message shown in subtype dialog when a subtype to add already exists">You already have this language.</string>
+    <string name="settings__localization__subtype_language_pack_auto_message" comment="Body of that note: nothing for the user to do, it explains what will happen after saving">This input method turns what you type into characters using a table of about 3 MB. It is fetched once, right after you save this language.</string>
     <string name="settings__localization__subtype_no_subtypes_configured_warning" comment="Warning message that no subtype has been defined">No language yet. Tap Add a language below.</string>
     <string name="settings__localization__subtype_presets" comment="Subtype presets dialog title">Choose a language</string>
     <string name="settings__localization__subtype_presets_view_all" comment="View all presets button">All languages</string>
@@ -115,5 +124,11 @@
     <string name="setup__provider__intro">Zizai turns your speech into text with the help of an online AI service. To use it, you need your own personal key for such a service.</string>
     <string name="setup__provider__title">Choose how Zizai transcribes</string>
     <string name="setup__provider__what_is_key">An API key is like a personal password that lets Zizai use the service for you. Creating one is free and takes about two minutes.</string>
+    <string name="snygg__rule_element__subtype_panel">Language panel</string>
+    <string name="snygg__rule_element__subtype_panel_header">Language panel header</string>
+    <string name="snygg__rule_element__subtype_panel_list">Language panel list</string>
+    <string name="snygg__rule_element__subtype_panel_list_item">Language panel list item</string>
+    <string name="snygg__rule_element__subtype_panel_list_item_icon_leading">Language panel list item icon (leading)</string>
+    <string name="snygg__rule_element__subtype_panel_list_item_text">Language panel list item text</string>
     <string name="sticker__source_hint" comment="Note under the list; explains why some apps are missing from it">These are starting points, not guarantees — if a folder is not there, the picker opens as usual. Apps that keep their stickers to themselves, such as the Samsung keyboard, can only be shared to Zizai.</string>
 </resources>
