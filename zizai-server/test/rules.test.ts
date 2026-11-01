@@ -57,8 +57,8 @@ test('audio needs pro', () => {
   assert.equal(decide(emptyState(NOW), [], 'audio', 'pro', settings, NOW).decision.ok, true);
 });
 
-test('costs: a typical AI card is about $0.0002, short audio is billed at 10 s', () => {
-  assert.equal(chatCostMicros(settings, 300, 500), Math.ceil(300 * 0.075 + 500 * 0.3));
+test('costs: a typical AI card is about $0.00035, short audio is billed at 10 s', () => {
+  assert.equal(chatCostMicros(settings, 300, 500), Math.ceil(300 * 0.15 + 500 * 0.6));
   assert.equal(audioCostMicros(settings, 3), audioCostMicros(settings, 10));
   assert.equal(audioCostMicros(settings, 3600), 40_000);
 });

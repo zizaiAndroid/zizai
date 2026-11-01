@@ -453,9 +453,9 @@ Each decision is written so it can be challenged later. If one changes, update i
   - A keyboard competes with free Gboard, Sogou and SwiftKey; a price at the door costs most installs,
     and installs drive Play search ranking. The AI is the part with a running cost, so it is the part we
     charge for.
-  - Groq is cheap and fast. A typical AI card costs about US$0.0002 (gpt-oss-20b: about 300 tokens in,
-    500 out), so even a heavy Pro user costs about US$1 a month against about US$4.24 received after
-    Google's 15%.
+  - Groq is cheap and fast. A typical AI card costs about US$0.00035 (gpt-oss-120b at US$0.15 / 0.60 per
+    million tokens: about 300 tokens in, 500 out), so even a Pro user at the 5,000-action fair-use line
+    costs under US$2 a month against about US$4.24 received after Google's 15%.
   - Our own server keeps the Groq key off the device, lets Google (not the app) decide who has paid, and
     is the only place a quota can be enforced.
   - Reworking upstream's `cloud/` would turn every upstream merge into a conflict, and its model (prepaid
@@ -1199,7 +1199,7 @@ model and the output limit, whatever the client sends.
   expiry is a cache, never the authority. A nightly sweep re-checks subscriptions whose expiry has passed,
   in case a notification was lost.
 
-**Groq.** `GROQ_API_KEY` is a Worker secret. Chat goes to `openai/gpt-oss-20b` with
+**Groq.** `GROQ_API_KEY` is a Worker secret. Chat goes to `openai/gpt-oss-120b` with
 `reasoning_effort: low`; transcription to `whisper-large-v3-turbo`. Both model names are variables, so
 switching models needs no code change. An optional fallback (any OpenAI-compatible base URL and key) is
 tried on a Groq 429 or 5xx.

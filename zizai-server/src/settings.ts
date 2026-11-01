@@ -67,13 +67,14 @@ export function settingsFrom(env: SettingsEnv): Settings {
     maxAudioBytes: int(env.MAX_AUDIO_BYTES, 25 * 1024 * 1024),
 
     groqBaseUrl: str(env.GROQ_BASE_URL, 'https://api.groq.com/openai/v1').replace(/\/+$/, ''),
-    chatModel: str(env.CHAT_MODEL, 'openai/gpt-oss-20b'),
+    chatModel: str(env.CHAT_MODEL, 'openai/gpt-oss-120b'),
     transcribeModel: str(env.TRANSCRIBE_MODEL, 'whisper-large-v3-turbo'),
     fallbackBaseUrl: env.FALLBACK_BASE_URL ? env.FALLBACK_BASE_URL.replace(/\/+$/, '') : null,
     fallbackChatModel: env.FALLBACK_CHAT_MODEL || null,
 
-    chatInputPricePerM: dec(env.CHAT_INPUT_PRICE_PER_M, 0.075),
-    chatOutputPricePerM: dec(env.CHAT_OUTPUT_PRICE_PER_M, 0.3),
+    // Groq's prices for the default chat model, gpt-oss-120b (2026-11).
+    chatInputPricePerM: dec(env.CHAT_INPUT_PRICE_PER_M, 0.15),
+    chatOutputPricePerM: dec(env.CHAT_OUTPUT_PRICE_PER_M, 0.6),
     audioPricePerHour: dec(env.AUDIO_PRICE_PER_HOUR, 0.04),
     audioMinBilledSeconds: int(env.AUDIO_MIN_BILLED_SECONDS, 10),
     dailyBudgetUsd: dec(env.DAILY_BUDGET_USD, 20),

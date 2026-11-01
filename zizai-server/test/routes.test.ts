@@ -79,7 +79,7 @@ test('free account: 30 AI actions, then 402 quota_exhausted; the server picks mo
     const r = await handleChat(chat(token), w.s);
     assert.equal(r.status, 200, `action ${i + 1}`);
   }
-  assert.equal(w.upstream.chats[0]!.model, 'openai/gpt-oss-20b');
+  assert.equal(w.upstream.chats[0]!.model, 'openai/gpt-oss-120b');
   assert.equal(w.upstream.chats[0]!.max_completion_tokens, 1024);
   assert.equal(w.upstream.chats[0]!.reasoning_effort, 'low');
 

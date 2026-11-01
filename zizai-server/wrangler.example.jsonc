@@ -44,7 +44,7 @@
     "PRO_PER_MINUTE": "30",
     "SLOWED_PER_MINUTE": "2",
     "MAX_DEVICES_PER_SUBSCRIPTION": "3",
-    "CHAT_MODEL": "openai/gpt-oss-20b",
+    "CHAT_MODEL": "openai/gpt-oss-120b",
     "TRANSCRIBE_MODEL": "whisper-large-v3-turbo",
     "DAILY_BUDGET_USD": "20",
     "ALLOW_BASIC_INTEGRITY": "false"
