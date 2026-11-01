@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -468,6 +469,7 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
             // user did nothing wrong by choosing this language.
             val hasNoWordList = nlpProviders.suggestion == LatinLanguageProvider.ProviderId &&
                 primaryLocale != SelectLocale &&
+                primaryLocale.language != "yue" && // ZIZAI-HOOK: Zizai's Cantonese dictionary is the word list
                 !GlideDictionaryCatalog.isSupported(
                     LatinLanguageProvider.normalizeLang(primaryLocale.language),
                 )
@@ -522,6 +524,7 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                             for (systemLocale in systemLocales) {
                                 subtypePresets.find { it.locale == systemLocale }?.let { presets.add(it) }
                             }
+                            io.zizai.app.PopularLanguages.addPopularPresets(presets, subtypePresets) // ZIZAI-HOOK
                             presets
                         }
                         if (suggestedPresets.isNotEmpty()) {

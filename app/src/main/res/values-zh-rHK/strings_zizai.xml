@@ -77,4 +77,7 @@
     <string name="zizai__cheat_sheet__summary">實體鍵盤使用。打字時按 Ctrl+/ 查看。</string>
     <string name="zizai__cheat_sheet">空格 · 1–9 選字\n= − 翻頁   ← → 移動   ↓ 按聲調查看全部同音字\nTab 聲調篩選   [ ] 以詞定字\n回車 輸入字母   Esc 取消   Shift 中/英\nF2 或 Alt+空格 改光標前的字   Ctrl+F2 改詞\nF8 下一處可疑錯字\nCtrl+Shift+空格 語音輸入   按住右 Ctrl 説話\nCtrl+. 標點全/半角   Ctrl+/ 本表</string>
     <string name="zizai__close">關閉</string>
+    <string name="zizai__packs__show_more">顯示更多輸入法</string>
+    <string name="zizai__packs__show_more_summary">鄭碼、嘸蝦米等較少用的輸入法</string>
+    <string name="zizai__packs__show_fewer">收起</string>
 </resources>

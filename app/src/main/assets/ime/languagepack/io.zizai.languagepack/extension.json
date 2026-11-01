@@ -1,0 +1,28 @@
+{
+  "$": "ime.extension.languagepack",
+  "meta": {
+    "id": "io.zizai.languagepack",
+    "version": "1.0.0",
+    "title": "字在 Zizai",
+    "description": "Zizai's own input methods: Pinyin and Cantonese Jyutping with Zizai's dictionaries, and Korean. Always available.",
+    "maintainers": [ "Zizai contributors" ],
+    "license": "apache-2.0"
+  },
+  "items": [
+    {
+      "id": "zh_CN_pinyin",
+      "label": "中文 (中国) [拼音] / Chinese (China) [PINYIN]",
+      "authors": [ "Zizai contributors" ]
+    },
+    {
+      "id": "yue_HK_jyutping",
+      "label": "粵語 (香港) [粵拼] / Cantonese (Hong Kong) [JYUTPING]",
+      "authors": [ "Zizai contributors" ]
+    },
+    {
+      "id": "ko",
+      "label": "한국어 [두벌식] / Korean [2-SET]",
+      "authors": [ "patrickgold" ]
+    }
+  ]
+}

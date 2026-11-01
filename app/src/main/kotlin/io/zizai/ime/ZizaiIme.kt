@@ -78,7 +78,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     private val session: HanSession
         get() {
             val generation = HanAssets.generation.value
-            val language = prefs.typingLanguage
+            val language = typingLanguage()
             val existing = sessions.value
             if (existing != null && generation == sessionGeneration && language == sessionLanguage) return existing
             existing?.reset(ResetReason.MODE_SWITCH)
@@ -105,7 +105,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         compact = prefs.compactKeyboard,
         lazySounds = prefs.lazySounds,
         // Cantonese is written in Traditional characters (係, 嚟); the Simplified default would hide them.
-        filter = if (prefs.typingLanguage == ZizaiPrefs.TypingLanguage.CANTONESE) {
+        filter = if (typingLanguage() == ZizaiPrefs.TypingLanguage.CANTONESE) {
             HomophoneFilter(script = ScriptFilter.TRADITIONAL)
         } else {
             HomophoneFilter()
@@ -339,7 +339,15 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
 
     override val chineseSubtype: Boolean
         get() = subtypeManager.activeSubtype.primaryLocale.languageTag().lowercase().let {
-            it.startsWith("zh") && "pinyin" in it
+            (it.startsWith("zh") && "pinyin" in it) || "jyutping" in it
+        }
+
+    /** Cantonese when the active language is 粵語 (Jyutping), else what 中文 settings say for Pinyin's language. */
+    private fun typingLanguage(): ZizaiPrefs.TypingLanguage =
+        if ("jyutping" in subtypeManager.activeSubtype.primaryLocale.languageTag().lowercase()) {
+            ZizaiPrefs.TypingLanguage.CANTONESE
+        } else {
+            prefs.typingLanguage
         }
 
     override val sessionActive: Boolean get() = session.isActive

@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -104,6 +105,7 @@ fun LanguagePackManagerScreen(action: LanguagePackManagerScreenAction?) = Floris
         LanguagePackManagerScreenAction.MANAGE -> selectedManagerLanguagePackId
     }
     var languagePackExtToDelete by remember { mutableStateOf<Extension?>(null) }
+    var showLessCommon by remember { mutableStateOf(false) } // ZIZAI-HOOK: popular input methods first
 
     content {
         val grayColor = LocalContentColor.current.copy(alpha = 0.56f)
@@ -135,7 +137,7 @@ fun LanguagePackManagerScreen(action: LanguagePackManagerScreenAction?) = Floris
                         .horizontalScroll(rememberScrollState())
                         .width(intrinsicSize = IntrinsicSize.Max),
                 ) {
-                    for (config in configs) key(extensionId, config.id) {
+                    for (config in configs.filter { showLessCommon || !io.zizai.app.PopularLanguages.isLessCommon(it.id) }) key(extensionId, config.id) { // ZIZAI-HOOK
                         JetPrefListItem(
                             modifier = Modifier.rippleClickable {
                                 setLanguagePack(extensionId, config.id)
@@ -191,6 +193,8 @@ fun LanguagePackManagerScreen(action: LanguagePackManagerScreenAction?) = Floris
                 }
             }
         }
+
+        io.zizai.app.PopularLanguages.ShowMoreRow(showLessCommon) { showLessCommon = it } // ZIZAI-HOOK
 
         if (languagePackExtToDelete != null) {
             FlorisConfirmDeleteDialog(

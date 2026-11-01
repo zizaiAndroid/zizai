@@ -1,0 +1,30 @@
+{
+  "$": "ime.extension.keyboard",
+  "meta": {
+    "id": "io.zizai.localization",
+    "version": "1.0.0",
+    "title": "Zizai subtype presets",
+    "description": "Cantonese typed in Jyutping, with Zizai's Cantonese dictionary.",
+    "maintainers": [ "Zizai contributors" ],
+    "license": "apache-2.0"
+  },
+  "dependencies": [
+    "org.florisboard.composers",
+    "org.florisboard.currencysets",
+    "org.florisboard.layouts",
+    "org.florisboard.localization"
+  ],
+  "subtypePresets": [
+    {
+      "languageTag": "yue-HK-jyutping",
+      "composer": "org.florisboard.composers:appender",
+      "currencySet": "org.florisboard.currencysets:dollar",
+      "popupMapping": "org.florisboard.localization:cjk",
+      "preferred": {
+        "characters": "org.florisboard.layouts:qwerty",
+        "symbols": "org.florisboard.layouts:cjk",
+        "symbols2": "org.florisboard.layouts:cjk"
+      }
+    }
+  ]
+}
