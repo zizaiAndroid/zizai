@@ -1457,13 +1457,30 @@ flowchart LR
 
 | Listing | Title | Length |
 |---|---|---|
-| English | Zizai: Chinese Voice Dictation | 30 |
+| English | Zizai: AI Dictation Keyboard | 28 |
 | Taiwan (zh-TW) | 字在：AI語音輸入法・語音轉文字 | 16 |
 | Hong Kong (zh-HK) | 字在：廣東話語音輸入・語音轉文字 | 16 |
 | Simplified (zh-CN) | 字在：AI语音输入法・语音转文字 | 16 |
 
-The English title matches "chinese dictation", "chinese voice" and "voice dictation". If keyboard users
-matter more than learners, use "Zizai: Chinese Voice Typing" (27) instead.
+**English title (decided 2026-11-01).** The English listing also reaches people who don't speak Chinese,
+so its title names the product category rather than the language: "AI", "dictation" and "keyboard" are all
+searched, and none of them says "learning app" the way "Chinese dictation" does. Run it as a Play Console
+store listing experiment against the earlier, Chinese-first variants, and keep whichever installs better:
+
+| Variant | Title | Length | Reaches |
+|---|---|---|---|
+| A (default) | Zizai: AI Dictation Keyboard | 28 | Anyone looking for AI voice typing |
+| B | Zizai: Chinese Voice Dictation | 30 | "chinese dictation", "chinese voice", "voice dictation"; many of those searchers are learners |
+| C | Zizai: Chinese Voice Typing | 27 | Chinese speakers who want a keyboard |
+
+**Never in a title:**
+
+- **"Dictate".** It is upstream's product name (Dictate Keyboard, on Play in the same category). Using it
+  invites confusion with the app Zizai is forked from, IP complaints, and Play's impersonation and
+  misleading-metadata rules.
+- **Restyling the brand as "ZizAI".** It breaks the pronunciation ("zee-zai", matching 字在), hides the
+  字在 / 自在 homophone the name is built on, and is not the name the trademark searches cover. The app
+  label stays 字在 Zizai everywhere; only the listing titles carry descriptors.
 
 **Simplified first** (§12). The zh-CN listing is the primary Chinese listing, so its screenshots come first.
 The Taiwan and Hong Kong listings can launch with the copy below; Traditional-Chinese screenshots follow in
