@@ -74,7 +74,7 @@ can't.
 ### P0-01 Pre-upload gate · S · you · parallel with everything in Phase 0
 
 - **Do:** trademark searches for 字在 / Zizai in Taiwan (TIPO), Hong Kong (IPD) and mainland China (CNIPA);
-  register `zizai.io`; decide which address EU users see for trader status. Consider registering the
+  register a domain (done: `zizaikeyboard.com`); decide which address EU users see for trader status. Consider registering the
   trademark, since the code is public.
 - **Done when:** results recorded in ARCHITECTURE.md §12. **Must finish before P0-10**, because the first
   Play upload makes `io.zizai.keyboard` permanent.
@@ -578,7 +578,8 @@ in `zizai.properties` keeps every Pro surface out of the build until the server 
 
 **Only you can do (blocks PM-09, not the coding):**
 
-1. Register `zizai.io` and add it to Cloudflare; create the Worker route `api.zizai.io`.
+1. ~~Register a domain~~ (done: `zizaikeyboard.com`, 2026-11-01). Add it to Cloudflare; the deploy creates
+   `api.zizaikeyboard.com`. Turn on Email Routing to forward `feedback@zizaikeyboard.com` to your inbox.
 2. Create a Groq account, a paid-tier API key, and set it with `wrangler secret put GROQ_API_KEY`.
 3. In Play Console: create the subscription `zizai_pro` with base plans `monthly` (US$4.99) and `yearly`
    (US$34.99), a 7-day free-trial offer on `yearly`, and regional prices; add license testers.
@@ -586,7 +587,7 @@ in `zizai.properties` keeps every Pro surface out of the build until the server 
    and subscriptions"; enable the Play Integrity API for the app's Cloud project; set the service
    account's JSON key with `wrangler secret put GOOGLE_SERVICE_ACCOUNT`.
 5. Create a Pub/Sub topic for real-time developer notifications, push it to
-   `https://api.zizai.io/v1/rtdn?key=…`, and set the same secret with `wrangler secret put RTDN_SECRET`.
+   `https://api.zizaikeyboard.com/v1/rtdn?key=…`, and set the same secret with `wrangler secret put RTDN_SECRET`.
 
 ---
 
@@ -663,7 +664,7 @@ the public repository.
 
 | Only you can do | Claude Code can do |
 |---|---|
-| Trademark searches and registration; buying `zizai.io` |
+| Trademark searches and registration; the domain (`zizaikeyboard.com`, bought) |
 | Cloudflare, Groq and Google Cloud accounts and their secrets (§4a) | zizai-server code, tests and deploy scripts (§4a) | All code, build scripts and tests in §2–§5 |
 | GitHub fork under your account | The CI workflows, and the GitHub issues and milestones (once `gh` is signed in) |
 | Play Console: identity verification, merchant profile, the `zizai_pro` subscription and license testers, declarations, production application | Drafts of every Play Console form, listing text and the privacy policy |

@@ -228,7 +228,7 @@ export function goodVerdict(nonce: string, now = NOW): IntegrityPayload {
 
 export function post(path: string, body: unknown, token?: string): Request {
   const text = JSON.stringify(body);
-  return new Request(`https://api.zizai.io${path}`, {
+  return new Request(`https://api.zizaikeyboard.com${path}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'content-length': String(text.length), ...(token ? { authorization: `Bearer ${token}` } : {}) },
     body: text,
@@ -236,5 +236,5 @@ export function post(path: string, body: unknown, token?: string): Request {
 }
 
 export function get(path: string, token?: string): Request {
-  return new Request(`https://api.zizai.io${path}`, { headers: token ? { authorization: `Bearer ${token}` } : {} });
+  return new Request(`https://api.zizaikeyboard.com${path}`, { headers: token ? { authorization: `Bearer ${token}` } : {} });
 }

@@ -57,7 +57,7 @@ npm run dev
    (`npx wrangler secret put NAME`).
 3. `npm run db:remote`, then `npm run deploy`.
 4. Point Play's real-time developer notifications (a Pub/Sub push subscription) at
-   `https://api.zizai.io/v1/rtdn?key=<RTDN_SECRET>`.
+   `https://api.zizaikeyboard.com/v1/rtdn?key=<RTDN_SECRET>`.
 
 The service account needs, in Play Console, "View financial data" and "Manage orders and subscriptions",
 and the Play Integrity API enabled in its Google Cloud project.

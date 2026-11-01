@@ -9,7 +9,7 @@
 | **Date** | 2026-10-31 (first draft 2026-10-26) |
 | **Name** | **字在** (Latin name: *Zizai*), a pun on 自在 ("at ease"). Rationale and store listing in [§8.4](#84-name-and-store-listing). |
 | **Upstream baseline** | [`DevEmperor/DictateKeyboard`](https://github.com/DevEmperor/DictateKeyboard) `main` @ `39f33c9` (2026-10-24), app **6.4.0** (versionCode 142) |
-| **Package / namespace** | App: `io.zizai.keyboard`. New code: `io.zizai.*`. Proposed: register `zizai.io` or adjust this before the first Play upload. |
+| **Package / namespace** | App: `io.zizai.keyboard`. New code: `io.zizai.*`. Domain: `zizaikeyboard.com` (registered 2026-11-01). The package needs no matching domain; Play only needs it to be unique. |
 | **Where this file lives** | Planning copy. Move it to `docs/ARCHITECTURE.md` in the fork once the fork exists. |
 
 **How to read this:** §0 is the one-page summary. §4 has the decisions and why each was made. §6 is the
@@ -1153,8 +1153,8 @@ essential keys. **Ctrl+/** opens a full cheat sheet at any time.
 
 ### 6.12 zizai-server and Zizai Pro
 
-A single Cloudflare Worker in `zizai-server/` (TypeScript), deployed at **`api.zizai.io`** (proposed;
-the domain is yours to register, §12). It speaks the OpenAI chat and transcription formats, so the app
+A single Cloudflare Worker in `zizai-server/` (TypeScript), deployed at **`api.zizaikeyboard.com`**
+(§12). It speaks the OpenAI chat and transcription formats, so the app
 talks to it through upstream's `OpenAiCompatibleClient` like any other provider, with a device token in
 place of an API key.
 
@@ -1440,7 +1440,7 @@ flowchart LR
 | Play titles 字在 and 自在 | No app uses either | — |
 | Play title "Zizai" | Taken by an unrelated app (Mayhew Walker Consulting, `mayhew.zizai.info`; its category wasn't visible) | Never use "Zizai" on its own |
 | Companies | "Beijing Zizai Technology" (maker of Nut trackers) exists | Include it in the trademark search |
-| Domains | `zizai.com`, `zizai.app` and `getzizai.com` are registered. `zizai.io` and `zizaikey.com` had no RDAP record. | Register `zizai.io` to back `io.zizai.keyboard` |
+| Domains | `zizai.com`, `zizai.app`, `zizai.dev`, `zizai.io` and `getzizai.com` are taken. | **`zizaikeyboard.com` registered (2026-11-01)**: the server (`api.`) and email (`feedback@`) |
 | Trademarks | **Not searched yet** | Search TIPO (Taiwan), IPD (Hong Kong) and CNIPA (mainland) before the first upload |
 | Names to avoid | Puns on 自然 would look like a knock-off of Taiwan's long-standing 自然輸入法 | — |
 
@@ -1603,7 +1603,7 @@ The work breakdown, schedule and owners are in [IMPLEMENTATION_PLAN.md](IMPLEMEN
 
 | # | Question | Decision | Where it changed the design |
 |---|---|---|---|
-| 1 | Name and package | **字在 / Zizai**, `io.zizai.keyboard` | §8.4. Before the first upload: trademark searches (TIPO, HK IPD, CNIPA) and registering `zizai.io` |
+| 1 | Name and package | **字在 / Zizai**, `io.zizai.keyboard` | §8.4. Before the first upload: trademark searches (TIPO, HK IPD, CNIPA); domain `zizaikeyboard.com` registered |
 | 2 | Script priority | **Simplified Chinese first.** No Zhuyin in v1. | Simplified is the default output (§6.6, §6.9); zh-TW UI moves to Phase 2 (§10); the zh-CN listing is the primary Chinese listing (§8.4) |
 | 3 | Developer account | **Personal** | The 12-tester, 14-consecutive-day closed test applies (§8.1) |
 | 4 | Monetization | ~~Paid upfront~~ — **replaced by decision 11** | — |
@@ -1629,9 +1629,9 @@ upload fixes the package name:
 
 - [ ] Trademark searches in Taiwan (TIPO), Hong Kong (IPD) and mainland China (CNIPA). With public source
       code, also consider *registering* 字在 / Zizai, so copies of the code can't use the name.
-- [ ] Register `zizai.io` (backs `io.zizai.keyboard`).
+- [x] Register a domain: `zizaikeyboard.com` (2026-11-01).
 - [ ] Choose the address EU users will see for trader status (§8.1).
-- [ ] Point `api.zizai.io` at the zizai-server Worker (§6.12).
+- [ ] Point `api.zizaikeyboard.com` at the zizai-server Worker (§6.12); forward `feedback@` with Email Routing.
 - [ ] Create the `zizai_pro` subscription and add license testers (§8.1).
 
 ---

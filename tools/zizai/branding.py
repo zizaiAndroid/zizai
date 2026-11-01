@@ -38,8 +38,8 @@ EN_OVERRIDES = {
     "app_name": "Zizai",
     "app_name_full": "Zizai Keyboard",
     "about__made_by": "Based on Dictate Keyboard by DevEmperor,\\na fork of FlorisBoard",
-    # Placeholder until the zizai.io domain (P0-01) has a mailbox.
-    "about__feedback__email": "feedback@zizai.io",
+    # Forwarded by Cloudflare Email Routing on zizaikeyboard.com.
+    "about__feedback__email": "feedback@zizaikeyboard.com",
     "florisboard__repo_url": REPO,
     "florisboard__website_url": REPO,
     "florisboard__issue_tracker_url": f"{REPO}/issues",

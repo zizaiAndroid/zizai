@@ -210,7 +210,7 @@ test('transcription: pro only, charged by the duration Groq reports, answered in
     f.append('file', new Blob([new Uint8Array(48_000)], { type: 'audio/wav' }), 'a.wav');
     f.append('model', 'whisper-1');
     f.append('response_format', 'text');
-    return new Request('https://api.zizai.io/v1/audio/transcriptions', { method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-length': '48500' }, body: f });
+    return new Request('https://api.zizaikeyboard.com/v1/audio/transcriptions', { method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-length': '48500' }, body: f });
   };
   const refused = await handleTranscription(form(), w.s);
   assert.equal(refused.status, 403);

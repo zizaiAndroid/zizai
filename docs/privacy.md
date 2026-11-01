@@ -9,7 +9,7 @@
 This Privacy Policy explains how **字在 Zizai** (the "App", application ID `io.zizai.keyboard`) handles your
 information. The App is developed by **[TO FILL: your legal name]** (the "Developer", "we", "us").
 
-Questions about this policy: **[TO FILL: contact email, e.g. feedback@zizai.io]**.
+Questions about this policy: **feedback@zizaikeyboard.com**.
 
 ---
 
@@ -150,14 +150,14 @@ creating a Zizai AI account. See https://policies.google.com/privacy.
 Only when you choose Zizai AI as a provider (it is the default for AI cards when no other provider is set up):
 
 - **What is sent:** the text of the AI card you tapped (with its instruction), or, for Zizai Pro cloud voice,
-  the recording. It goes over HTTPS to our server at api.zizai.io (Cloudflare Workers) and on to **Groq,
+  the recording. It goes over HTTPS to our server at api.zizaikeyboard.com (Cloudflare Workers) and on to **Groq,
   Inc.**, which runs the model and returns the result. We do not store it; Groq processes it under its own
   terms and does not use it for training. See https://groq.com/privacy-policy.
 - **Your account:** an anonymous account per device, created on first use, keyed on a one-way hash of the
   App's Android ID for this device. It holds no name, email, Google account or IP address: only a random
   account ID, hashed access tokens, last-seen times, this month's usage counts and, if you subscribe, the
   subscription token, state and expiry.
-- **Deleting it:** Settings → Zizai Pro → Delete account, or https://api.zizai.io/delete with the account ID
+- **Deleting it:** Settings → Zizai Pro → Delete account, or https://api.zizaikeyboard.com/delete with the account ID
   shown there. Accounts unused for 12 months are deleted automatically. Deleting does not cancel a Google Play
   subscription; cancel that in Google Play.
 

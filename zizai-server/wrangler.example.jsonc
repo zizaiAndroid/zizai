@@ -17,7 +17,7 @@
   "observability": { "enabled": true },
 
   // One public address. The app has it compiled in.
-  "routes": [{ "pattern": "api.zizai.io", "custom_domain": true }],
+  "routes": [{ "pattern": "api.zizaikeyboard.com", "custom_domain": true }],
   "workers_dev": false,
   "preview_urls": false,
 
