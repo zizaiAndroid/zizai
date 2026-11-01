@@ -1,0 +1,21 @@
+{
+  "name": "zizai-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zizai AI: device accounts, Zizai Pro subscriptions and a metered Groq proxy for the 字在 Zizai keyboard.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"test/*.test.ts\"",
+    "db:local": "wrangler d1 execute zizai-server --local --file=schema.sql",
+    "db:remote": "wrangler d1 execute zizai-server --remote --file=schema.sql"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20251001.0",
+    "@types/node": "24.3.0",
+    "typescript": "5.9.2",
+    "wrangler": "4.40.0"
+  }
+}

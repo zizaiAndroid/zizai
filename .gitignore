@@ -108,3 +108,9 @@ cloud/dist/
 
 # Zizai: SenseVoice Small, fetched at build time into the asset pack (zizai-models/build.gradle.kts)
 /zizai-models/src/main/assets/
+
+# zizai-server: dependencies, local config and secrets
+zizai-server/node_modules/
+zizai-server/wrangler.jsonc
+zizai-server/.dev.vars
+zizai-server/.wrangler/

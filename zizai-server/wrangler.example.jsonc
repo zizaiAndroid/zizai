@@ -1,0 +1,57 @@
+// zizai-server configuration. Copy to `wrangler.jsonc` (git-ignored) and fill in the placeholders.
+//
+// Secrets never go in this file:
+//   npx wrangler secret put SERVER_SECRET            # 32+ random characters; signs nonces, keys devices
+//   npx wrangler secret put GROQ_API_KEY
+//   npx wrangler secret put GOOGLE_SERVICE_ACCOUNT   # the Play-linked service account's JSON key
+//   npx wrangler secret put RTDN_SECRET              # the ?key= on the Pub/Sub push URL
+//   npx wrangler secret put FALLBACK_API_KEY         # optional
+//
+// For `wrangler dev`, put the same names in `.dev.vars` (also git-ignored).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "zizai-server",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+
+  // One public address. The app has it compiled in.
+  "routes": [{ "pattern": "api.zizai.io", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false,
+
+  "d1_databases": [
+    { "binding": "DB", "database_name": "zizai-server", "database_id": "<d1-database-id>" }
+  ],
+
+  "durable_objects": {
+    "bindings": [
+      { "name": "METER", "class_name": "AccountMeter" },
+      { "name": "GUARD", "class_name": "GlobalGuard" }
+    ]
+  },
+  // Append only: Cloudflare remembers the last tag applied.
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["AccountMeter", "GlobalGuard"] }],
+
+  "vars": {
+    "PACKAGE_NAME": "io.zizai.keyboard",
+    "PRO_PRODUCT_ID": "zizai_pro",
+    "FREE_ACTIONS_PER_MONTH": "30",
+    "PRO_ACTIONS_PER_MONTH": "5000",
+    "PRO_AUDIO_SECONDS_PER_MONTH": "72000",
+    "FREE_PER_MINUTE": "10",
+    "PRO_PER_MINUTE": "30",
+    "SLOWED_PER_MINUTE": "2",
+    "MAX_DEVICES_PER_SUBSCRIPTION": "3",
+    "CHAT_MODEL": "openai/gpt-oss-20b",
+    "TRANSCRIBE_MODEL": "whisper-large-v3-turbo",
+    "DAILY_BUDGET_USD": "20",
+    "ALLOW_BASIC_INTEGRITY": "false"
+    // Optional fallback for chat when Groq is overloaded:
+    // "FALLBACK_BASE_URL": "https://…/v1", "FALLBACK_CHAT_MODEL": "…"
+  },
+
+  // Nightly at 03:17 UTC: re-check lapsed subscriptions with Google, delete accounts idle for a year.
+  "triggers": { "crons": ["17 3 * * *"] }
+}
