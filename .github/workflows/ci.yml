@@ -41,6 +41,12 @@ jobs:
       - name: Fetch sherpa-onnx native libraries
         run: bash tools/fetch-sherpa-onnx.sh
 
+      # SenseVoice Small (239 MB) ships with the app; the build fetches it once per pinned checksum.
+      - uses: actions/cache@v4
+        with:
+          path: zizai-models/src/main/assets
+          key: sensevoice-small-${{ hashFiles('zizai-models/build.gradle.kts') }}
+
       - name: Check the branding overlay is up to date
         run: |
           python3 tools/zizai/branding.py

@@ -978,8 +978,8 @@ object ProviderRegistry {
         supportsDynamicModels = false,
         apiKeyUrl = null,
         // Base is the recommended balance of accuracy/speed; tiny is offered for low-end devices.
-        defaultTranscriptionModel = "whisper-base",
-        curatedTranscriptionModels = listOf("whisper-base", "whisper-tiny"),
+        defaultTranscriptionModel = "sense-voice-small", // ZIZAI-HOOK: ships with Zizai
+        curatedTranscriptionModels = listOf("sense-voice-small", "whisper-base", "whisper-tiny"), // ZIZAI-HOOK
     )
 
     /** All built-in presets in display order. The custom option is added by the UI on top of these. */

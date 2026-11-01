@@ -315,7 +315,7 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
         // ("openai", "groq") or a "custom:<uuid>" endpoint. The actual key/model live in the keyring.
         val transcriptionProviderId = string(
             key = "dictate__transcription_provider_id",
-            default = "openai",
+            default = "local", // ZIZAI-HOOK: the bundled SenseVoice Small, offline from the first launch
         )
 
         // The provider that takes over a dictation the active transcription provider cannot handle, as a

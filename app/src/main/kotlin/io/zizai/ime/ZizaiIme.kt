@@ -21,7 +21,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import dev.patrickgold.florisboard.app.FlorisPreferenceStore
 import dev.patrickgold.florisboard.dictate.DictateController
-import dev.patrickgold.florisboard.ime.core.Subtype
 import dev.patrickgold.florisboard.lib.FlorisLocale
 import dev.patrickgold.florisboard.ime.keyboard.KeyData
 import dev.patrickgold.florisboard.ime.nlp.SuggestionCandidate
@@ -123,10 +122,8 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
 
     override var chineseMode: Boolean = true
         set(value) {
-            val changed = field != value
             field = value
             renderPill()
-            if (changed) keyboardManager.updateActiveEvaluators() // the 中/英 key's label
         }
 
     /**
@@ -137,21 +134,11 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     fun ownsLanguageKey(): Boolean = chineseSubtype && subtypeManager.subtypes.size == 1
 
     /**
-     * 中 or 英 on the language key when the languages are just Chinese and English (or Chinese alone,
-     * before English is added), so the key reads as the 中/英 switch it is; else null for the globe.
+     * The language key names the active language instead of showing a globe: 中 for Chinese, EN for
+     * English, and a short tag for the rest (see [shortLanguageLabel]). With Chinese alone it reads 中,
+     * and its first tap adds English.
      */
-    fun languageKeyLabel(): String? {
-        val subtypes = subtypeManager.subtypes
-        return when {
-            ownsLanguageKey() -> "中"
-            subtypes.size == 2 && subtypes.count(::isPinyin) == 1 && subtypes.any { it.primaryLocale.language == "en" } ->
-                if (chineseSubtype) "中" else "英"
-            else -> null
-        }
-    }
-
-    private fun isPinyin(subtype: Subtype) =
-        subtype.primaryLocale.languageTag().lowercase().let { it.startsWith("zh") && "pinyin" in it }
+    fun languageKeyLabel(): String = shortLanguageLabel(subtypeManager.activeSubtype.primaryLocale.languageTag())
 
     /** From `KeyboardManager.handleLanguageSwitch`; true when it added English and switched to it. */
     fun onLanguageKey(): Boolean = guard(false) {
@@ -525,6 +512,22 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
 
     companion object {
         const val TOUCH_CANDIDATES = 10
+
+        /**
+         * A language's mark on the language key, from its BCP 47 tag: its own character where keyboards
+         * have one (中, 粵, あ, 한), else the language code in capitals (EN, DE, FR).
+         */
+        fun shortLanguageLabel(tag: String): String {
+            val t = tag.lowercase()
+            val lang = t.substringBefore('-')
+            return when {
+                lang == "yue" || (lang == "zh" && ("-hk" in t || "jyut" in t || "yue" in t) && "pinyin" !in t) -> "粵"
+                lang == "zh" -> "中"
+                lang == "ja" -> "あ"
+                lang == "ko" -> "한"
+                else -> lang.uppercase().take(3)
+            }
+        }
 
         /** The live instance, for hooks in upstream classes that can't reach the service's field. */
         @Volatile var current: ZizaiIme? = null

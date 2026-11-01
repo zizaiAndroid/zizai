@@ -54,6 +54,7 @@ include(":lib:kotlin")
 include(":lib:snygg")
 
 // ZIZAI-HOOK: Zizai modules (docs/IMPLEMENTATION_PLAN.md P1-01).
+include(":zizai-models") // ZIZAI-HOOK: SenseVoice Small, an install-time asset pack
 include(":lib:han-engine")
 include(":lib:zh-text")
 include(":tools:han-dict-builder")

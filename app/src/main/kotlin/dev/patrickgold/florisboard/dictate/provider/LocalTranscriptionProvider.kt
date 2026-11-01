@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -127,7 +128,9 @@ class LocalTranscriptionProvider(
             startedNanos = System.nanoTime()
             // What "installed" means depends on the model: Whisper wants an encoder/decoder pair, a
             // transducer adds a joiner, SenseVoice has a single model file. The catalog entry says which.
-            val missing = requiredFiles(modelDir.name).filterNot { File(modelDir, it).exists() }
+            val missing = requiredFiles(modelDir.name).filterNot {
+                File(modelDir, it).exists() || io.zizai.dictate.BundledModel.assetPath(modelDir, it) != null // ZIZAI-HOOK
+            }
             if (missing.isNotEmpty()) {
                 throw DictateApiException(
                     DictateApiException.Kind.UNKNOWN,
@@ -166,7 +169,8 @@ class LocalTranscriptionProvider(
                     // Past what this model takes in one go, segment at speech pauses (VAD) so the tail
                     // isn't dropped. Anything shorter takes the single-pass path — no VAD overhead, and
                     // no seam for punctuation to fall through. See [maxSegmentSeconds].
-                    if (vadFile.exists() && samples.size > singlePassSamples) {
+                    val hasVad = vadFile.exists() || io.zizai.dictate.BundledModel.assetPath(vadFile) != null // ZIZAI-HOOK
+                    if (hasVad && samples.size > singlePassSamples) {
                         transcribeSegmented(recognizer, vadFile, samples)
                     } else {
                         decodeOnce(recognizer, samples)
@@ -265,9 +269,10 @@ class LocalTranscriptionProvider(
         samples: FloatArray,
     ): String {
         val vad = Vad(
+            assetManager = io.zizai.dictate.BundledModel.assetManagerFor(vadFile), // ZIZAI-HOOK: bundled model
             config = VadModelConfig().apply {
                 sileroVadModelConfig = SileroVadModelConfig(
-                    model = vadFile.absolutePath,
+                    model = io.zizai.dictate.BundledModel.assetPath(vadFile) ?: vadFile.absolutePath, // ZIZAI-HOOK
                     threshold = 0.5f,
                     minSilenceDuration = 0.25f,
                     minSpeechDuration = 0.25f,
@@ -385,7 +390,8 @@ class LocalTranscriptionProvider(
         /** True if [modelId] has all required files present on disk. */
         fun isInstalled(context: Context, modelId: String): Boolean {
             val dir = modelDir(context, modelId)
-            return requiredFiles(modelId).all { File(dir, it).exists() }
+            return requiredFiles(modelId).all { File(dir, it).exists() } ||
+                io.zizai.dictate.BundledModel.isBundled(modelId) // ZIZAI-HOOK: ships with the app
         }
 
         /**
@@ -557,13 +563,13 @@ private object RecognizerCache {
             // unset or unsupported input language stays on detection rather than being forced to a guess.
             LocalModelKind.SENSE_VOICE -> OfflineModelConfig(
                 senseVoice = OfflineSenseVoiceModelConfig(
-                    model = model.absolutePath,
+                    model = io.zizai.dictate.BundledModel.assetPath(model) ?: model.absolutePath, // ZIZAI-HOOK
                     language = senseVoiceLanguage(language),
                     // Writes numbers and dates as digits instead of spelled-out words, which is what a
                     // keyboard should paste into a text field.
                     useInverseTextNormalization = true,
                 ),
-                tokens = tokens.absolutePath,
+                tokens = io.zizai.dictate.BundledModel.assetPath(tokens) ?: tokens.absolutePath, // ZIZAI-HOOK
                 numThreads = numThreads,
             )
             // Dolphin (issue #406): the same single-file shape as SenseVoice, but its config has no
@@ -593,7 +599,8 @@ private object RecognizerCache {
             modelConfig = modelConfig,
         )
         // assetManager defaults to null → the model is read from the absolute file paths above.
-        return OfflineRecognizer(config = config)
+        // ZIZAI-HOOK: except the bundled SenseVoice Small, read from the APK's assets.
+        return OfflineRecognizer(assetManager = io.zizai.dictate.BundledModel.assetManagerFor(model), config = config)
     }
 
     /**

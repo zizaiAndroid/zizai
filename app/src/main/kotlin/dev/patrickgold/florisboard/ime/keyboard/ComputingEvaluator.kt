@@ -400,7 +400,7 @@ fun ComputingEvaluator.computeImageVector(data: KeyData): ImageVector? {
             Icons.Outlined.CloudSync
         }
         KeyCode.LANGUAGE_SWITCH -> {
-            if (io.zizai.ime.ZizaiIme.current?.languageKeyLabel() != null) null else Icons.Default.Language // ZIZAI-HOOK
+            if (io.zizai.ime.ZizaiIme.current != null) null else Icons.Default.Language // ZIZAI-HOOK: a 中/EN label instead
         }
         KeyCode.SYSTEM_PREV_INPUT_METHOD -> {
             // One-tap switch back to the previously used keyboard/IME (issue #122).

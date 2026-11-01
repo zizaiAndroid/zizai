@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -79,6 +80,7 @@ class FlorisApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         FlorisApplicationReference = WeakReference(this)
+        io.zizai.dictate.BundledModel.init(this) // ZIZAI-HOOK: SenseVoice Small ships with the app
         // The translation engine's process (issue #424) runs one service and touches none of this: the
         // preference store, the dictionaries, the Wear publisher would all be a second copy of the
         // keyboard in memory, in the process that exists precisely to keep memory out of the keyboard.

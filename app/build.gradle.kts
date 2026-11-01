@@ -199,6 +199,15 @@ configure<ApplicationExtension> {
     androidResources { localeFilters += listOf("en", "zh-rCN", "zh-rTW", "zh-rHK") }
     androidResources { noCompress += "bin" } // ZIZAI-HOOK: han-core.bin is memory-mapped (P1-04)
 
+    // ZIZAI-HOOK: SenseVoice Small ships with the app (zizai-models). Bundles carry it as an install-time
+    // asset pack; APKs, which can't carry asset packs (debug installs, CI, benchmarks), take the same files
+    // as plain assets. Stored uncompressed so sherpa-onnx can read the model straight from the APK.
+    assetPacks += listOf(":zizai-models")
+    buildTypes.configureEach {
+        if (name != "release") sourceSets.maybeCreate(name).assets.directories += "../zizai-models/src/main/assets"
+    }
+    androidResources { noCompress += "onnx" }
+
     // ZIZAI-HOOK: with on-device translation off, never package a locally built Bergamot library.
     if (!zizaiFlag("translate")) packaging { jniLibs { excludes += "**/libdictate_bergamot.so" } }
 
@@ -392,3 +401,6 @@ fun getGitCommitHash(short: Boolean = false): Provider<String> {
     }
     return execProvider.standardOutput.asText.map { it.trim() }
 }
+
+// ZIZAI-HOOK: the APK build types read the bundled model from zizai-models' assets, so fetch it first.
+tasks.named("preBuild") { dependsOn(":zizai-models:fetchSenseVoice") }
