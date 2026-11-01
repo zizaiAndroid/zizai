@@ -79,4 +79,10 @@
     <string name="zizai__packs__show_more">显示更多输入法</string>
     <string name="zizai__packs__show_more_summary">郑码、嘸虾米等较少用的输入法</string>
     <string name="zizai__packs__show_fewer">收起</string>
+    <string name="zizai__languages__add">添加语言</string>
+    <string name="zizai__languages__add_summary">阿拉伯语、法语、韩语、粤语等 70 多种</string>
+    <string name="zizai__languages__search">搜索语言，例如 Arabic</string>
+    <string name="zizai__languages__popular">常用</string>
+    <string name="zizai__languages__all">所有语言</string>
+    <string name="zizai__languages__none">没有匹配的语言。</string>
 </resources>

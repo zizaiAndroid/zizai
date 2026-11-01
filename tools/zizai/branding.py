@@ -52,8 +52,36 @@ EN_OVERRIDES = {
         f"{REPO}/blob/main/app/src/main/kotlin/dev/patrickgold/florisboard/ime/text/key/KeyCode.kt",
 }
 
-ZH_HANS_OVERRIDES = {"app_name": "字在", "app_name_full": "字在输入法"}
-ZH_HANT_OVERRIDES = {"app_name": "字在", "app_name_full": "字在輸入法"}
+# Upstream calls a keyboard language a "subtype"; people call it a language.
+EN_OVERRIDES.update({
+    "settings__localization__group_subtypes__label": "Your languages",
+    "settings__localization__subtype_add_title": "Add language",
+    "settings__localization__subtype_edit_title": "Edit language",
+    "settings__localization__suggested_subtype_presets": "Popular languages",
+    "settings__localization__suggested_subtype_presets_none_found": "No suggestions. Use the button below to see every language.",
+    "settings__localization__subtype_presets": "Choose a language",
+    "settings__localization__subtype_presets_view_all": "All languages",
+    "settings__localization__subtype_no_subtypes_configured_warning": "No language yet. Tap Add a language below.",
+})
+
+ZH_HANS_OVERRIDES = {
+    "app_name": "字在", "app_name_full": "字在输入法",
+    "settings__localization__group_subtypes__label": "我的语言",
+    "settings__localization__subtype_add_title": "添加语言",
+    "settings__localization__subtype_edit_title": "编辑语言",
+    "settings__localization__suggested_subtype_presets": "常用语言",
+    "settings__localization__subtype_presets": "选择语言",
+    "settings__localization__subtype_presets_view_all": "所有语言",
+}
+ZH_HANT_OVERRIDES = {
+    "app_name": "字在", "app_name_full": "字在輸入法",
+    "settings__localization__group_subtypes__label": "我的語言",
+    "settings__localization__subtype_add_title": "新增語言",
+    "settings__localization__subtype_edit_title": "編輯語言",
+    "settings__localization__suggested_subtype_presets": "常用語言",
+    "settings__localization__subtype_presets": "選擇語言",
+    "settings__localization__subtype_presets_view_all": "所有語言",
+}
 
 STRING_RE = re.compile(r'(<string\s+name="([^"]+)"[^>]*>)(.*?)(</string>)', re.DOTALL)
 SELF_CLOSING_RE = re.compile(r'<string\s+name="([^"]+)"[^>]*/>')

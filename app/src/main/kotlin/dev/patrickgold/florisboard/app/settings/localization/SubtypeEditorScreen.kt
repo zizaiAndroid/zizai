@@ -718,30 +718,13 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                     showSubtypePresetsDialog = false
                 },
             ) {
-                Column {
-                    HorizontalDivider()
-                    val lazyListState = rememberLazyListState()
-                    LazyColumn(
-                        modifier = Modifier
-                            .florisScrollbar(lazyListState, isVertical = true).weight(1f),
-                        state = lazyListState,
-                    ) {
-                        items(subtypePresets) { subtypePreset ->
-                            JetPrefListItem(
-                                modifier = Modifier.clickable {
-                                    subtypeEditor.applySubtype(subtypePreset.toSubtype())
-                                    showSubtypePresetsDialog = false
-                                },
-                                text = when (displayLanguageNamesIn) {
-                                    DisplayLanguageNamesIn.SYSTEM_LOCALE -> subtypePreset.locale.displayName()
-                                    DisplayLanguageNamesIn.NATIVE_LOCALE -> subtypePreset.locale.displayName(subtypePreset.locale)
-                                },
-                                secondaryText = subtypePreset.preferred.characters.componentId,
-                                colors = ListItemDefaults.colors(containerColor = AlertDialogDefaults.containerColor),
-                            )
-                        }
-                    }
-                    HorizontalDivider()
+                // ZIZAI-HOOK: a searchable picker, popular languages first, instead of one long list.
+                io.zizai.app.PopularLanguages.LanguagePicker(
+                    presets = subtypePresets,
+                    nativeNames = displayLanguageNamesIn == DisplayLanguageNamesIn.NATIVE_LOCALE,
+                ) { subtypePreset ->
+                    subtypeEditor.applySubtype(subtypePreset.toSubtype())
+                    showSubtypePresetsDialog = false
                 }
             }
         }

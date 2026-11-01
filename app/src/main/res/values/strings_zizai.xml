@@ -79,4 +79,10 @@
     <string name="zizai__packs__show_more">Show more input methods</string>
     <string name="zizai__packs__show_more_summary">Zhengma (郑码), Boshiamy (嘸蝦米) and other less common ones</string>
     <string name="zizai__packs__show_fewer">Show fewer</string>
+    <string name="zizai__languages__add">Add a language</string>
+    <string name="zizai__languages__add_summary">Arabic, French, Korean, Cantonese and 70 more</string>
+    <string name="zizai__languages__search">Search languages, e.g. Arabic</string>
+    <string name="zizai__languages__popular">Popular</string>
+    <string name="zizai__languages__all">All languages</string>
+    <string name="zizai__languages__none">No language matches.</string>
 </resources>

@@ -80,4 +80,10 @@
     <string name="zizai__packs__show_more">顯示更多輸入法</string>
     <string name="zizai__packs__show_more_summary">鄭碼、嘸蝦米等較少用的輸入法</string>
     <string name="zizai__packs__show_fewer">收起</string>
+    <string name="zizai__languages__add">新增語言</string>
+    <string name="zizai__languages__add_summary">阿拉伯語、法語、韓語、粵語等 70 多種</string>
+    <string name="zizai__languages__search">搜尋語言，例如 Arabic</string>
+    <string name="zizai__languages__popular">常用</string>
+    <string name="zizai__languages__all">所有語言</string>
+    <string name="zizai__languages__none">沒有相符的語言。</string>
 </resources>

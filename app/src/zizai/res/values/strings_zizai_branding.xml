@@ -94,6 +94,14 @@
     <string name="florisboard__website_url" translatable="false">https://github.com/zizaiAndroid/zizai</string>
     <string name="prefs__media__sticker_add__summary" comment="Preference summary; mentions the share sheet as the other way in">Copy images into the folder. You can also share an image to Zizai from any app.</string>
     <string name="prefs__media__sticker_import_whatsapp__summary" comment="Preference summary explaining what other apps allow">Opens the file picker at WhatsApp\'s sticker folder. Keyboards such as Samsung\'s keep their stickers where no other app may read them — share those to Zizai instead.</string>
+    <string name="settings__localization__group_subtypes__label" comment="Label of subtypes group">Your languages</string>
+    <string name="settings__localization__subtype_add_title" comment="Title of subtype dialog when adding a new subtype">Add language</string>
+    <string name="settings__localization__subtype_edit_title" comment="Title of subtype dialog when editing an existing subtype">Edit language</string>
+    <string name="settings__localization__subtype_no_subtypes_configured_warning" comment="Warning message that no subtype has been defined">No language yet. Tap Add a language below.</string>
+    <string name="settings__localization__subtype_presets" comment="Subtype presets dialog title">Choose a language</string>
+    <string name="settings__localization__subtype_presets_view_all" comment="View all presets button">All languages</string>
+    <string name="settings__localization__suggested_subtype_presets" comment="Suggested presets title">Popular languages</string>
+    <string name="settings__localization__suggested_subtype_presets_none_found" comment="Suggested presets none found">No suggestions. Use the button below to see every language.</string>
     <string name="setup__finish_up__add_key_hint">Tip: you haven\'t added an AI key yet. Add one anytime in Settings → Zizai → AI providers to start dictating.</string>
     <string name="setup__finish_up__finish_btn">Start using Zizai</string>
     <string name="setup__grant_mic_permission__description" comment="Onboarding: ask for microphone permission for dictation">Zizai needs microphone access to record your voice for transcription.</string>

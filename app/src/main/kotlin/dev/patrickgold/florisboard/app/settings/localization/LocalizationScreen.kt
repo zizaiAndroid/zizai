@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -201,6 +202,8 @@ fun LocalizationScreen() = FlorisScreen {
                     )
                 }
             }
+            // ZIZAI-HOOK: adding a language is a row in the list, not only the floating button.
+            io.zizai.app.PopularLanguages.AddLanguageRow { navController.navigate(Routes.Settings.SubtypeAdd) }
         }
     }
 
