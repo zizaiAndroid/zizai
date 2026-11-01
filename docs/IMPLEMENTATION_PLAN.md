@@ -232,7 +232,7 @@ bash tools/fetch-sherpa-onnx.sh
 | PM-01 – PM-04 | Done (2026-10-31) | zizai-server: 25 tests, typecheck in CI; runs under `wrangler dev` with `tools/mock-groq.mjs` |
 | PM-05, PM-07 | Done, against a local server | Zizai AI provider (default for AI cards in debug builds), token on first use, "Free AI actions used up" chip opening Zizai Pro; checked on the Pixel through `adb reverse` |
 | PM-06 | Built, not tried with Play | Zizai Pro screen, subscription flow, restore, account deletion; needs the `zizai_pro` product and a Play-installed build |
-| PM-08 | Draft | privacy.md section 3.4; Data safety answers in ARCHITECTURE.md §8.3 |
+| PM-08 | Published, needs your review | Policy live at https://zizaikeyboard.com/privacy/ (built from privacy.md by `site/build.py`), deletion page at /delete/; Data safety answers in ARCHITECTURE.md §8.3 |
 | PM-09 | Yours first | Domain, Cloudflare, Groq key, Play product, service account, RTDN topic (§4a) |
 
 Still open: the 2 ms budget measured on the phone

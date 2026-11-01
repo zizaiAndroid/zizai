@@ -1632,6 +1632,8 @@ upload fixes the package name:
 - [x] Register a domain: `zizaikeyboard.com` (2026-11-01).
 - [ ] Choose the address EU users will see for trader status (§8.1).
 - [ ] Point `api.zizaikeyboard.com` at the zizai-server Worker (§6.12); forward `feedback@` with Email Routing.
+- [x] Website at `zizaikeyboard.com` (`site/`, a static Cloudflare Worker): home, privacy policy (the Play
+      listing's privacy URL, `/privacy/`) and account deletion (`/delete/`, the Data safety deletion URL).
 - [ ] Create the `zizai_pro` subscription and add license testers (§8.1).
 
 ---

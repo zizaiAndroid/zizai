@@ -1,0 +1,19 @@
+// zizaikeyboard.com: static pages only (home, privacy policy, account deletion), served by Cloudflare.
+// Build with `python site/build.py`, then deploy from this folder with `npx wrangler deploy`.
+// Holds no secrets, so unlike zizai-server's config it is committed.
+{
+  "$schema": "../zizai-server/node_modules/wrangler/config-schema.json",
+  "name": "zizai-site",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./public",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "routes": [
+    { "pattern": "zizaikeyboard.com", "custom_domain": true },
+    { "pattern": "www.zizaikeyboard.com", "custom_domain": true }
+  ],
+  "workers_dev": false,
+  "preview_urls": false
+}

@@ -1,13 +1,10 @@
 # Privacy Policy for 字在 Zizai
 
-**Effective date:** [TO FILL: date of the first Google Play release]
-**Last updated:** 28 October 2026
-
-> **Draft.** Items marked [TO FILL] must be completed before publishing. This draft is adapted from the
-> privacy policy of Dictate Keyboard, on which Zizai is based; it is not legal advice.
+**Effective date:** 1 November 2026
+**Last updated:** 1 November 2026
 
 This Privacy Policy explains how **字在 Zizai** (the "App", application ID `io.zizai.keyboard`) handles your
-information. The App is developed by **[TO FILL: your legal name]** (the "Developer", "we", "us").
+information. The App is developed by **Zizai Keyboard** (the "Developer", "we", "us").
 
 Questions about this policy: **feedback@zizaikeyboard.com**.
 
@@ -16,7 +13,7 @@ Questions about this policy: **feedback@zizaikeyboard.com**.
 ## 1. Summary
 
 - **Typing and on-device dictation never reach us.** We include no analytics.
-- **Zizai AI is the one exception, and only if you use it** (section 3.4). Its AI cards (and, for Zizai Pro,
+- **Zizai AI is the one exception, and only if you use it** (section 3.3). Its AI cards (and, for Zizai Pro,
   cloud voice) send the text or audio to our server and on to Groq, which processes it. Neither keeps it. Our
   server keeps an anonymous account per device: usage counts and, if you subscribe, your Zizai Pro status.
 - Otherwise, to turn your speech into text the App sends the audio you record to an **AI provider that you
@@ -146,7 +143,7 @@ Google whether your subscription is active and stores the purchase token, produc
 The App also asks **Google Play Integrity** to confirm that it is the genuine App on a genuine device before
 creating a Zizai AI account. See https://policies.google.com/privacy.
 
-### 3.4 Zizai AI (our server, with Groq)
+### 3.3 Zizai AI (our server, with Groq)
 Only when you choose Zizai AI as a provider (it is the default for AI cards when no other provider is set up):
 
 - **What is sent:** the text of the AI card you tapped (with its instruction), or, for Zizai Pro cloud voice,
@@ -157,11 +154,11 @@ Only when you choose Zizai AI as a provider (it is the default for AI cards when
   App's Android ID for this device. It holds no name, email, Google account or IP address: only a random
   account ID, hashed access tokens, last-seen times, this month's usage counts and, if you subscribe, the
   subscription token, state and expiry.
-- **Deleting it:** Settings → Zizai Pro → Delete account, or https://api.zizaikeyboard.com/delete with the account ID
+- **Deleting it:** Settings → Zizai Pro → Delete account, or https://zizaikeyboard.com/delete with the account ID
   shown there. Accounts unused for 12 months are deleted automatically. Deleting does not cancel a Google Play
   subscription; cancel that in Google Play.
 
-### 3.3 Downloads from GitHub
+### 3.4 Downloads from GitHub
 Some files are too large to ship inside the App, so it downloads them from GitHub releases (GitHub is a
 Microsoft company):
 
@@ -200,7 +197,7 @@ stored on your device like any other dictionary word.
   delete them in the App or uninstall it. Android's own backup may hold a copy of the settings (section 2.6).
   Temporary recordings are deleted automatically after transcription.
 - **With your chosen provider:** retention is governed by that provider's policy, not by us.
-- **With us:** nothing, unless you use Zizai AI: then the anonymous account described in section 3.4, until you
+- **With us:** nothing, unless you use Zizai AI: then the anonymous account described in section 3.3, until you
   delete it or for 12 months after its last use. Text and audio are never stored.
 
 ---
@@ -252,7 +249,8 @@ mainland China. Scaleway, OVHcloud, and the EU regions of Soniox and OpenRouter 
 - You can uninstall the App to remove all data stored on your device.
 - Depending on where you live (for example under the EU GDPR), you may have rights of access, correction,
   erasure, restriction, portability and objection, and the right to complain to a supervisory authority.
-  Because we hold no data about you, there is normally nothing for us to provide or erase.
+  Unless you use Zizai AI we hold no data about you, so there is normally nothing for us to provide or erase;
+  a Zizai AI account can be deleted as described in section 3.3.
 - For data already processed by a provider, exercise your rights with that provider directly.
 
 ---
@@ -266,6 +264,6 @@ this address.
 
 ## 13. Contact
 
-**[TO FILL: your legal name]** — [TO FILL: contact email]
+**Zizai Keyboard** — feedback@zizaikeyboard.com
 
 Project repository: https://github.com/zizaiAndroid/zizai

@@ -43,7 +43,7 @@ EN_OVERRIDES = {
     "florisboard__repo_url": REPO,
     "florisboard__website_url": REPO,
     "florisboard__issue_tracker_url": f"{REPO}/issues",
-    "florisboard__privacy_policy_url": f"{REPO}/blob/main/docs/privacy.md",
+    "florisboard__privacy_policy_url": "https://zizaikeyboard.com/privacy/",
     "florisboard__changelog_url": f"{REPO}/releases",
     "florisboard__commit_by_hash_url": f"{REPO}/commit/{{hash}}",
     "florisboard__spell_checker_wiki_url": REPO,
