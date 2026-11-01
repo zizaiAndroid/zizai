@@ -5,8 +5,8 @@
 
 | | |
 |---|---|
-| **Status** | Draft 0.4 — all product decisions made ([§12](#12-decisions-and-open-questions)) |
-| **Date** | 2026-10-26 |
+| **Status** | Draft 0.5 — monetization changed to free + Zizai Pro (decision 11, [§12](#12-decisions-and-open-questions)) |
+| **Date** | 2026-10-31 (first draft 2026-10-26) |
 | **Name** | **字在** (Latin name: *Zizai*), a pun on 自在 ("at ease"). Rationale and store listing in [§8.4](#84-name-and-store-listing). |
 | **Upstream baseline** | [`DevEmperor/DictateKeyboard`](https://github.com/DevEmperor/DictateKeyboard) `main` @ `39f33c9` (2026-10-24), app **6.4.0** (versionCode 142) |
 | **Package / namespace** | App: `io.zizai.keyboard`. New code: `io.zizai.*`. Proposed: register `zizai.io` or adjust this before the first Play upload. |
@@ -76,10 +76,15 @@ straight to the app.
    homophone proofreading that flags suspects and never silently rewrites**.
 8. **Tiered data licensing** (ADR-4). Permissive data (Unicode License v3, Apache-2.0, MIT) is bundled.
    CC BY-SA or LGPL data ships only as separate, attributed, downloadable packs. GPL data is never used.
-9. **Play-first scope** (ADR-8). The fork becomes **字在 (Zizai)**, a paid app with its own icon and
-   `applicationId` (§8.4). For v1, Dictate Cloud and billing, the AccessibilityService floating button,
-   on-device translation, GIF search and the Wear app are compiled out. We add an in-app "report AI output"
-   action, and §8 has the full declaration checklist.
+9. **Play-first scope** (ADR-8). The fork becomes **字在 (Zizai)**, with its own icon and `applicationId`
+   (§8.4). For v1, upstream's Dictate Cloud, the AccessibilityService floating button, on-device
+   translation, GIF search and the Wear app are compiled out. We add an in-app "report AI output" action,
+   and §8 has the full declaration checklist.
+10. **Free app, paid AI** (ADR-9). Zizai is free: typing, offline SenseVoice dictation and AI with the
+   user's own API key cost nothing. **Zizai Pro** is a Play subscription for people who want the AI cards
+   without setting up a provider. It runs on our own **zizai-server** (a Cloudflare Worker, §6.12), which
+   holds the Groq key, checks the subscription and meters a free monthly allowance. Upstream's `cloud/`
+   stays untouched and unused.
 
 ---
 
@@ -245,7 +250,7 @@ Licenses below come from each project's license file, source headers or GitHub l
 | CC-CEDICT | CC BY-SA 4.0 | ⚠️ Already behind upstream's downloadable Pinyin pack. Keep it a separate, attributed pack. |
 | jieba `dict.txt` | MIT | ✅ Word frequencies |
 | **rime-cantonese** (Cantonese Jyutping lexicon, by CanCLID) | CC BY 4.0; its `jyut6ping3.maps` file is ODbL 1.0 | ✅ Cantonese words, phrases and frequencies, with attribution. Skip the ODbL file. |
-| words.hk (粵典) | Dictionary content is non-commercial without separate permission (per third-party listings and its CC BY-NC research release) | ❌ Not in a paid app |
+| words.hk (粵典) | Dictionary content is non-commercial without separate permission (per third-party listings and its CC BY-NC research release) | ❌ Not in a commercial app |
 | CC-Canto (Pleco) | CC BY-SA 3.0 | ⚠️ Not needed; rime-cantonese covers it |
 | TypeDuck (Cantonese IME) | GPL-3.0 | ❌ Reference only |
 
@@ -415,15 +420,55 @@ Each decision is written so it can be challenged later. If one changes, update i
 ### ADR-8 — Play-first product scope
 
 - **Decision.**
-  - **Paid upfront**, with no in-app purchases, so the app never calls the Play Billing Library. The
-    library stays compiled in but unused, because upstream's cloud code depends on it.
-  - Build flags turn off Dictate Cloud (and with it billing), the floating button (AccessibilityService),
+  - ~~Paid upfront, with no in-app purchases.~~ **Superseded by ADR-9 (2026-10-31):** the app is free and
+    sells a Zizai Pro subscription through Play Billing.
+  - Build flags turn off upstream's Dictate Cloud (prepaid packs on upstream's backend), the floating
+    button (AccessibilityService),
     on-device translation (Bergamot), GIF search (KLIPY) and the `:wear` app.
   - Add an in-app **"Report AI output"** action.
   - Use a new identity and a rewritten privacy policy.
 - **Why.** Fewer declarations and less review surface for a first submission, no native build that needs
   Linux, and no route that sends users to upstream's paid backend. Each feature can come back later with its
   declaration done.
+
+### ADR-9 — Free app, Zizai Pro subscription, our own server
+
+- **Decision (2026-10-31, replaces "paid upfront").**
+  - The app is **free**. Typing, offline SenseVoice dictation and AI through the user's own API key stay
+    free and unlimited.
+  - **Zizai AI** is a built-in AI provider that needs no key. It is served by **zizai-server**, our own
+    Cloudflare Worker, which calls **Groq** with our key. Free users get **30 AI actions a month** on it.
+  - **Zizai Pro** is a Play subscription (`zizai_pro`): **US$4.99 a month or US$34.99 a year**, with a
+    7-day free trial on the yearly plan and regional prices set in Play Console. Pro removes the monthly
+    limit on AI cards and custom prompts (fair use: 5,000 actions and 20 hours of cloud voice a month,
+    then slowed rather than blocked) and adds cloud voice for long recordings. No lifetime option,
+    because Groq costs continue every month.
+  - The server is **new code in `zizai-server/`**, not a rework of upstream's `cloud/`. It reuses
+    upstream's patterns (Play verification by the server, refunds through RTDN, per-account Durable
+    Objects, a daily spend ceiling) but not its files. `cloud/` and the `cloud` feature flag stay as
+    upstream ships them, off.
+  - Optional prepaid action packs (for people who dislike subscriptions) are deferred until the
+    subscription has run for a while.
+- **Why.**
+  - A keyboard competes with free Gboard, Sogou and SwiftKey; a price at the door costs most installs,
+    and installs drive Play search ranking. The AI is the part with a running cost, so it is the part we
+    charge for.
+  - Groq is cheap and fast. A typical AI card costs about US$0.0002 (gpt-oss-20b: about 300 tokens in,
+    500 out), so even a heavy Pro user costs about US$1 a month against about US$4.24 received after
+    Google's 15%.
+  - Our own server keeps the Groq key off the device, lets Google (not the app) decide who has paid, and
+    is the only place a quota can be enforced.
+  - Reworking upstream's `cloud/` would turn every upstream merge into a conflict, and its model (prepaid
+    seconds on Workers AI) is a different product.
+- **Consequences.**
+  - A free app can never become paid again on Play. Monetization is the subscription from now on.
+  - Closed testers no longer need to buy the app; promo codes and refunds are not needed (§8.1).
+  - Text sent to Zizai AI passes through our server to Groq. The privacy policy, the Data safety form and
+    the in-app disclosure must say so (§6.11, §8.3).
+  - We run a production service: deploys, secrets, a health check and an inbox for alerts.
+- **Rejected.** Paid upfront (fewer installs). $15 a month (pro-tool pricing for a keyboard). Shipping
+  the Groq key in the app (it would be extracted within days). Building on upstream's `cloud/` (merge
+  cost, different product).
 
 ---
 
@@ -1003,7 +1048,7 @@ and offer the result as a single candidate. It is opt-in because of latency and 
 | Unihan `kCantonese` | Unicode License v3 | `han-core.bin` (bundled) | Cantonese character readings, so the flip works on Cantonese text (Phase 2) |
 | rime-cantonese: `jyut6ping3` dictionaries and `essay-cantonese.txt` | CC BY 4.0 (attribution, no share-alike) | `han-ext-yue.bin` (downloaded) | Cantonese characters, words and phrases with Jyutping, plus frequencies, for Jyutping typing (Phase 3) |
 | rime-cantonese `jyut6ping3.maps` | ODbL 1.0 (share-alike database license) | **Not used** | — |
-| words.hk (粵典) dictionary content | Non-commercial without separate permission | **Never** in the paid app | — |
+| words.hk (粵典) dictionary content | Non-commercial without separate permission | **Never** in the app (it is commercial) | — |
 | GPL dictionaries (rime-ice, rime-frost, libpinyin) | GPL-3.0 | **Never** | — |
 
 #### Build pipeline: `:tools:han-dict-builder`
@@ -1101,6 +1146,96 @@ essential keys. **Ctrl+/** opens a full cheat sheet at any time.
 - **What leaves the device.** Audio and text go only to the provider the user configured. LLM proofreading
   sends text, so it is opt-in, has no default model (the user chooses one), and is disclosed at the point
   of enabling.
+- **Zizai AI (ADR-9).** When the user picks Zizai AI, the text of an AI card (and, for Pro, cloud voice
+  audio) goes to zizai-server and on to Groq. The server keeps no text or audio, only counts, timestamps
+  and statuses (§6.12). The first use shows a disclosure naming both. Offline SenseVoice stays the
+  default for dictation, so nothing leaves the device unless the user asks for an AI action.
+
+### 6.12 zizai-server and Zizai Pro
+
+A single Cloudflare Worker in `zizai-server/` (TypeScript), deployed at **`api.zizai.io`** (proposed;
+the domain is yours to register, §12). It speaks the OpenAI chat and transcription formats, so the app
+talks to it through upstream's `OpenAiCompatibleClient` like any other provider, with a device token in
+place of an API key.
+
+**Identity: one anonymous account per device.** No sign-in, no email.
+
+1. The app asks `GET /v1/install/nonce` for a short-lived, server-signed nonce.
+2. It requests a **Play Integrity** token for that nonce and posts it to `POST /v1/install`, together
+   with a SHA-256 of the app-scoped `ANDROID_ID`.
+3. The server decodes the token with Google's Play Integrity API and accepts only: `requestPackageName`
+   equal to `io.zizai.keyboard`, the nonce it issued (unexpired), app verdict `PLAY_RECOGNIZED`, and
+   device verdict `MEETS_DEVICE_INTEGRITY` (or `MEETS_BASIC_INTEGRITY` when `ALLOW_BASIC_INTEGRITY` is
+   on).
+4. It keys the account on an HMAC of the device hash, so **reinstalling finds the same account** and the
+   free allowance cannot be reset that way. It returns a fresh bearer token and stores only the token's
+   SHA-256.
+
+**Plans and quotas**, counted per calendar month (UTC) in the account's Durable Object, which makes "is
+there room, then count it" one atomic step:
+
+| | Free | Pro |
+|---|---|---|
+| AI actions (chat completions) | 30 a month | Fair use: 5,000 a month, then 2 a minute |
+| Cloud voice (transcription) | — | Fair use: 20 hours a month, then 2 requests a minute |
+| Rate limit | 10 a minute | 30 a minute |
+
+An action is one chat completion. Inputs are capped (8,000 tokens in, 1,024 out); the server picks the
+model and the output limit, whatever the client sends.
+
+**Subscriptions.**
+
+- Product `zizai_pro`, base plans `monthly` and `yearly` (7-day free-trial offer on `yearly`). The app
+  buys with `setObfuscatedAccountId(accountId)`.
+- The app posts the purchase token to `POST /v1/subscription`. The server asks Google
+  (`purchases.subscriptionsv2.get`), accepts `SUBSCRIPTION_STATE_ACTIVE`, `IN_GRACE_PERIOD`, and a
+  cancelled subscription still inside its paid period, records the expiry and acknowledges the purchase.
+  The token is the key, so posting it twice is harmless.
+- **Restore on a new phone:** Play lists the subscription for the same Google account, and the app posts
+  it again. One subscription serves up to **3 device accounts**: a phone and a tablet, not a shared
+  password.
+- **Real-time developer notifications** (`POST /v1/rtdn`, Pub/Sub push with a secret) re-check the
+  subscription with Google on every renewal, cancellation, expiry, revocation or refund. The stored
+  expiry is a cache, never the authority. A nightly sweep re-checks subscriptions whose expiry has passed,
+  in case a notification was lost.
+
+**Groq.** `GROQ_API_KEY` is a Worker secret. Chat goes to `openai/gpt-oss-20b` with
+`reasoning_effort: low`; transcription to `whisper-large-v3-turbo`. Both model names are variables, so
+switching models needs no code change. An optional fallback (any OpenAI-compatible base URL and key) is
+tried on a Groq 429 or 5xx.
+
+**Spend guard.** A global Durable Object holds the day's estimated Groq spend. Above `DAILY_BUDGET_USD`
+new requests answer 503 until midnight UTC, so a bug or an attack costs at most one day's budget. A kill
+switch stops all AI traffic at once.
+
+**What is stored** (D1 and the Durable Objects): account id, HMAC of the device hash, token hashes,
+created and last-seen times, subscription token hash, product, state and expiry, and monthly counters.
+**Never** text, audio, IP addresses or Google account identifiers. Logs carry status codes and timings
+only. `POST /v1/account/delete` erases an account; the app offers it in settings, and a web page serves
+people who have uninstalled (Play requires this for apps with accounts).
+
+**Endpoints**
+
+| Method and path | Auth | What it does |
+|---|---|---|
+| `GET /health` | — | Liveness |
+| `GET /v1/install/nonce` | — | Signed nonce for Play Integrity |
+| `POST /v1/install` | Integrity token | Find or create the device account, issue a token |
+| `GET /v1/account` | Bearer | Plan, Pro expiry, this month's use and limits |
+| `POST /v1/subscription` | Bearer | Verify a Play subscription and attach it |
+| `POST /v1/chat/completions` | Bearer | AI card, metered, through Groq |
+| `POST /v1/audio/transcriptions` | Bearer, Pro | Cloud voice, metered, through Groq |
+| `POST /v1/account/delete` | Bearer | Erase the account |
+| `POST /v1/rtdn?key=…` | Secret | Play notifications |
+
+**In the app** (`io.zizai.ai`, behind the `zizaiAi` flag in `zizai.properties`, off until the server is
+live):
+
+- A **Zizai AI** provider preset, the default for AI cards when the user has no other chat provider.
+- A **Zizai Pro** screen in settings: plan, this month's use, subscribe buttons with Play's local
+  prices, restore, and account deletion.
+- When the free allowance runs out, the AI card shows a short sheet ("30 free AI actions used this
+  month") with Subscribe and "Use my own API key".
 
 ---
 
@@ -1213,35 +1348,31 @@ the `.so` on a Linux runner and cache it.
 
 ```mermaid
 flowchart LR
-  A["Create personal Play developer account + identity verification"] --> P["Set the app as paid, before any release"]
-  P --> B["Internal testing track (testers install free)"]
-  B --> C["Closed testing: at least 12 testers opted in for 14 consecutive days, using promo codes or refunds"]
+  A["Create personal Play developer account + identity verification"] --> P["Merchant profile; create the zizai_pro subscription"]
+  P --> B["Internal testing track"]
+  B --> C["Closed testing: at least 12 testers opted in for 14 consecutive days"]
   C --> D["Apply for production access"]
   D --> E["Production: staged rollout 10% → 50% → 100%"]
 ```
 
 - **Personal account (decided).** A personal account created after 2023-11-13 must pass a closed test
   with at least 12 testers opted in for 14 consecutive days before production access opens.
-- **Paid app (decided): set the price before the first release of any kind.** Once an app has been offered
-  for free, it can never become paid; the only way back is a new app with a new package name. Paid → free
-  stays possible later.
-- **Closed testers of a paid app must buy it.** Only internal testers (up to 100) install paid apps free,
-  and the 12-tester rule needs a *closed* test. Two ways to make it free for testers:
-  - **Promo codes** for the app: up to 500 per quarter, shared between the paid app and one-time products.
-    The help page doesn't say whether codes work before a production release, so confirm this in Play
-    Console when the closed test starts.
-  - **Refunds** from Play Console's order management after testers buy.
+- **Free app with a subscription (decision 11, replaces "paid upfront").** The app is free to install;
+  Zizai Pro is sold in the app through Play Billing. A free app can never become paid, so this choice is
+  permanent for `io.zizai.keyboard`.
+- **Testers.** Closed testers install the free app normally. To try Pro without paying, add them as
+  **license testers** in Play Console: their subscriptions use test payment methods, renew every few
+  minutes and are never charged.
 - **Recruit 15–20 testers, not 12.** Testers who opt out before day 14 don't count, so a buffer protects
   the clock. Simplified-Chinese communities first (Singapore, Malaysia, overseas mainland users), then
   Bluetooth-keyboard and keyboard-phone users.
-- **Selling makes you a "trader" under the EU Digital Services Act.** App stores publish traders' contact
+- **Selling (the subscription) makes you a "trader" under the EU Digital Services Act.** App stores publish traders' contact
   details (address, phone, email) to EU users. Apple documents its process; Google's equivalent page wasn't
   found during research, so check Play Console's account settings for the trader declaration. To keep a
   home address private, use a business address or PO box, or leave EU countries out of distribution.
 - **Fees.** Google's 2026 fee structure applies in the US, UK and EEA (from 2026-06-30) and in Australia and
-  Japan (from 2026-09-30). It includes a separate 5% billing fee on a paid app's first purchase. Elsewhere,
-  the older 15% fee on the first $1M of annual earnings still applies. Check the fee page when you set the
-  price.
+  Japan (from 2026-09-30). Subscriptions pay a 15% service fee from the first day; check whether a
+  separate billing fee applies in those regions when you set the prices.
 - **Merchant profile.** Selling requires a Google payments merchant profile linked to the developer account.
 
 ### 8.2 Pre-flight checklist
@@ -1261,9 +1392,9 @@ flowchart LR
 | Content rating | IARC questionnaire. With GIF search off, user-generated content exposure is minimal. |
 | Ads | None |
 | Target audience | 13+ (or 18+). Not designed for children. |
-| App access | Tell reviewers that **on-device SenseVoice works without any API key**; give the steps and optionally a restricted test key |
+| App access | Tell reviewers that **on-device SenseVoice works without any API key** and that the 30 free Zizai AI actions need no sign-in; to review Pro, add the review account as a license tester |
 | Store listing | Titles and short descriptions per language in §8.4. Feature graphic and localized screenshots showing the hardware panel, homophone flip and dictation. |
-| Payments | **Paid upfront** (decided). Set the price before the first release; needs a merchant profile. No in-app purchases in v1; anything added later must use Play Billing, and the Play build has no external payment links. |
+| Payments | **Free app + Zizai Pro subscription** (decision 11). Create `zizai_pro` with `monthly` and `yearly` base plans, a 7-day trial offer on yearly, and regional prices. Needs a merchant profile. Play Billing only; no external payment links. |
 | EU trader status | Declare it (selling makes you a trader). Decide which address EU users will see (§8.1). |
 | Repetitive content | The listing leads with what is unique: physical-keyboard Pinyin, homophone flipping, script normalization |
 
@@ -1274,10 +1405,13 @@ flowchart LR
 | Audio — voice or sound recordings | Yes, when a cloud provider is selected | Disclose as shared with the user-selected provider, unless you are confident the user-initiated exemption applies | Not retained by us; processed ephemerally on the device; the provider's own retention applies |
 | App activity — other user-generated content (dictated, reworded or proofread text) | Yes, when rewording or proofreading is used | As above | Same |
 | AI-output reports | Yes, only when the user taps Report | No | Only if the report endpoint exists |
+| Text and audio sent to Zizai AI | Yes, processed ephemerally by zizai-server, not stored | Yes, with Groq (our processor) | Only when the user picks Zizai AI (§6.12) |
+| Device or other IDs | Yes: a hash of the app-scoped Android ID, and a random install token | No | Used only to keep the free allowance per device and to authenticate; deletable in the app |
+| Purchase history | Yes: subscription state and expiry from Google | No | Needed to grant Pro; no payment details reach us |
 | Personal identifiers, location, contacts, device IDs | No | No | Contact names are only picked through the system picker into the local dictionary (upstream) |
-| Purchase history or financial info | No | No | Google Play handles the paid download; the app sees no payment data |
+| Financial info | No | No | Google Play takes the payment; we only learn whether a subscription is active |
 | Encrypted in transit | Yes for HTTPS providers | — | Explain the user-configured LAN `http://` exception, or restrict cleartext to private address ranges |
-| Deletion | Nothing is stored on our side | — | Local data is deletable in the app |
+| Deletion | Account deletion in the app and on a web page | — | Required for apps with accounts; local data is deletable in the app |
 
 ### 8.4 Name and store listing
 
@@ -1411,7 +1545,7 @@ The work breakdown, schedule and owners are in [IMPLEMENTATION_PLAN.md](IMPLEMEN
 
 | Phase | Scope | Exit criteria |
 |---|---|---|
-| **0 — Fork and foundation** (1–2 weeks) | Fork and rebrand; flags for cloud, floating button, translation, GIF and wear; set the app as paid before the first upload; CI; 16 KB checks; release to the internal track | Signed AAB on the internal track; CI green |
+| **0 — Fork and foundation** (1–2 weeks) | Fork and rebrand; flags for cloud, floating button, translation, GIF and wear; CI; 16 KB checks; release to the internal track | Signed AAB on the internal track; CI green |
 | **1 — MVP** | Hardware key router and mode switching; `HanSession` with quanpin and jianpin; exhaustive homophones with tone and tier filters; floating panel; Chinese punctuation; OpenCC output (zh-Hans by default; zh-Hant-TW, zh-Hant-HK); transcript post-processing; reconversion of the character before the cursor (flip); Report action | Closed test running (15–20 testers with promo codes, 14 days); Appendix A works on the Pixel 8 Pro with a Bluetooth keyboard; p95 key latency met |
 | **2 — Depth** | Word and selection reconversion; learning and user dictionary UI; fuzzy pinyin; double-pinyin schemes; keymap editor and compact presets (validated by testers with keyboard phones); touch candidate grid; Qwen3-ASR-Flash provider; hot-word biasing; LLM homophone proofreading with suspect navigation (no default model); zh-TW UI strings and Traditional screenshots; Cantonese character readings (Unihan `kCantonese`) so the flip works on Cantonese dictation | Production launch |
 | **3 — Quality and reach** | **Cantonese typing (Jyutping)** with the rime-cantonese lexicon; bigram language model for sentence conversion; streaming on-device Chinese model; stroke-filter mode; librime backend evaluation; Zhuyin if demand appears | Cantonese typing shipped; measured CER and keystroke savings improve |
@@ -1430,8 +1564,11 @@ The work breakdown, schedule and owners are in [IMPLEMENTATION_PLAN.md](IMPLEMEN
 | Engine quality falls short of Sogou/Gboard expectations | Medium | High | Lead with word-level conversion and homophones; bigram language model in Phase 3; librime backend as a fallback |
 | Data licensing contamination | Medium | High | Builder license gate, `sources.lock`, GPL never allowed |
 | Play rejection (Accessibility, foreground services, AI content, Data safety, repetitive content) | Medium | High | v1 scope cuts (ADR-8), Report action, careful declarations, clear differentiation |
-| The 12-tester rule delays launch, and closed testers must buy the paid app | High | Medium | Recruit 15–20 testers early; give them promo codes, or refund their purchases (§8.1) |
-| Paid upfront means fewer installs, which slows search ranking | High | Medium | Strong localized screenshots, launch posts in target communities, promo codes for reviewers. Switching paid → free later is allowed; free → paid is not. |
+| The 12-tester rule delays launch | High | Medium | Recruit 15–20 testers early (§8.1) |
+| Few free users convert to Pro | Medium | High | 30 free actions so people meet the AI cards; a 7-day trial; compare "allowance used up" with "subscribed" and adjust the price or allowance (ADR-9) |
+| Groq raises prices, rate-limits or goes down | Medium | Medium | Model names and base URL are variables; optional fallback provider; daily spend ceiling; offline dictation never depends on it |
+| Free allowance farmed with fake installs | Medium | Low | Play Integrity on install, account keyed on the device, per-minute limits, daily spend ceiling |
+| Running a server brings outages, abuse and security work | Medium | Medium | Small surface (§6.12), no stored content, alerts to your inbox, kill switch |
 | Selling publishes your contact details to EU users (DSA trader status) | Medium | Medium | Use a business address or PO box, or leave EU countries out (§8.1) |
 | Compact-keyboard bugs go unnoticed, since you own only a full-size Bluetooth keyboard | Medium | Medium | Keyboard-phone owners among the closed testers; compact presets ship only after their feedback |
 | Mic fails when the IME window is hidden | Medium | Medium | Keep the window shown in hardware mode (ADR-5); test on every OEM |
@@ -1451,7 +1588,7 @@ The work breakdown, schedule and owners are in [IMPLEMENTATION_PLAN.md](IMPLEMEN
 | 1 | Name and package | **字在 / Zizai**, `io.zizai.keyboard` | §8.4. Before the first upload: trademark searches (TIPO, HK IPD, CNIPA) and registering `zizai.io` |
 | 2 | Script priority | **Simplified Chinese first.** No Zhuyin in v1. | Simplified is the default output (§6.6, §6.9); zh-TW UI moves to Phase 2 (§10); the zh-CN listing is the primary Chinese listing (§8.4) |
 | 3 | Developer account | **Personal** | The 12-tester, 14-consecutive-day closed test applies (§8.1) |
-| 4 | Monetization | **Paid upfront** | The app is paid from its very first release, and closed testers must buy it (§8.1, §8.2, §11) |
+| 4 | Monetization | ~~Paid upfront~~ — **replaced by decision 11** | — |
 | 5 | v1 scope | **The floating button and on-device translation stay out of v1**, alongside Dictate Cloud, GIF search and Wear | ADR-8 and §7.3 flags. No Bergamot build or WSL2 needed for v1 (§7.4). |
 | 6 | Upstream contributions | **None.** Nothing is offered back to Dictate Keyboard. | ADR-1, §7.2: every hook stays in the fork permanently, so each stays a single line, and merges happen often |
 | 7 | Test hardware | **Pixel 8 Pro and a Bluetooth keyboard** | §9. Emulators cover older Android versions; closed testers cover compact keyboards. |
@@ -1459,16 +1596,25 @@ The work breakdown, schedule and owners are in [IMPLEMENTATION_PLAN.md](IMPLEMEN
 | 9 | Proofreading model | **No default model.** Users must pick a provider and model before proofreading can be turned on. | §6.7, §6.9, §6.11 |
 | 10 | Repository visibility | **Public source code**, as a regular GitHub fork | §7.1. Anyone, upstream included, may reuse the code under Apache-2.0, so the protected asset is the 字在 / Zizai name: register the trademark (§11). Never commit signing keys or secrets. |
 
+### Decided (2026-10-31)
+
+| # | Question | Decision | Where it changed the design |
+|---|---|---|---|
+| 11 | Monetization | **Free app + Zizai Pro subscription** (US$4.99/month, US$34.99/year, 7-day trial on yearly; 30 free AI actions a month) | ADR-9, §6.12, §8.1–§8.3, §11. Replaces decision 4. |
+| 12 | AI backend for Pro | **Groq**, through our own zizai-server; never a key in the app | ADR-9, §6.12 |
+| 13 | Server code | **New `zizai-server/`**; upstream's `cloud/` stays untouched and off | ADR-9, §7.2 |
+
 ### Before the first Play upload
 
 No product questions remain open. These tasks still have to happen before the first upload, because that
-upload fixes the package name and starts the paid-app clock:
+upload fixes the package name:
 
 - [ ] Trademark searches in Taiwan (TIPO), Hong Kong (IPD) and mainland China (CNIPA). With public source
       code, also consider *registering* 字在 / Zizai, so copies of the code can't use the name.
 - [ ] Register `zizai.io` (backs `io.zizai.keyboard`).
 - [ ] Choose the address EU users will see for trader status (§8.1).
-- [ ] Confirm in Play Console that promo codes work for closed testers of a paid app (§8.1).
+- [ ] Point `api.zizai.io` at the zizai-server Worker (§6.12).
+- [ ] Create the `zizai_pro` subscription and add license testers (§8.1).
 
 ---
 

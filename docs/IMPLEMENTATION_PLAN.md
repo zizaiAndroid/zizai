@@ -1,14 +1,14 @@
 # 字在 Zizai — Implementation Plan
 
 > The step-by-step plan for building what [ARCHITECTURE.md](ARCHITECTURE.md) describes, from an empty folder to a
-> paid app in production on Google Play.
+> free app with a Zizai Pro subscription, in production on Google Play.
 
 | | |
 |---|---|
-| **Status** | Draft 1 |
-| **Date** | 2026-10-27 |
-| **Companion to** | ARCHITECTURE.md, Draft 0.4 (all product decisions made) |
-| **Assumes** | One developer, roughly full-time, working with Claude Code. Windows with Android Studio. Pixel 8 Pro + Bluetooth keyboard. Public GitHub fork. Personal Play developer account. Paid app. |
+| **Status** | Draft 2 — adds Zizai Pro (§4a) |
+| **Date** | 2026-10-31 (Draft 1: 2026-10-27) |
+| **Companion to** | ARCHITECTURE.md, Draft 0.5 (decision 11: free app + Zizai Pro) |
+| **Assumes** | One developer, roughly full-time, working with Claude Code. Windows with Android Studio. Pixel 8 Pro + Bluetooth keyboard. Public GitHub fork. Personal Play developer account. Free app with a Zizai Pro subscription. |
 | **Where this file lives** | Next to ARCHITECTURE.md. Move both into `zizai/docs/` once the fork exists (P0-03). |
 
 **How to read this:**
@@ -169,7 +169,7 @@ bash tools/fetch-sherpa-onnx.sh
 
 ### P0-08 Privacy policy and disclosure · M
 
-- **Do:** rewrite the privacy policy for Zizai (no Dictate Cloud, paid app, AI-output reports, opt-in
+- **Do:** rewrite the privacy policy for Zizai (no Dictate Cloud, Zizai AI through zizai-server and Groq, AI-output reports, opt-in
   proofreading) and publish it with GitHub Pages from the repo. Link it from the app. Reword the
   prominent-disclosure screen shown before the first cloud transcription.
 - **Done when:** the policy URL is live and linked in the app.
@@ -189,8 +189,8 @@ bash tools/fetch-sherpa-onnx.sh
 - **Do (you):**
   1. Finish the personal developer account's identity verification and set up a payments merchant
      profile.
-  2. Create the app "字在 Zizai" and **set it as paid, with a price, before any release.** An app that has
-     been offered free can never become paid.
+  2. Create the app "字在 Zizai" as a **free** app (decision 11). Monetization is the Zizai Pro
+     subscription (§4a); a free app can never become paid, so this is permanent.
   3. Generate the upload key, keep two offline backups, and enroll in Play App Signing.
   4. Add yourself and a second account as internal testers.
 - **Do (Claude Code):** wire the upload key into the release signing config through `keystore.properties`
@@ -229,6 +229,7 @@ bash tools/fetch-sherpa-onnx.sh
 | P2-04 | Mostly done | Compact preset (; and ' pick 2nd and 3rd, , and . page, holding Backspace cancels), "press the key to bind" for flip, push-to-talk and next suspect, per-app bypass list. Waiting on testers: device presets from captured key codes |
 | P1-20 | Partly | Exceptions reset the session; `zizai.onKey` trace sections and a `ZizaiLatency` log. JVM: first page 0.08–0.14 ms. Debug build on the Pixel: p50 ≈ 8 ms, p95 ≈ 14–20 ms, which is debuggable ART; the release-optimized `benchmark` build still has to be measured (it must be enabled as a keyboard) |
 | P1-21, P1-22 | Yours | Store listing and closed test |
+| PM-01 – PM-09 | Started 2026-10-31 | Zizai Pro, §4a |
 
 Still open: the 2 ms budget measured on the phone
 (P1-20), and the grid sheet for touch (P1-16).
@@ -243,7 +244,7 @@ results in ARCHITECTURE.md.
 | **S1** | Can the IME take hardware letters and show a caret-anchored panel without resizing the app? (ADR-5) | Intercept letters in `FlorisImeService.onKeyDown`; show a dummy Compose panel positioned from `CursorAnchorInfo`; Pixel 8 Pro + Bluetooth keyboard in Chrome, Gmail, Google Docs, Telegram, WhatsApp | Correct position in at least 4 of 5 apps; bottom-dock fallback works in the rest; touch on the panel works |
 | **S2** | Does the microphone work while the IME window is shown but empty? (§3.1 of the architecture) | Start recording from a hotkey in hardware mode, then with the window fully hidden | Recording works when shown; failure when hidden is understood |
 | **S3** | Can committed text be reconverted in place? | `setComposingRegion` + `setComposingText` on existing text in Chrome/WebView, Gmail, a Compose `TextField` and an `EditText`; `replaceText` on API 34+; read the text back | Works in at least 3 of 4 editors; a read-back mismatch is detectable |
-| **S4** | Can closed testers of a paid app install it for free? | Create a promo code in Play Console and redeem it with the second test account | Code redeems before production; otherwise fall back to refunds |
+| **S4** | ~~Can closed testers of a paid app install it for free?~~ | Not needed since decision 11: the app is free; Pro is tested with license testers | — |
 
 If S1 or S2 fails, stop and revise ADR-5 before starting P1-10.
 
@@ -552,6 +553,35 @@ app needed it. Lesson from S1: cancel a composition with `setComposingText("", 1
 **Phase 2 exit (M6):** production at 100%, vitals under thresholds, all P2 packages done or explicitly
 deferred.
 
+## 4a. Zizai Pro — free app, paid AI (decision 11, ARCHITECTURE.md ADR-9 and §6.12)
+
+Runs alongside Phase 2. The app ships to production free whether or not Pro is ready: the `zizaiAi` flag
+in `zizai.properties` keeps every Pro surface out of the build until the server is live.
+
+| ID | Work package | Size | Depends on | Done when |
+|---|---|---|---|---|
+| PM-01 | **zizai-server skeleton:** `zizai-server/` Worker (TypeScript), D1 schema, account Durable Object, global spend guard, health route, `wrangler.example.jsonc`, typecheck and unit tests in CI | M | — | `npm test` and `tsc --noEmit` pass in CI |
+| PM-02 | **Device accounts:** signed nonce, Play Integrity decode and verdict checks, account keyed on HMAC(device hash), token issue and hashing, `GET /v1/account`, account deletion (API and web page) | M | PM-01 | Unit tests cover every rejected verdict; reinstall returns the same account |
+| PM-03 | **Quotas and Groq proxy:** monthly counters (30 free actions; Pro fair use 5,000 actions and 20 h voice, then slowed), per-minute limits, OpenAI-compatible `chat/completions` and `audio/transcriptions` to Groq with server-chosen model and limits, optional fallback provider, daily spend ceiling and kill switch | L | PM-01 | Tests with a mocked Groq: quota exhausted answers 402 `quota_exhausted`; over budget answers 503; the client cannot pick the model |
+| PM-04 | **Subscriptions:** `POST /v1/subscription` with `subscriptionsv2.get` and acknowledge, 3 devices per subscription, RTDN handler for subscription notifications, nightly re-check of lapsed subscriptions | M | PM-02 | Tests with recorded Google responses for active, grace, cancelled-but-paid, expired, revoked |
+| PM-05 | **App: Zizai AI provider:** `io.zizai.ai` client (install, token storage, account fetch), provider preset hooked into the registry, default for AI cards when no other chat provider is set, first-use disclosure | M | PM-02, PM-03 | AI cards work on the Pixel against a local `wrangler dev` server |
+| PM-06 | **App: Zizai Pro screen and billing:** Play Billing subscription flow (`zizai_pro`, monthly and yearly, trial), restore, server verification, plan and usage display, account deletion | L | PM-04, PM-05 | Purchase, restore and cancel work with a license tester on the internal track |
+| PM-07 | **App: allowance sheet:** on `quota_exhausted` the AI card shows "30 free AI actions used this month" with Subscribe and "Use my own API key" | S | PM-05, PM-06 | Shown once per refusal, never as a crash or a toast |
+| PM-08 | **Docs and policy:** privacy policy, Data safety answers (§8.3), Play listing text about Pro, server README | S | PM-02 – PM-04 | Reviewed by you |
+| PM-09 | **Launch Pro:** deploy, secrets, RTDN topic, alerts; flip `zizaiAi=true`; staged rollout | M | all above, your setup below | A license tester subscribes, uses AI cards, cancels, and loses Pro at expiry |
+
+**Only you can do (blocks PM-09, not the coding):**
+
+1. Register `zizai.io` and add it to Cloudflare; create the Worker route `api.zizai.io`.
+2. Create a Groq account, a paid-tier API key, and set it with `wrangler secret put GROQ_API_KEY`.
+3. In Play Console: create the subscription `zizai_pro` with base plans `monthly` (US$4.99) and `yearly`
+   (US$34.99), a 7-day free-trial offer on `yearly`, and regional prices; add license testers.
+4. In Google Cloud: link a service account to Play Console with "View financial data" and "Manage orders
+   and subscriptions"; enable the Play Integrity API for the app's Cloud project; set the service
+   account's JSON key with `wrangler secret put GOOGLE_SERVICE_ACCOUNT`.
+5. Create a Pub/Sub topic for real-time developer notifications, push it to
+   `https://api.zizai.io/v1/rtdn?key=…`, and set the same secret with `wrangler secret put RTDN_SECRET`.
+
 ---
 
 ## 5. Phase 3 — Quality and reach (2027 Q2–Q3)
@@ -627,10 +657,11 @@ the public repository.
 
 | Only you can do | Claude Code can do |
 |---|---|
-| Trademark searches and registration; buying `zizai.io` | All code, build scripts and tests in §2–§5 |
+| Trademark searches and registration; buying `zizai.io` |
+| Cloudflare, Groq and Google Cloud accounts and their secrets (§4a) | zizai-server code, tests and deploy scripts (§4a) | All code, build scripts and tests in §2–§5 |
 | GitHub fork under your account | The CI workflows, and the GitHub issues and milestones (once `gh` is signed in) |
-| Play Console: identity verification, merchant profile, price, declarations, production application | Drafts of every Play Console form, listing text and the privacy policy |
+| Play Console: identity verification, merchant profile, the `zizai_pro` subscription and license testers, declarations, production application | Drafts of every Play Console form, listing text and the privacy policy |
 | Holding the upload key and its backups | Wiring the key into local and CI signing without committing it |
-| Recruiting closed testers and handing out promo codes | The tester instructions and feedback template |
+| Recruiting closed testers | The tester instructions and feedback template |
 | Reviewing zh-TW and zh-HK wording; approving screenshots and art | Generating screenshots on the Pixel 8 Pro and drafting translations |
 | Testing on the Pixel 8 Pro with the Bluetooth keyboard | Instrumented tests and emulator runs for API 26–33 |
