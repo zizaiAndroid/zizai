@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -225,6 +226,10 @@ fun DictatePromptsScreen(
         // the editor, even though the route arg stays put).
         var deepLinkEditHandled by remember { mutableStateOf(false) }
         LaunchedEffect(editPromptId, prompts.size) {
+            if (editPromptId == io.zizai.dictate.StarterPrompts.NEW_PROMPT && !deepLinkEditHandled) { // ZIZAI-HOOK: "Add your prompt" card
+                editorTarget = PromptModel(-1, 0, "", "", requiresSelection = true, autoApply = false)
+                deepLinkEditHandled = true
+            }
             if (editPromptId < 0 || deepLinkEditHandled) return@LaunchedEffect
             val target = prompts.firstOrNull { it.id == editPromptId } ?: return@LaunchedEffect
             editorTarget = target.copy()

@@ -52,20 +52,21 @@ object PromptNames {
         val names = known.value
         if (names == null) {
             val context = LocalContext.current.applicationContext
-            if (building.compareAndSet(false, true)) thread(name = "ZizaiPromptNames") { known.value = build(context) }
+            if (building.compareAndSet(false, true)) thread(name = "ZizaiPromptNames") { known.value = translations(context, STARTERS) }
             return stored
         }
         val id = names[stored.trim()] ?: return stored
         return stringRes(id)
     }
 
-    private fun build(context: Context): Map<String, Int> {
+    /** Every translation the app ships of each string in [ids] → that string's id. Slow: call off the main thread. */
+    fun translations(context: Context, ids: IntArray): Map<String, Int> {
         val names = HashMap<String, Int>()
         val tags = context.assets.locales.toList() + ""
         for (tag in tags) {
             val config = Configuration(context.resources.configuration).apply { setLocale(Locale.forLanguageTag(tag)) }
             val res = runCatching { context.createConfigurationContext(config).resources }.getOrNull() ?: continue
-            STARTERS.forEach { id -> names.putIfAbsent(res.getString(id).trim(), id) }
+            ids.forEach { id -> names.putIfAbsent(res.getString(id).trim(), id) }
         }
         return names
     }

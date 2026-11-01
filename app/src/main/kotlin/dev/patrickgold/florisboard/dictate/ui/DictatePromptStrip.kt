@@ -129,7 +129,7 @@ fun DictatePromptRow(
     // always-on row gives the prompt buttons a more comfortable hit area than the compact Smartbar.
     val rowChipPadding = PaddingValues(horizontal = 2.dp, vertical = 5.dp)
     val carouselScope = androidx.compose.runtime.rememberCoroutineScope() // ZIZAI-HOOK
-    io.zizai.dictate.PromptCarousel.Effects(listOf(io.zizai.dictate.PromptCarousel.LIVE) + prompts.map { it.id }) // ZIZAI-HOOK
+    io.zizai.dictate.PromptCarousel.Effects(listOf(io.zizai.dictate.PromptCarousel.LIVE) + prompts.map { it.id } + io.zizai.dictate.PromptCarousel.ADD) // ZIZAI-HOOK
 
     val liveChip: @Composable () -> Unit = {
         DictateLivePromptChip(
@@ -187,6 +187,7 @@ fun DictatePromptRow(
             }
             Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                 prompts.drop(half).forEach { promptChip(it) }
+                io.zizai.dictate.StarterPrompts.AddCard(rowChipPadding) // ZIZAI-HOOK
             }
         }
     } else {
@@ -202,6 +203,7 @@ fun DictatePromptRow(
         ) {
             liveChip()
             prompts.forEach { promptChip(it) }
+            io.zizai.dictate.StarterPrompts.AddCard(rowChipPadding) // ZIZAI-HOOK
         }
     }
 }

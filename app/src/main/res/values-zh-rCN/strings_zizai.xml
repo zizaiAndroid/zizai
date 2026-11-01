@@ -86,4 +86,5 @@
     <string name="zizai__languages__all">所有语言</string>
     <string name="zizai__languages__none">没有匹配的语言。</string>
     <string name="zizai__languages__remove">移除语言</string>
+    <string name="zizai__prompts__add_card">添加提示词</string>
 </resources>

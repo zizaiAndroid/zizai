@@ -35,6 +35,9 @@ object PromptCarousel {
     /** Key of the live-prompt (voice) card; saved prompts use their database id. */
     const val LIVE = Int.MIN_VALUE
 
+    /** Key of the "Add your prompt" card at the end. */
+    const val ADD = Int.MAX_VALUE
+
     val scroll = ScrollState(0)
     private var selected: Int? = null
     private var viewport: LayoutCoordinates? = null
@@ -91,10 +94,18 @@ object PromptCarousel {
         return offset.roundToInt().coerceIn(0, scroll.maxValue)
     }
 
+    /**
+     * The card whose resting position is closest to where the swipe stopped. Cards near the ends can't
+     * reach the middle, so this (not "closest to the middle") is what lets a swipe to the end land on
+     * the last card; ties at an end go to the card nearer the middle.
+     */
     private fun nearest(): Int? {
         val view = viewport?.takeIf { it.isAttached } ?: return null
         val middle = center(view)
-        return cards.entries.filter { it.value.isAttached }.minByOrNull { abs(center(it.value) - middle) }?.key
+        return cards.entries.filter { it.value.isAttached }.minWithOrNull(
+            compareBy<Map.Entry<Int, LayoutCoordinates>> { abs((target(it.key) ?: Int.MAX_VALUE) - scroll.value) }
+                .thenBy { abs(center(it.value) - middle) },
+        )?.key
     }
 
     private fun center(coordinates: LayoutCoordinates): Float =

@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -252,17 +253,11 @@ class PromptsDatabaseHelper private constructor(
         // (requiresSelection = true), two free generators and two literal `[snippet]` prompts (both
         // requiresSelection = false). Resolved lazily so the strings pick up the device locale at seed
         // time.
+        // ZIZAI-HOOK: three starters; users add their own with the "Add your prompt" card.
         private fun defaultSeeds() = listOf(
             Seed(R.string.dictate__example_prompt_fix_grammar_name, R.string.dictate__example_prompt_fix_grammar_prompt, true),
             Seed(R.string.dictate__example_prompt_improve_name, R.string.dictate__example_prompt_improve_prompt, true),
-            Seed(R.string.dictate__example_prompt_formal_name, R.string.dictate__example_prompt_formal_prompt, true),
-            Seed(R.string.dictate__example_prompt_friendly_name, R.string.dictate__example_prompt_friendly_prompt, true),
-            Seed(R.string.dictate__example_prompt_shorter_name, R.string.dictate__example_prompt_shorter_prompt, true),
             Seed(R.string.dictate__example_prompt_translate_name, R.string.dictate__example_prompt_translate_prompt, true),
-            Seed(R.string.dictate__example_prompt_quote_name, R.string.dictate__example_prompt_quote_prompt, false),
-            Seed(R.string.dictate__example_prompt_funfact_name, R.string.dictate__example_prompt_funfact_prompt, false),
-            Seed(R.string.dictate__example_prompt_shrug_name, R.string.dictate__example_prompt_shrug_prompt, false),
-            Seed(R.string.dictate__example_prompt_signoff_name, R.string.dictate__example_prompt_signoff_prompt, false),
         )
     }
 }

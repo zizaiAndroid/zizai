@@ -86,4 +86,5 @@
     <string name="zizai__languages__all">All languages</string>
     <string name="zizai__languages__none">No language matches.</string>
     <string name="zizai__languages__remove">Remove language</string>
+    <string name="zizai__prompts__add_card">Add your prompt</string>
 </resources>
