@@ -134,10 +134,8 @@ class FlorisApplication : Application() {
             // A settings file that cannot be read is kept rather than written over (#383): the migrators
             // below write at once, and a write replaces the whole file.
             PreferenceRecovery.setAsideIfUnreadable(this@FlorisApplication)
-            val result = FlorisPreferenceStore.initAndroid(
-                context = this@FlorisApplication,
-                datastoreName = FlorisPreferenceModel.NAME,
-            )
+            // ZIZAI-HOOK: the same load and save, logged in debug builds (settings were seen to roll back).
+            val result = io.zizai.PrefsWriteLog.init(FlorisPreferenceStore, this@FlorisApplication, FlorisPreferenceModel.NAME)
             Log.i("PREFS", result.toString())
             if (result.isFailure) PreferenceRecovery.setAsideAfterFailedLoad(this@FlorisApplication)
             PreferenceRecovery.refresh(this@FlorisApplication)
