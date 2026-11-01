@@ -214,7 +214,7 @@ bash tools/fetch-sherpa-onnx.sh
 | P1-11 – P1-15 | Done | Checked on the Pixel 8 Pro (Keep, search fields) |
 | P1-16 | Done | Smartbar candidates for the touch keyboard; no expanded grid sheet yet |
 | P1-17 | Done | 中文 settings screen, Ctrl+/ cheat sheet, first-use sheet |
-| P1-18 | Done, minus `replaceText` on API 34+ | Context reading and ranking, read-back restore, the touch 改 chip |
+| P1-18 | Done | Context reading and ranking, read-back restore, the touch 改 chip; `replaceText` fallback on API 34+ (2026-11-01: normal path checked on the Pixel; the fallback itself untried, as no tested editor ignores composing regions) |
 | P1-19 | Blocked on you | Needs a Cloudflare account for the report Worker |
 | P2-02 | Done | Learning (picks rise after two, 造词 phrases at once, also by initials), Ctrl+Delete blocklist, no learning in incognito, password or no-learning fields, `files/zizai/han_user.tsv` in the backup rules; 我的词 screen with delete, unblock and JSON export/import |
 | P2-03 | Done | Fuzzy pairs (all 11), double Pinyin 小鹤, 自然码, 微软, 搜狗, 紫光 and 拼音加加 with golden tests, all in 中文 settings |
@@ -313,7 +313,9 @@ Same branch; F2 flipped the character before the cursor through dummy homophones
 | Keep | ✓ | ✓ | matches |
 
 The position comes from `getExtractedText` (`startOffset + selectionStart`). P1-18 keeps the readback
-check and falls back to delete-and-commit when it fails or `getExtractedText` returns null, but no tested
+check, now anchored on the text before the flip so a preview typed at the cursor is caught too. On a
+mismatch, API 34+ retries with `replaceText` and keeps using it in that field; below 34, or if that fails
+too, the original is restored. No tested
 app needed it. Lesson from S1: cancel a composition with `setComposingText("", 1)` before
 `finishComposingText()`, or the last letter is committed.
 

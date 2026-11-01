@@ -213,7 +213,10 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     }
 
     fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
-        if (!restarting) resetAll(ResetReason.FIELD_CHANGED)
+        if (!restarting) {
+            resetAll(ResetReason.FIELD_CHANGED)
+            editor.onNewField()
+        }
     }
 
     /** A tap in the editor: back to the touch keyboard, unless the user always wants hardware mode. */
@@ -365,13 +368,18 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     }
 
     /**
-     * After each flip step, read the text back (spike S3). An editor that didn't take the change gets the
-     * original back rather than a mangled field (P1-18).
+     * After each flip step, read the text back (spike S3). An editor that didn't take the change is tried
+     * once more with `replaceText` on API 34+; failing that, it gets the original back rather than a
+     * mangled field (P1-18).
      */
     private fun verifyReconversion() {
         val ui = session.ui.value
         if (ui.mode != io.zizai.han.session.SessionMode.RECONVERTING) return
         if (editor.readsBack(ui.preedit)) return
+        if (editor.replaceInstead(ui.preedit)) {
+            Log.w("Zizai", "flip read-back mismatch; using replaceText in this field")
+            return
+        }
         Log.w("Zizai", "flip read-back mismatch; restoring the original")
         (session.onKey(KeyStroke(Key.ESCAPE)) as? KeyResult.Handled)?.let { editor.apply(it.edits) }
     }
