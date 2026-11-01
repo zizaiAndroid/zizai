@@ -189,6 +189,12 @@ fun LocalizationScreen() = FlorisScreen {
                             DisplayLanguageNamesIn.NATIVE_LOCALE -> subtype.primaryLocale.displayName(subtype.primaryLocale)
                         },
                         summary = summary,
+                        // ZIZAI-HOOK: a visible way to remove a language; long-press still works. Not on the last one.
+                        trailing = if (subtypes.size > 1) {
+                            { io.zizai.app.PopularLanguages.RemoveLanguageButton { chosenSubtypeToDelete = subtype } }
+                        } else {
+                            null
+                        },
                         modifier = Modifier.combinedClickable(
                             onClick = {
                                 navController.navigate(

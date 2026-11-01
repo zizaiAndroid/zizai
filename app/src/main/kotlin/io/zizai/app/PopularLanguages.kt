@@ -20,10 +20,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -147,6 +149,18 @@ object PopularLanguages {
         color = MaterialTheme.colorScheme.primary,
         fontWeight = FontWeight.Bold,
     )
+
+    /** The trash button on each of the user's languages; asks before removing. */
+    @Composable
+    fun RemoveLanguageButton(onClick: () -> Unit) {
+        IconButton(onClick = onClick) {
+            Icon(
+                Icons.Default.Delete,
+                contentDescription = stringRes(R.string.zizai__languages__remove),
+                tint = MaterialTheme.colorScheme.error,
+            )
+        }
+    }
 
     /** The language pack screen's "Show more input methods" / "Show fewer". */
     @Composable
