@@ -101,6 +101,9 @@ configure<ApplicationExtension> {
             "ZIZAI_TRANSLATE" to "translate", "ZIZAI_GIF" to "gif",
         )) buildConfigField("boolean", field, zizaiFlag(key).toString())
         buildConfigField("String", "ZIZAI_RELEASES_BASE", "\"${zizaiProps.getProperty("releasesBase").trim().trimEnd('/')}\"")
+        buildConfigField("boolean", "ZIZAI_AI", zizaiFlag("zizaiAi").toString()) // ZIZAI-HOOK: Zizai Pro (ADR-9)
+        buildConfigField("String", "ZIZAI_AI_SERVER", "\"${zizaiProps.getProperty("aiServer", "").trim()}\"") // ZIZAI-HOOK
+        buildConfigField("long", "ZIZAI_INTEGRITY_PROJECT", "${zizaiProps.getProperty("integrityProject", "0").trim().ifBlank { "0" }}L") // ZIZAI-HOOK
 
         sourceSets {
             maybeCreate("main").apply {
@@ -154,6 +157,8 @@ configure<ApplicationExtension> {
 
             isDebuggable = true
             isJniDebuggable = false
+            buildConfigField("boolean", "ZIZAI_AI", zizaiFlag("zizaiAiDebug").toString()) // ZIZAI-HOOK: on in debug, against a local server
+            buildConfigField("String", "ZIZAI_AI_SERVER", "\"${zizaiProps.getProperty("aiServerDebug", "").trim()}\"") // ZIZAI-HOOK
         }
 
         create("beta") {
@@ -259,6 +264,7 @@ dependencies {
     // Play Billing for the optional Dictate Cloud credit packs (#255 follow-up). Version 8 is
     // not a choice: from 31.08.2026 Play refuses uploads built against anything older.
     implementation(libs.android.billing.ktx)
+    implementation("com.google.android.play:integrity:1.4.0") // ZIZAI-HOOK: Zizai AI device check (ADR-9)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.autofill)

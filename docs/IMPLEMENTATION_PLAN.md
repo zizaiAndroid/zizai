@@ -229,7 +229,11 @@ bash tools/fetch-sherpa-onnx.sh
 | P2-04 | Mostly done | Compact preset (; and ' pick 2nd and 3rd, , and . page, holding Backspace cancels), "press the key to bind" for flip, push-to-talk and next suspect, per-app bypass list. Waiting on testers: device presets from captured key codes |
 | P1-20 | Partly | Exceptions reset the session; `zizai.onKey` trace sections and a `ZizaiLatency` log. JVM: first page 0.08–0.14 ms. Debug build on the Pixel: p50 ≈ 8 ms, p95 ≈ 14–20 ms, which is debuggable ART; the release-optimized `benchmark` build still has to be measured (it must be enabled as a keyboard) |
 | P1-21, P1-22 | Yours | Store listing and closed test |
-| PM-01 – PM-09 | Started 2026-10-31 | Zizai Pro, §4a |
+| PM-01 – PM-04 | Done (2026-10-31) | zizai-server: 25 tests, typecheck in CI; runs under `wrangler dev` with `tools/mock-groq.mjs` |
+| PM-05, PM-07 | Done, against a local server | Zizai AI provider (default for AI cards in debug builds), token on first use, "Free AI actions used up" chip opening Zizai Pro; checked on the Pixel through `adb reverse` |
+| PM-06 | Built, not tried with Play | Zizai Pro screen, subscription flow, restore, account deletion; needs the `zizai_pro` product and a Play-installed build |
+| PM-08 | Draft | privacy.md section 3.4; Data safety answers in ARCHITECTURE.md §8.3 |
+| PM-09 | Yours first | Domain, Cloudflare, Groq key, Play product, service account, RTDN topic (§4a) |
 
 Still open: the 2 ms budget measured on the phone
 (P1-20), and the grid sheet for touch (P1-16).

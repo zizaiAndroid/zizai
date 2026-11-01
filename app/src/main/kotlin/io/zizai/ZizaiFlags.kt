@@ -33,6 +33,9 @@ object ZizaiFlags {
     /** GIF search (KLIPY). */
     const val gif: Boolean = BuildConfig.ZIZAI_GIF
 
+    /** Zizai AI and the Zizai Pro subscription (ADR-9): on in debug builds, off in release until the server is live. */
+    const val zizaiAi: Boolean = BuildConfig.ZIZAI_AI
+
     /**
      * The Wear OS companion. Not a property: v1 doesn't upload the `:wear` app, and the phone-side wear
      * services are removed by the release manifest, so its settings would lead nowhere.

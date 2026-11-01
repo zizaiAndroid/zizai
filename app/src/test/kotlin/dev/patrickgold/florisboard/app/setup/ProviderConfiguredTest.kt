@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -93,8 +94,8 @@ class ProviderConfiguredTest {
 
         // A deliberate pick is what counts, not just "something is installed": the dictation path would
         // load exactly this model and fail if it is gone.
-        val picked = ProviderAccount(providerId = local, transcriptionModel = "sense-voice-small")
+        val picked = ProviderAccount(providerId = local, transcriptionModel = "whisper-tiny") // ZIZAI-HOOK: sense-voice-small is Zizai's default
         assertFalse(isProviderConfigured(accountsOf(picked), local, installed(default)))
-        assertTrue(isProviderConfigured(accountsOf(picked), local, installed("sense-voice-small")))
+        assertTrue(isProviderConfigured(accountsOf(picked), local, installed("whisper-tiny"))) // ZIZAI-HOOK
     }
 }

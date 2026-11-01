@@ -1106,6 +1106,7 @@ object DictateController {
      * place in whatever was being written. Same new-task launch as [openProviderSettings].
      */
     fun openCloudSettings(context: Context) {
+        if (io.zizai.ai.ZizaiAi.openProIfActive(context)) return clearError() // ZIZAI-HOOK: Zizai Pro, not Dictate Cloud
         runCatching {
             context.startActivity(
                 Intent(Intent.ACTION_VIEW, Uri.parse("ui://florisboard/settings/dictate/cloud"))
@@ -1243,7 +1244,8 @@ object DictateController {
         // Dictate Cloud running out of credit is checked first, and before the resend branches: it is
         // classified as QUOTA_EXCEEDED like every other provider's rate limit, but unlike those it is
         // neither worth retrying nor something to go and fix at a provider. Buying more is a button.
-        val outOfCredit = e.code == DictateCloudApi.ErrorCode.INSUFFICIENT_CREDITS
+        io.zizai.ai.ZizaiAi.onError(e) // ZIZAI-HOOK: a refused token is fetched again next time
+        val outOfCredit = e.code == DictateCloudApi.ErrorCode.INSUFFICIENT_CREDITS || io.zizai.ai.ZizaiAi.isQuotaExhausted(e) // ZIZAI-HOOK
         val action = when {
             outOfCredit -> ErrorAction.TOP_UP
             canResend && e.kind in EXPORTABLE_ERROR_KINDS -> ErrorAction.SAVE_AUDIO
@@ -1262,7 +1264,7 @@ object DictateController {
         ).joinToString("\n\n").takeIf { it.isNotBlank() }
         return UiState.Error(
             message = when {
-                outOfCredit -> context.getString(R.string.dictate__error_out_of_credit)
+                outOfCredit -> io.zizai.ai.ZizaiAi.outOfCreditMessage(context, e) ?: context.getString(R.string.dictate__error_out_of_credit) // ZIZAI-HOOK
                 hint -> context.getString(R.string.dictate__error_try_on_device)
                 onDevice && e.kind == DictateApiException.Kind.TIMEOUT ->
                     context.getString(R.string.dictate__error_timeout_on_device)
@@ -4775,7 +4777,7 @@ object DictateController {
         reasoning: DictateReasoningEffort? = null,
         reasoningCustom: String? = null,
     ): String {
-        val account = rewordingAccount()
+        val account = io.zizai.ai.ZizaiAi.ready(rewordingAccount()) // ZIZAI-HOOK: Zizai AI fetches its token on first use
         // Blank rewording key falls back to the transcription account's key (legacy "reuse" behavior).
         val apiKey = account.apiKey.ifBlank { transcriptionAccount().apiKey }
         if (apiKey.isBlank() && requiresKey(account)) {

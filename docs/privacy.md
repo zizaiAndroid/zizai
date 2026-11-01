@@ -15,11 +15,13 @@ Questions about this policy: **[TO FILL: contact email, e.g. feedback@zizai.io]*
 
 ## 1. Summary
 
-- **We do not receive any of your data.** We run no server in the App's path, keep no database about you,
-  and include no analytics.
-- Zizai is a voice-to-text keyboard. To turn your speech into text it sends the audio you record to an
-  **AI provider that you choose and configure** (for example OpenAI, Google Gemini or SiliconFlow), directly
-  from your device. It never passes through us.
+- **Typing and on-device dictation never reach us.** We include no analytics.
+- **Zizai AI is the one exception, and only if you use it** (section 3.4). Its AI cards (and, for Zizai Pro,
+  cloud voice) send the text or audio to our server and on to Groq, which processes it. Neither keeps it. Our
+  server keeps an anonymous account per device: usage counts and, if you subscribe, your Zizai Pro status.
+- Otherwise, to turn your speech into text the App sends the audio you record to an **AI provider that you
+  choose and configure** (for example OpenAI, Google Gemini or SiliconFlow), directly from your device. It
+  never passes through us.
 - **On-device recognition is available**: it needs no network connection and no provider at all.
 - Your API keys, prompts and settings are stored **only on your device**, plus Android's own end-to-end
   encrypted backup if you use it (section 2.6).
@@ -138,8 +140,26 @@ the provider may keep or process the data under your account terms with it (for 
 monitoring).
 
 ### 3.2 Google Play
-Zizai is a paid app. **Google** processes the purchase as the seller and an independent controller for the
-payment; we never see your payment details. See https://policies.google.com/privacy.
+Zizai is free; Zizai Pro is a subscription sold through Google Play. **Google** processes the purchase as the
+seller and an independent controller for the payment; we never see your payment details. Our server asks
+Google whether your subscription is active and stores the purchase token, product, state and expiry date.
+The App also asks **Google Play Integrity** to confirm that it is the genuine App on a genuine device before
+creating a Zizai AI account. See https://policies.google.com/privacy.
+
+### 3.4 Zizai AI (our server, with Groq)
+Only when you choose Zizai AI as a provider (it is the default for AI cards when no other provider is set up):
+
+- **What is sent:** the text of the AI card you tapped (with its instruction), or, for Zizai Pro cloud voice,
+  the recording. It goes over HTTPS to our server at api.zizai.io (Cloudflare Workers) and on to **Groq,
+  Inc.**, which runs the model and returns the result. We do not store it; Groq processes it under its own
+  terms and does not use it for training. See https://groq.com/privacy-policy.
+- **Your account:** an anonymous account per device, created on first use, keyed on a one-way hash of the
+  App's Android ID for this device. It holds no name, email, Google account or IP address: only a random
+  account ID, hashed access tokens, last-seen times, this month's usage counts and, if you subscribe, the
+  subscription token, state and expiry.
+- **Deleting it:** Settings → Zizai Pro → Delete account, or https://api.zizai.io/delete with the account ID
+  shown there. Accounts unused for 12 months are deleted automatically. Deleting does not cancel a Google Play
+  subscription; cancel that in Google Play.
 
 ### 3.3 Downloads from GitHub
 Some files are too large to ship inside the App, so it downloads them from GitHub releases (GitHub is a
@@ -180,7 +200,8 @@ stored on your device like any other dictionary word.
   delete them in the App or uninstall it. Android's own backup may hold a copy of the settings (section 2.6).
   Temporary recordings are deleted automatically after transcription.
 - **With your chosen provider:** retention is governed by that provider's policy, not by us.
-- **With us:** nothing.
+- **With us:** nothing, unless you use Zizai AI: then the anonymous account described in section 3.4, until you
+  delete it or for 12 months after its last use. Text and audio are never stored.
 
 ---
 

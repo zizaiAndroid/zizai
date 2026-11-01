@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2026 DevEmperor (Dictate)
  *
@@ -28,7 +29,7 @@ object ProviderListing {
      * else. Dictate Cloud is bought inside the app and the on-device engine needs only a download, so
      * hiding them until they were set up would hide them from exactly the people they are for.
      */
-    val pinnedIds: Set<String> = setOf(ProviderRegistry.LOCAL.id, ProviderRegistry.CLOUD.id)
+    val pinnedIds: Set<String> = setOf(ProviderRegistry.LOCAL.id, ProviderRegistry.CLOUD.id, io.zizai.ai.ZizaiAi.PROVIDER_ID) // ZIZAI-HOOK: Zizai AI
 
     /**
      * Whether [preset] can be used right now.
@@ -46,6 +47,7 @@ object ProviderListing {
         accounts: ProviderAccounts,
         isModelInstalled: (String) -> Boolean,
     ): Boolean {
+        if (preset.id == io.zizai.ai.ZizaiAi.PROVIDER_ID) return true // ZIZAI-HOOK: needs no setup; the token comes on first use
         if (preset.transcriptionApi == TranscriptionApi.LOCAL_ONDEVICE) {
             val account = accounts.getOrEmpty(preset.id)
             val oneShot = account.transcriptionModel.ifBlank { preset.defaultTranscriptionModel.orEmpty() }

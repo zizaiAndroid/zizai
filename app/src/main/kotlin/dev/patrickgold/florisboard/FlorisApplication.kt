@@ -82,6 +82,7 @@ class FlorisApplication : Application() {
         FlorisApplicationReference = WeakReference(this)
         io.zizai.dictate.BundledModel.init(this) // ZIZAI-HOOK: SenseVoice Small ships with the app
         io.zizai.dictate.StarterPrompts.removeRetired(this) // ZIZAI-HOOK
+        io.zizai.ai.ZizaiAi.init(this) // ZIZAI-HOOK: Zizai AI provider (ADR-9)
         // The translation engine's process (issue #424) runs one service and touches none of this: the
         // preference store, the dictionaries, the Wear publisher would all be a second copy of the
         // keyboard in memory, in the process that exists precisely to keep memory out of the keyboard.

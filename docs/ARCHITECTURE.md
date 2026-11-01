@@ -1209,7 +1209,8 @@ new requests answer 503 until midnight UTC, so a bug or an attack costs at most 
 switch stops all AI traffic at once.
 
 **What is stored** (D1 and the Durable Objects): account id, HMAC of the device hash, token hashes,
-created and last-seen times, subscription token hash, product, state and expiry, and monthly counters.
+created and last-seen times, the Play purchase token (needed to ask Google about it again), product,
+state and expiry, and monthly counters.
 **Never** text, audio, IP addresses or Google account identifiers. Logs carry status codes and timings
 only. `POST /v1/account/delete` erases an account; the app offers it in settings, and a web page serves
 people who have uninstalled (Play requires this for apps with accounts).

@@ -982,8 +982,13 @@ object ProviderRegistry {
         curatedTranscriptionModels = listOf("sense-voice-small", "whisper-base", "whisper-tiny"), // ZIZAI-HOOK
     )
 
+    /** ZIZAI-HOOK: providers the app adds at start (Zizai AI, behind the zizaiAi flag), listed first. */
+    @Volatile var extraPresets: List<ProviderPreset> = emptyList()
+
     /** All built-in presets in display order. The custom option is added by the UI on top of these. */
-    val presets: List<ProviderPreset> = listOf(
+    val presets: List<ProviderPreset> get() = extraPresets + basePresets // ZIZAI-HOOK: was a plain list
+
+    private val basePresets: List<ProviderPreset> = listOf( // ZIZAI-HOOK: was `presets`
         CLOUD, OPENAI, GROQ, OPENROUTER, GEMINI, ANTHROPIC, TOGETHER, DEEPINFRA, MISTRAL, SONIOX,
         ELEVENLABS, DEEPGRAM, ASSEMBLYAI, AZURE, XAI, DEEPSEEK, SILICONFLOW, SCALEWAY, OVHCLOUD,
         QWEN_SINGAPORE, QWEN_BEIJING, // ZIZAI-HOOK: Qwen3-ASR-Flash (P2-06)

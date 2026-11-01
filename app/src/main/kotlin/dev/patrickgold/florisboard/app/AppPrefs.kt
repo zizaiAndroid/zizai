@@ -1032,7 +1032,7 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
         // "openrouter", … or "custom"). Independent from the transcription provider.
         val rewordingProviderId = string(
             key = "dictate__rewording_provider_id",
-            default = "openai",
+            default = if (io.zizai.ai.ZizaiAi.enabled) io.zizai.ai.ZizaiAi.PROVIDER_ID else "openai", // ZIZAI-HOOK: Zizai AI by default
         )
         // --- DEPRECATED flat rewording credential prefs (migration source only) ------------------
         // Kept solely for the one-time keyring import; live calls read providerAccounts instead.

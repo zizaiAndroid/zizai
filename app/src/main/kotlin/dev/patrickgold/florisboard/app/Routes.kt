@@ -307,6 +307,10 @@ object Routes {
         object ChineseWords // ZIZAI-HOOK: 我的词 (P2-02)
 
         @Serializable
+        @Deeplink("settings/zizai-pro")
+        object ZizaiPro // ZIZAI-HOOK: Zizai Pro (ADR-9)
+
+        @Serializable
         @Deeplink("settings/other/backup")
         object Backup
 
@@ -480,6 +484,7 @@ object Routes {
             composableWithDeepLink(Settings.PhysicalKeyboard::class) { PhysicalKeyboardScreen() }
             composableWithDeepLink(Settings.Chinese::class) { io.zizai.app.ChineseScreen() } // ZIZAI-HOOK
             composableWithDeepLink(Settings.ChineseWords::class) { io.zizai.app.UserWordsScreen() } // ZIZAI-HOOK
+            composableWithDeepLink(Settings.ZizaiPro::class) { io.zizai.ai.ZizaiProScreen() } // ZIZAI-HOOK
             composableWithDeepLink(Settings.Backup::class) { BackupScreen() }
             composableWithDeepLink(Settings.Restore::class) { RestoreScreen() }
 

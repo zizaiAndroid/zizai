@@ -261,6 +261,7 @@ fun DictateProvidersScreen() = FlorisScreen {
             )
 
             orderedPresets.forEach { preset ->
+                if (preset.id == io.zizai.ai.ZizaiAi.PROVIDER_ID) { io.zizai.ai.ZizaiAiProviderRow(roles(preset.id)); return@forEach } // ZIZAI-HOOK
                 // Dictate Cloud has no API key to type in — it has a balance, packs and a recovery
                 // code — so its row opens its own screen instead of the credential editor.
                 if (preset.id == ProviderRegistry.CLOUD.id) {
