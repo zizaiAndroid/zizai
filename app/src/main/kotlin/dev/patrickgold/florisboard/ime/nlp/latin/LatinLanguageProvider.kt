@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2022-2025 The FlorisBoard Contributors
  *
@@ -1847,6 +1848,7 @@ class LatinLanguageProvider(context: Context) : SpellingProvider, SuggestionProv
             )
         }
 
+        for (key in io.zizai.nlp.WordHistory.favourites(appContext, dictLangFor(subtype), index.fold(word), index.freq::containsKey)) if (out.size < completionCap) cased(index.canonical[key] ?: key).let { out.putIfAbsent(it.lowercase(), WordSuggestionCandidate(text = it, confidence = (index.freq[key] ?: 0) / 255.0, sourceProvider = this, isLearned = true)) } // ZIZAI-HOOK: words the user has typed before come first
         // The completions the sentence expects, ahead of the ones the language merely makes common
         // (issue #334, his §3.5 and §3.9). "brand ne" offers `new` before `near`, because `new` is what
         // follows `brand`; without a previous word this block is skipped and the strip is what it was.
@@ -2138,6 +2140,7 @@ class LatinLanguageProvider(context: Context) : SpellingProvider, SuggestionProv
         // A sentence that ends on an address hands over `jannis@example.com.` — the dot stays inside the
         // run while it is being typed (issue #318) and has nothing to do with the address afterwards.
         val trimmed = WordRun.trimTrailingPunctuation(word.trim())
+        if (prefs.wordLearningIsOn && !isPrivateSession) io.zizai.nlp.WordHistory.note(appContext, dictLangFor(subtype), lowerIndexFor(subtype).fold(trimmed), weight) // ZIZAI-HOOK: count every finished word
         // Cheap refusals first — the common case by far is a word the dictionary already knows, and this
         // runs at every word boundary.
         if (!enabled || origin != WordOrigin.TYPED || isPrivateSession) return LearnOutcome.NOTHING
@@ -2211,6 +2214,7 @@ class LatinLanguageProvider(context: Context) : SpellingProvider, SuggestionProv
         if (trimmed.isEmpty()) return LearnOutcome.NOTHING
         val lang = dictLangFor(subtype) ?: return LearnOutcome.NOTHING
         val folded = lowerIndexFor(subtype).fold(trimmed)
+        io.zizai.nlp.WordHistory.note(appContext, lang, folded) // ZIZAI-HOOK: a pick from the strip is a use
         // Only a word this store already holds. A pick carries no tap evidence, so the entry test has
         // nothing to judge — letting one in here would be a door around the gate rather than a sighting
         // of something already through it.
@@ -2229,6 +2233,7 @@ class LatinLanguageProvider(context: Context) : SpellingProvider, SuggestionProv
 
     override suspend fun forgetLearnedWord(subtype: Subtype, word: String): Boolean {
         val lang = dictLangFor(subtype) ?: return false
+        io.zizai.nlp.WordHistory.forget(appContext, lang, lowerIndexFor(subtype).fold(word.trim())) // ZIZAI-HOOK: and from the favoured words
         return LearnedWordsStore.forgetWord(appContext, word.trim(), lang)?.promoted == true
     }
 
