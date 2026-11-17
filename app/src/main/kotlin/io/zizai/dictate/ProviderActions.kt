@@ -123,6 +123,10 @@ object ProviderActions {
      * adds the missing ones to the hidden actions. Writes only when something changed.
      */
     fun sync(context: Context) {
+        // Before the store has loaded (and upstream's migrations have run), get() answers with defaults,
+        // and writing a default arrangement plus the provider buttons would replace the user's own.
+        val app = context.applicationContext as? dev.patrickgold.florisboard.FlorisApplication ?: return
+        if (!app.preferenceStoreLoaded.value) return
         val choices = runCatching {
             ProviderListing.transcriptionChoices(prefs.dictate.providerAccounts.get(), selectedId = "") {
                 LocalModelManager.isInstalled(context, it)

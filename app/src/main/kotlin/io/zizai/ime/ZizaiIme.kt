@@ -183,6 +183,9 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         }
         // One Smartbar button per transcription provider that is set up (see ProviderActions).
         (ims as LifecycleOwner).lifecycleScope.launch {
+            // Not before the settings have loaded: ProviderActions.sync would read the defaults.
+            (ims.applicationContext as? dev.patrickgold.florisboard.FlorisApplication)
+                ?.preferenceStoreLoaded?.first { it } ?: return@launch
             appPrefs.dictate.providerAccounts.asFlow().collect { io.zizai.dictate.ProviderActions.sync(ims) }
         }
     }
