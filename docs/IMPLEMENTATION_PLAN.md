@@ -132,8 +132,11 @@ bash tools/fetch-sherpa-onnx.sh
 ```
 
 ```bash
-./gradlew assembleDebug test
+./gradlew assembleDebug test --no-configuration-cache
 ```
+
+`--no-configuration-cache` because the `:zizai-models:fetchSenseVoice` task cannot be stored in Gradle's
+configuration cache; without it the build fails before compiling anything.
 
 - **Then:** install the debug APK on the Pixel 8 Pro, turn the keyboard on, and dictate once using the
   on-device SenseVoice model.
@@ -234,6 +237,12 @@ bash tools/fetch-sherpa-onnx.sh
 | PM-06 | Built, not tried with Play | Zizai Pro screen, subscription flow, restore, account deletion; needs the `zizai_pro` product and a Play-installed build |
 | PM-08 | Published, needs your review | Policy live at https://zizaikeyboard.com/privacy/ (built from privacy.md by `site/build.py`), deletion page at /delete/; Data safety answers in ARCHITECTURE.md §8.3 |
 | PM-09 | Yours first | Domain, Cloudflare, Groq key, Play product, service account, RTDN topic (§4a) |
+| UX-01 | Done (2026-11-16) | English suggestions on a physical keyboard: hardware mode hid the Smartbar, so the floating panel now shows upstream's word suggestions (tappable, the Space autocorrect word highlighted, none in password fields). In 英 mode the Pinyin/Jyutping languages compute suggestions with English instead of the Han shape provider. Checked on the Pixel |
+| UX-02 | Done (2026-11-16) | Settings > Smartbar > Show prompt row: a switch over upstream's prompt layout (off = Separate panel) |
+| UX-03 | Done (2026-11-16) | One Smartbar button per set-up transcription provider (tap switches, active one marked; new ones arrive under Hidden actions). The actions editor also opens from a hold on ⋯ and from Settings > Smartbar > Customize Smartbar buttons. Checked on the Pixel; drag-and-drop in the editor not driven by hand (adb cannot hold then drag) |
+| UX-04 | Done (2026-11-17) | Word completion puts up to three dictionary words the user has typed or picked before first, most used first (30-day half-life, per language, `files/zizai/word_history_<lang>.json`); long-press forgets one. Checked in English on the Pixel; other Latin-script languages share the code path |
+
+UX rows are fixes and features from daily use on the Pixel, outside the numbered work packages.
 
 Still open: the 2 ms budget measured on the phone
 (P1-20), and the grid sheet for touch (P1-16).

@@ -1,7 +1,7 @@
 # Privacy Policy for 字在 Zizai
 
 **Effective date:** 1 November 2026
-**Last updated:** 1 November 2026
+**Last updated:** 17 November 2026
 
 This Privacy Policy explains how **字在 Zizai** (the "App", application ID `io.zizai.keyboard`) handles your
 information. The App is developed by **Zizai Keyboard** (the "Developer", "we", "us").
@@ -205,8 +205,10 @@ stored on your device like any other dictionary word.
 ## 6. We do not collect what you type
 
 Although Zizai is a keyboard, it does **not** record, log, store or transmit your general typing. Words you
-type may be learned locally to improve suggestions (never in incognito mode or password fields); that data
-stays on your device, and you can view and delete it in the App's dictionary settings.
+type may be learned locally to improve suggestions, including how often you use each word so that the
+words you use most are suggested first (never in incognito mode or password fields). That data stays on
+your device and in your own Android backup. You can view and delete learned words in the App's dictionary
+settings, and long-press a suggestion to make the App forget it.
 
 ---
 

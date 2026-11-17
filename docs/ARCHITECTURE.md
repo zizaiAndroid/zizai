@@ -644,6 +644,13 @@ consumes the event, return `true`. Otherwise, fall through to the existing upstr
 - Leave it when the editor is touched with a finger or stylus (`onUpdateEditorToolType`, API 34+), or on
   `onViewClicked` (older APIs).
 - Setting: *Auto* (default) / *Always touch keyboard* / *Always hardware mode*.
+- Hardware mode starts on any printable key, English included, and hides the whole keyboard view with the
+  Smartbar. English and other non-Chinese typing still passes through to the app (rule 8), so upstream
+  keeps computing its word suggestions; the floating panel shows them (§6.3).
+- **英 mode on a Chinese language.** The Pinyin and Jyutping subtypes use upstream's Han shape provider,
+  which offers Chinese for Latin letters. While they are in 英 mode, `ZizaiIme.suggestionSubtype()` makes
+  upstream compute suggestions with the user's English subtype (or the en-US preset), through one hook in
+  `KeyboardManager.resetSuggestions`.
 
 **Dictation from the keyboard.**
 
@@ -836,6 +843,12 @@ interface ConversionBackend {                      // LexiconBackend now, RimeBa
 │ shī  师 失 施 诗 湿 狮 尸 虱 …                              │
 └──────────────────────────────────────────────────────────┘
 ```
+
+**Word suggestions in hardware mode.** While no Chinese is composing, the same panel shows upstream's
+word suggestions (`NlpManager.activeCandidatesFlow`): up to six, each tappable through
+`KeyboardManager.commitCandidate`, with the word Space would autocorrect to highlighted. Nothing is shown
+in password fields. Space autocorrect on a hardware keyboard is upstream's own
+(`handleHardwareKeyboardSpace`); the panel only makes the candidates visible.
 
 **Positioning.**
 
@@ -1113,6 +1126,28 @@ upstream's `AppPrefs`:
 **Onboarding.** The first time a hardware keyboard is detected, show a dismissible card with the six
 essential keys. **Ctrl+/** opens a full cheat sheet at any time.
 
+**Smartbar additions** (on upstream's Smartbar screen, through `// ZIZAI-HOOK` lines):
+
+- **Show prompt row.** A switch over upstream's prompt layout: on is *Always-on row*, off is *Separate
+  panel* (the prompts move behind the magic-wand button). No new preference, so the keyboard height, the
+  quick actions and the panels keep following upstream's one setting (`io.zizai.app.PromptRowSwitch`).
+- **Customize Smartbar buttons.** Opens the keyboard in the preview field with upstream's actions editor
+  already up. Holding ⋯ on the keyboard opens the same editor (`io.zizai.app.SmartbarActionsShortcut`).
+- **Provider buttons.** One Smartbar button per transcription provider that is set up
+  (`io.zizai.dictate.ProviderActions`): a tap makes it the provider, without the picker sheet. Each is an
+  ordinary `InsertKey` action with a shared key code (-9301) and the provider id in the key's label, so the
+  editor arranges it and the stored arrangement needs no new format. Faces are monograms (Gq, OA, 字, …)
+  or a phone for on-device; the active provider carries a mark. New providers arrive under *Hidden
+  actions*; a removed provider's button goes. The sync waits for `preferenceStoreLoaded`, because before
+  that the arrangement reads as the default and writing it back would replace the user's.
+
+**Word completion favours the user's words** (`io.zizai.nlp.WordHistory`, Latin-script languages).
+Upstream's learning keeps only words the dictionary lacks, so the order among dictionary completions never
+changed with use. Every finished or picked word is now counted per language (30-day half-life), and up to
+three dictionary words the user has used that extend the typed prefix lead the strip, most used first,
+marked as learned (italic; a long-press forgets one). Only dictionary words are favoured, so a repeated
+typo never is. Chinese already ranks the user's picks through `LearnedDictionary` (§6.2, Learning).
+
 ### 6.10 Threading, performance, reliability
 
 | Budget (mid-range device, p95) | Target |
@@ -1135,6 +1170,10 @@ essential keys. **Ctrl+/** opens a full cheat sheet at any time.
 
 - **Editor flags.** Respect them all: password fields (no composing, no learning),
   `IME_FLAG_NO_PERSONALIZED_LEARNING`, and incognito.
+- **Word history.** `files/zizai/word_history_<lang>.json` holds per-word use counts and the time of last
+  use, nothing else (no context, no order). Not recorded in incognito, password fields, with word learning
+  off, or with "Display suggestions" off. It is inside `files/zizai`, which the backup rules include, so it
+  travels in the user's own Android backup like the learned Chinese words.
 - **API keys.** Keep upstream's approach: the datastore, included in the end-to-end encrypted cloud backup,
   as stated in its privacy policy. Wrapping keys with Android Keystore would break restores on a new phone.
   This trade-off is deliberate, and our privacy policy must say so.
@@ -1321,8 +1360,14 @@ DevEmperor/DictateKeyboard" on the repository page. Because everything is public
 - **Bergamot isn't needed for v1.** `tools/bergamot/build-android.sh` (on-device translation) builds native
   code from Mozilla's sources and expects a Linux toolchain (WSL2 or CI). With `ZIZAI_TRANSLATE=false`, the
   build skips the check that would otherwise fail `preBuild` without `libdictate_bergamot.so`.
+- **Gradle:** set `JAVA_HOME` to Android Studio's `jbr` and pass `--no-configuration-cache`, as CI does:
+  the `:zizai-models:fetchSenseVoice` task cannot be stored in the configuration cache.
+- **adb from Git Bash:** set `MSYS_NO_PATHCONV=1`, or device paths such as `/data/local/tmp` are rewritten
+  into Windows paths.
 - **Testing setup:**
-  - Daily work: your **Pixel 8 Pro** with a Bluetooth keyboard.
+  - Daily work: your **Pixel 8 Pro** with a Bluetooth keyboard. `am force-stop` on the app makes Android
+    fall back to another default keyboard; set it back with
+    `adb shell ime set io.zizai.keyboard.debug/dev.patrickgold.florisboard.FlorisImeService`.
   - Emulators for API 26–33, because the Pixel 8 Pro can't run anything older than Android 14 and minSdk
     is 26. Give one AVD a hardware keyboard (`hw.keyboard = yes`).
   - A 16 KB page-size system image. The Pixel 8 Pro's own 16 KB developer option needs an unlocked
@@ -1775,6 +1820,12 @@ Every binding is remappable in the keymap editor.
 | `wear/build.gradle.kts` | `applicationId` → `io.zizai.keyboard` (it hard-codes upstream's) | Rebrand |
 | The five files that use `R.string.app_name`; `src/debug` and `src/beta` string overlays | Use `floris_app_name`; rename the debug and beta labels | Rebrand |
 | `ime/smartbar/quickaction/QuickAction.kt`, `app/setup/SetupScreen.kt`, the providers screen, `FlorisImeService.kt` (floating-button nudge) | Hide the Translate and GIF quick actions, the `cloud` option and the floating-button entry behind `ZizaiFlags` | v1 flags |
+| `ime/keyboard/KeyboardManager.kt` | `resetSuggestions` asks `ZizaiIme.suggestionSubtype()` for the subtype to suggest with | English in 英 mode (§6.1) |
+| `ime/keyboard/ComputingEvaluator.kt` | `computeLabel` and `computeImageVector` answer for the provider-button key code | Provider buttons (§6.9) |
+| `ime/smartbar/quickaction/QuickAction.kt` | `computeDisplayName` and `computeTooltip` answer for provider buttons first | Provider buttons |
+| `ime/smartbar/quickaction/QuickActionButton.kt` | The long-press lambda lets ⋯ open the actions editor; the active provider's mark is drawn over its button | Smartbar customizing |
+| `app/settings/smartbar/SmartbarScreen.kt` | *Show prompt row* and *Customize Smartbar buttons* entries | Smartbar settings |
+| `ime/nlp/latin/LatinLanguageProvider.kt` | `suggest` puts `WordHistory.favourites` first; `learnTypedWord` and `learnPickedWord` count the word; `forgetLearnedWord` forgets it there too | Favoured completions (§6.9) |
 
 Everything else is new files.
 
