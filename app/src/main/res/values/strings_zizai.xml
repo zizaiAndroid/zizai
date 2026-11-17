@@ -116,4 +116,6 @@
     <string name="zizai__pro__pending">Payment pending. Pro starts when Google Play confirms it.</string>
     <string name="zizai__pro__quota_chip">Free AI actions used up</string>
     <string name="zizai__pro__pro_required_chip">Cloud voice needs Zizai Pro</string>
+    <string name="zizai__prompt_row__title">Show prompt row</string>
+    <string name="zizai__prompt_row__summary">AI prompt cards above the suggestions. Off: open them with the magic-wand button instead.</string>
 </resources>

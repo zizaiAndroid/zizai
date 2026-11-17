@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -57,6 +58,7 @@ fun SmartbarScreen() = FlorisScreen {
             entries = enumDisplayEntriesOf(SmartbarLayout::class),
             enabledIf = { prefs.smartbar.enabled isEqualTo true },
         )
+        io.zizai.app.PromptRowSwitch() // ZIZAI-HOOK: show or hide the AI prompt row
         Preference(
             icon = Icons.Default.TouchApp,
             modifier = Modifier.settingsSearchAnchor("settings__smartbar__second_actions__title"),

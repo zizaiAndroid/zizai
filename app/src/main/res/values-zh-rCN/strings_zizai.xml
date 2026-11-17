@@ -116,4 +116,6 @@
     <string name="zizai__pro__pending">付款处理中，Google Play 确认后开通 Pro。</string>
     <string name="zizai__pro__quota_chip">本月免费 AI 次数已用完</string>
     <string name="zizai__pro__pro_required_chip">云端语音需要字在 Pro</string>
+    <string name="zizai__prompt_row__title">显示提示词行</string>
+    <string name="zizai__prompt_row__summary">在候选词上方显示 AI 提示词卡片。关闭后可通过魔法棒按钮打开。</string>
 </resources>
