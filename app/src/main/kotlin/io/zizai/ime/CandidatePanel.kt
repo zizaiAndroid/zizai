@@ -17,6 +17,9 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.TextPaint
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
@@ -24,6 +27,7 @@ import android.text.style.StyleSpan
 import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
+import dev.patrickgold.florisboard.ime.nlp.SuggestionCandidate
 import io.zizai.han.session.HanUiState
 import io.zizai.han.session.SessionMode
 
@@ -59,6 +63,41 @@ class CandidatePanel(context: Context) : TextView(context) {
     fun showText(message: CharSequence) {
         text = message
         contentDescription = message
+        visibility = View.VISIBLE
+    }
+
+    /**
+     * Upstream's word suggestions (English, or any non-Chinese language) while no Chinese is composing,
+     * each tappable. The word Space would swap in is bold, as the Smartbar marks it. Hidden when empty.
+     */
+    fun renderWords(words: List<SuggestionCandidate>, onTap: (SuggestionCandidate) -> Unit) {
+        if (words.isEmpty()) {
+            visibility = View.GONE
+            return
+        }
+        val sb = SpannableStringBuilder()
+        words.take(MAX_WORDS).forEachIndexed { i, candidate ->
+            if (i > 0) sb.append("   ")
+            val label = candidate.text.toString().replace('\n', ' ').let {
+                if (it.length > MAX_WORD_CHARS) it.take(MAX_WORD_CHARS - 1) + "…" else it
+            }
+            val start = sb.length
+            sb.append(label)
+            sb.setSpan(object : ClickableSpan() {
+                override fun onClick(widget: View) = onTap(candidate)
+                override fun updateDrawState(ds: TextPaint) {
+                    ds.color = fg
+                    ds.isUnderlineText = false
+                }
+            }, start, sb.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            if (candidate.isEligibleForAutoCommit) {
+                sb.setSpan(BackgroundColorSpan(highlightBg), start, sb.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                sb.setSpan(StyleSpan(Typeface.BOLD), start, sb.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
+        if (movementMethod !is LinkMovementMethod) movementMethod = LinkMovementMethod.getInstance()
+        text = sb
+        contentDescription = sb
         visibility = View.VISIBLE
     }
 
@@ -124,6 +163,8 @@ class CandidatePanel(context: Context) : TextView(context) {
 
     private companion object {
         const val GRID_WINDOW = 16
+        const val MAX_WORDS = 6
+        const val MAX_WORD_CHARS = 24
     }
 }
 

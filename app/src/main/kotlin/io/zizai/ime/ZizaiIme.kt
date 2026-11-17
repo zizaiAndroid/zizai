@@ -22,6 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import dev.patrickgold.florisboard.app.FlorisPreferenceStore
 import dev.patrickgold.florisboard.dictate.DictateController
 import dev.patrickgold.florisboard.lib.FlorisLocale
+import dev.patrickgold.florisboard.ime.core.Subtype
 import dev.patrickgold.florisboard.ime.keyboard.KeyData
 import dev.patrickgold.florisboard.ime.nlp.SuggestionCandidate
 import dev.patrickgold.florisboard.ime.text.key.KeyCode
@@ -168,14 +169,55 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
             session // create it, so the flow below has one to follow
             @OptIn(ExperimentalCoroutinesApi::class)
             val ui = sessions.filterNotNull().flatMapLatest { it.ui }
-            combine(ui, DictateController.state) { ui, _ -> ui }.collect { ui ->
-                hardware.panel.render(if (hardware.active) ui else io.zizai.han.session.HanUiState.Idle)
+            combine(ui, DictateController.state) { ui, _ -> ui }.collect {
+                renderPanel()
                 renderPill()
-                if (hardware.active) hardware.position()
                 nlpManager.refreshCandidates()
             }
         }
+        // Upstream's word suggestions, for the panel while nothing Chinese is composing: in hardware mode
+        // the Smartbar is hidden with the rest of the keyboard, so English typed on a physical keyboard
+        // used to get its suggestions computed and shown nowhere.
+        (ims as LifecycleOwner).lifecycleScope.launch {
+            nlpManager.activeCandidatesFlow.collect { renderPanel() }
+        }
     }
+
+    /**
+     * What the floating panel shows in hardware mode: the cheat sheet while it is up, the session's
+     * candidates while it composes or flips, and otherwise upstream's word suggestions, tappable.
+     */
+    private fun renderPanel() {
+        if (cheatSheetShown) return
+        when {
+            !hardware.active -> hardware.panel.render(io.zizai.han.session.HanUiState.Idle)
+            session.isActive -> hardware.panel.render(session.ui.value)
+            else -> hardware.panel.renderWords(panelWords()) { keyboardManager.commitCandidate(it) }
+        }
+        if (hardware.active) hardware.position()
+    }
+
+    /** Upstream's suggestions for the panel; none in a password field, where the strip never echoes typing. */
+    private fun panelWords(): List<SuggestionCandidate> {
+        val info = editorInfo ?: return emptyList()
+        if (KeyRouter.isPasswordField(info)) return emptyList()
+        return nlpManager.activeCandidates.filter { it !is HanSuggestionCandidate }
+    }
+
+    /**
+     * The subtype upstream should compute word suggestions with, when it is not the active one: English
+     * while the Pinyin or Jyutping language is in 英 mode. Their suggestion provider is upstream's Han
+     * shape-based one, which offers Chinese for Latin letters, so English typed in 英 mode got the wrong
+     * candidates or none. Null leaves upstream's choice alone.
+     */
+    fun suggestionSubtype(): Subtype? {
+        if (!chineseSubtype || chineseMode) return null
+        subtypeManager.subtypes.firstOrNull { it.primaryLocale.language == "en" }?.let { return it }
+        return englishPreset ?: subtypeManager.getSubtypePresetForLocale(FlorisLocale.from("en", "US"))
+            ?.toSubtype()?.also { englishPreset = it }
+    }
+
+    private var englishPreset: Subtype? = null
 
     fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (prefs.hardwareMode == ZizaiPrefs.HardwareModeSetting.TOUCH && !session.isActive) return false
@@ -391,6 +433,8 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     override fun enterHardwareMode() {
         if (prefs.hardwareMode == ZizaiPrefs.HardwareModeSetting.TOUCH || hardware.active) return
         hardware.enter()
+        renderPill() // the language may have changed since it was last drawn
+        renderPanel()
         // The first time: show the shortcuts once (P1-17 onboarding).
         if (!prefs.hardwareOnboardingShown) {
             prefs.hardwareOnboardingShown = true
@@ -426,7 +470,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     override fun hideCheatSheet() {
         if (!cheatSheetShown) return
         cheatSheetShown = false
-        hardware.panel.render(if (hardware.active) session.ui.value else io.zizai.han.session.HanUiState.Idle)
+        renderPanel()
     }
 
     private fun showCheatSheet() {

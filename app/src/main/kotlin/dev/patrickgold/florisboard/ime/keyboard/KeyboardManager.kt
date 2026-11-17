@@ -625,7 +625,7 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
             nlpManager.clearSuggestions()
             return
         }
-        nlpManager.suggest(subtypeManager.activeSubtype, content)
+        nlpManager.suggest(io.zizai.ime.ZizaiIme.current?.suggestionSubtype() ?: subtypeManager.activeSubtype, content) // ZIZAI-HOOK: English in 英 mode
     }
 
     /**
