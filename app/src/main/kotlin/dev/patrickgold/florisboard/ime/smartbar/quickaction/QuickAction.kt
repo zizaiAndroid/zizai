@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2022-2025 The FlorisBoard Contributors
  *
@@ -117,6 +118,7 @@ fun QuickAction.performAsSecondAction(context: Context) {
 
 @Composable
 fun QuickAction.computeDisplayName(evaluator: ComputingEvaluator): String {
+    io.zizai.dictate.ProviderActions.displayName(this)?.let { return it } // ZIZAI-HOOK: provider buttons
     return when (this) {
         is QuickAction.InsertKey -> stringRes(when (data.code) {
             KeyCode.ARROW_UP -> R.string.quick_action__arrow_up
@@ -173,6 +175,7 @@ fun QuickAction.computeDisplayName(evaluator: ComputingEvaluator): String {
 
 @Composable
 fun QuickAction.computeTooltip(evaluator: ComputingEvaluator): String {
+    io.zizai.dictate.ProviderActions.tooltip(this)?.let { return it } // ZIZAI-HOOK: provider buttons
     return when (this) {
         is QuickAction.InsertKey -> stringRes(when (data.code) {
             KeyCode.ARROW_UP -> R.string.quick_action__arrow_up__tooltip

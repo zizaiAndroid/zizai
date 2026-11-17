@@ -118,4 +118,7 @@
     <string name="zizai__pro__pro_required_chip">Cloud voice needs Zizai Pro</string>
     <string name="zizai__prompt_row__title">Show prompt row</string>
     <string name="zizai__prompt_row__summary">AI prompt cards above the suggestions. Off: open them with the magic-wand button instead.</string>
+    <string name="zizai__smartbar_buttons__title">Customize Smartbar buttons</string>
+    <string name="zizai__smartbar_buttons__summary">Choose, order and hide the buttons, including one per transcription provider. On the keyboard: hold ⋯</string>
+    <string name="zizai__provider_action__tooltip">Dictate with %1$s</string>
 </resources>

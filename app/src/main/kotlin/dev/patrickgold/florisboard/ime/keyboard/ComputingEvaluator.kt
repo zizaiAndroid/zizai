@@ -211,6 +211,7 @@ fun ComputingEvaluator.computeLabel(data: KeyData): String? {
                 evaluator.context()?.getString(R.string.key__view_keshida)
             }
             KeyCode.LANGUAGE_SWITCH -> io.zizai.ime.ZizaiIme.current?.languageKeyLabel() // ZIZAI-HOOK: 中/英
+            io.zizai.dictate.ProviderActions.CODE -> io.zizai.dictate.ProviderActions.label(data) // ZIZAI-HOOK: provider buttons
             else -> null
         }
     }
@@ -472,6 +473,7 @@ fun ComputingEvaluator.computeImageVector(data: KeyData): ImageVector? {
         KeyCode.NOOP -> {
             Icons.Default.Close
         }
+        io.zizai.dictate.ProviderActions.CODE -> io.zizai.dictate.ProviderActions.icon(data) // ZIZAI-HOOK: provider buttons
         else -> null
     }
 }

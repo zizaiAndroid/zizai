@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2022-2025 The FlorisBoard Contributors
  *
@@ -728,6 +729,7 @@ fun QuickActionButton(
                             // The hold is timed by the dispatcher's own coroutine, not by this
                             // gesture — see DictateHoldTouch for why nothing here may outlive a press.
                             action.onPointerDown(context) onLongPress@{
+                                if (io.zizai.app.SmartbarActionsShortcut.onLongPress(action, context)) return@onLongPress true // ZIZAI-HOOK: hold ⋯ for the editor
                                 val second = secondAction ?: return@onLongPress false
                                 // A greyed-out second action still takes the hold, so the tap it
                                 // stands for does not run in its place on release.
@@ -907,6 +909,7 @@ fun QuickActionButton(
                     }
                 }
             }
+            with(io.zizai.dictate.ProviderActions) { SelectedMark(action) } // ZIZAI-HOOK: the active provider
             // What holding this button runs, small in the corner — the same place and the same element
             // the typing keyboard puts a key's hint glyph, so it is themed everywhere already and needs
             // no new Snygg element (which a bundled stylesheet could not name anyway: BundledThemesTest

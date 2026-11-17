@@ -119,4 +119,7 @@
     <string name="zizai__pro__pro_required_chip">雲端語音需要字在 Pro</string>
     <string name="zizai__prompt_row__title">顯示提示詞列</string>
     <string name="zizai__prompt_row__summary">在候選字上方顯示 AI 提示詞卡片。關閉後可透過魔法棒按鈕開啟。</string>
+    <string name="zizai__smartbar_buttons__title">自訂智慧列按鈕</string>
+    <string name="zizai__smartbar_buttons__summary">選擇、排序和隱藏按鈕，包括每個轉寫服務的一鍵切換按鈕。鍵盤上：長按 ⋯</string>
+    <string name="zizai__provider_action__tooltip">用 %1$s 聽寫</string>
 </resources>

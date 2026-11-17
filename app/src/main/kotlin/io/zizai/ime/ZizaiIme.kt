@@ -181,6 +181,10 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         (ims as LifecycleOwner).lifecycleScope.launch {
             nlpManager.activeCandidatesFlow.collect { renderPanel() }
         }
+        // One Smartbar button per transcription provider that is set up (see ProviderActions).
+        (ims as LifecycleOwner).lifecycleScope.launch {
+            appPrefs.dictate.providerAccounts.asFlow().collect { io.zizai.dictate.ProviderActions.sync(ims) }
+        }
     }
 
     /**
@@ -255,6 +259,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     }
 
     fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
+        io.zizai.app.SmartbarActionsShortcut.consumePending(ims) // the settings entry asked for the editor
         if (!restarting) {
             resetAll(ResetReason.FIELD_CHANGED)
             editor.onNewField()
@@ -282,6 +287,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
 
     /** From `KeyboardManager.onInputKeyUp`; true when the session took the key. */
     fun onTouchKey(data: KeyData): Boolean = guard(false) {
+        if (io.zizai.dictate.ProviderActions.onKey(data)) return@guard true // a provider button on the Smartbar
         val info = editorInfo ?: return@guard false
         if (!session.isActive && !(chineseSubtype && chineseMode && KeyRouter.isTextField(info))) return@guard false
         val stroke = when {

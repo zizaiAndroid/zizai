@@ -59,6 +59,7 @@ fun SmartbarScreen() = FlorisScreen {
             enabledIf = { prefs.smartbar.enabled isEqualTo true },
         )
         io.zizai.app.PromptRowSwitch() // ZIZAI-HOOK: show or hide the AI prompt row
+        io.zizai.app.SmartbarActionsShortcut.SettingsEntry() // ZIZAI-HOOK: open the actions editor
         Preference(
             icon = Icons.Default.TouchApp,
             modifier = Modifier.settingsSearchAnchor("settings__smartbar__second_actions__title"),
