@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Zizai overrides: email and web address fields keep an app's suggestion block (io.zizai.ime.SuggestionBlock). -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="ExtraTranslation,MissingTranslation">
+    <string name="pref__suggestion__ignore_app_suggestion_block__summary">Show them anyway, except in password, email and web address fields</string>
+</resources>

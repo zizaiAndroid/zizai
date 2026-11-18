@@ -1823,7 +1823,7 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
         // until somebody says otherwise.
         val ignoreAppSuggestionBlock = boolean(
             key = "suggestion__ignore_app_suggestion_block",
-            default = false,
+            default = true, // ZIZAI-HOOK: on — Gemini's prompt box blocks suggestions; addresses stay blocked (io.zizai.ime.SuggestionBlock)
         )
         val displayMode = enum(
             key = "suggestion__display_mode",

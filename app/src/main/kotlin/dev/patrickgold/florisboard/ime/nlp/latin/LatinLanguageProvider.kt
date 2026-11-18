@@ -1848,6 +1848,7 @@ class LatinLanguageProvider(context: Context) : SpellingProvider, SuggestionProv
             )
         }
 
+        if (isKnown && isDictionaryJudgeable(word) && !isUsersOwnSpelling(word, subtype) && !isWordInAnotherLanguage(word, subtype)) io.zizai.nlp.RareWordFix.fixFor(index.fold(word), index.freq, index.alphabet)?.let { key -> out.putIfAbsent(word.lowercase(), WordSuggestionCandidate(text = word, confidence = 1.0, isEligibleForAutoCommit = false, sourceProvider = this)); cased(index.canonical[key] ?: key).let { out.putIfAbsent(it.lowercase(), WordSuggestionCandidate(text = it, confidence = (index.freq[key] ?: 0) / 255.0, isEligibleForAutoCommit = false, sourceProvider = this)) } } // ZIZAI-HOOK: aer → are, a typo that spells a rare word
         for (key in io.zizai.nlp.WordHistory.favourites(appContext, dictLangFor(subtype), index.fold(word), index.freq::containsKey)) if (out.size < completionCap) cased(index.canonical[key] ?: key).let { out.putIfAbsent(it.lowercase(), WordSuggestionCandidate(text = it, confidence = (index.freq[key] ?: 0) / 255.0, sourceProvider = this, isLearned = true)) } // ZIZAI-HOOK: words the user has typed before come first
         // The completions the sentence expects, ahead of the ones the language merely makes common
         // (issue #334, his §3.5 and §3.9). "brand ne" offers `new` before `near`, because `new` is what

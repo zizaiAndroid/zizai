@@ -1,3 +1,4 @@
+// Modified by Zizai contributors, 2026 (Apache-2.0 §4(b)).
 /*
  * Copyright (C) 2021-2025 The FlorisBoard Contributors
  *
@@ -63,7 +64,7 @@ import org.florisboard.lib.android.showShortToastSync
 internal fun mayIgnoreNoSuggestionsFlag(
     ignoreAppSuggestionBlock: Boolean,
     variation: InputAttributes.Variation,
-): Boolean = ignoreAppSuggestionBlock && when (variation) {
+): Boolean = ignoreAppSuggestionBlock && io.zizai.ime.SuggestionBlock.mayOverrule(variation) && when (variation) { // ZIZAI-HOOK: addresses keep the app's block
     InputAttributes.Variation.PASSWORD,
     InputAttributes.Variation.VISIBLE_PASSWORD,
     InputAttributes.Variation.WEB_PASSWORD,
