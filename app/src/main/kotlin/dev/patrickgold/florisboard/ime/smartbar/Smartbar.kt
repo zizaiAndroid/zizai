@@ -394,6 +394,7 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
             else -> null
         }
 
+        if (io.zizai.ime.FloatingMic.takesOver(action, evaluator)) return // ZIZAI-HOOK: the mic floats over the screen
         if (action != null) {
             QuickActionButton(
                 modifier = Modifier.padding(horizontal = 4.dp),

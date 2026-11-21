@@ -88,6 +88,20 @@ class ZizaiPrefs private constructor(private val sp: SharedPreferences) {
         get() = sp.getInt(KEY_PUNCTUATION_MEMORY, -1)
         set(v) = sp.edit().putInt(KEY_PUNCTUATION_MEMORY, v).apply()
 
+    /** The dictation mic as a large button that floats over the screen (io.zizai.ime.FloatingMic). On by default. */
+    var floatingMic: Boolean
+        get() = sp.getBoolean(KEY_FLOATING_MIC, true)
+        set(v) = sp.edit().putBoolean(KEY_FLOATING_MIC, v).apply()
+
+    /** Where the floating mic was left, as fractions of the screen; -1 until it is first moved. */
+    var floatingMicX: Float
+        get() = sp.getFloat(KEY_FLOATING_MIC_X, -1f)
+        set(v) = sp.edit().putFloat(KEY_FLOATING_MIC_X, v).apply()
+
+    var floatingMicY: Float
+        get() = sp.getFloat(KEY_FLOATING_MIC_Y, -1f)
+        set(v) = sp.edit().putFloat(KEY_FLOATING_MIC_Y, v).apply()
+
     var proofreadProvider: String
         get() = sp.getString(KEY_PROOFREAD_PROVIDER, "").orEmpty()
         set(v) = sp.edit().putString(KEY_PROOFREAD_PROVIDER, v).apply()
@@ -144,6 +158,9 @@ class ZizaiPrefs private constructor(private val sp: SharedPreferences) {
         private const val KEY_LAZY_SOUNDS = "lazy_sounds"
         private const val KEY_PROOFREAD = "proofread_enabled"
         private const val KEY_PUNCTUATION_MEMORY = "punctuation_switch_memory"
+        private const val KEY_FLOATING_MIC = "floating_mic"
+        private const val KEY_FLOATING_MIC_X = "floating_mic_x"
+        private const val KEY_FLOATING_MIC_Y = "floating_mic_y"
         private const val KEY_COMPACT = "compact_keyboard"
         private const val KEY_FLIP_KEY = "flip_key"
         private const val KEY_PTT_KEY = "push_to_talk_key"

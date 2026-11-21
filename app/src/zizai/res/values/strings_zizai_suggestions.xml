@@ -15,4 +15,7 @@
     <string name="zizai__toggle_punctuation__tooltip">Turn automatic punctuation on or off</string>
     <string name="zizai__toggle_punctuation__on">Auto punctuation on</string>
     <string name="zizai__toggle_punctuation__off">Auto punctuation off</string>
+    <!-- io.zizai.ime.FloatingMic -->
+    <string name="zizai__floating_mic__title">Floating mic button</string>
+    <string name="zizai__floating_mic__summary">A larger mic you can drag anywhere on the screen. Off puts it back in the Smartbar.</string>
 </resources>

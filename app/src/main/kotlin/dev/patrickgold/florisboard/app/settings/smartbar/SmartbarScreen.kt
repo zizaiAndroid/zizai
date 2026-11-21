@@ -59,6 +59,7 @@ fun SmartbarScreen() = FlorisScreen {
             enabledIf = { prefs.smartbar.enabled isEqualTo true },
         )
         io.zizai.app.PromptRowSwitch() // ZIZAI-HOOK: show or hide the AI prompt row
+        io.zizai.ime.FloatingMic.SettingsSwitch() // ZIZAI-HOOK: the floating mic
         io.zizai.app.SmartbarActionsShortcut.SettingsEntry() // ZIZAI-HOOK: open the actions editor
         Preference(
             icon = Icons.Default.TouchApp,

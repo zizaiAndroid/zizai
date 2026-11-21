@@ -15,4 +15,7 @@
     <string name="zizai__toggle_punctuation__tooltip">開啟或關閉自動標點</string>
     <string name="zizai__toggle_punctuation__on">自動標點已開啟</string>
     <string name="zizai__toggle_punctuation__off">自動標點已關閉</string>
+    <!-- io.zizai.ime.FloatingMic -->
+    <string name="zizai__floating_mic__title">懸浮麥克風按鈕</string>
+    <string name="zizai__floating_mic__summary">更大的麥克風按鈕，可拖曳到螢幕任何位置。關閉後放回智慧欄。</string>
 </resources>

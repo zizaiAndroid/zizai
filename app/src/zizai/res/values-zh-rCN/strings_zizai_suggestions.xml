@@ -15,4 +15,7 @@
     <string name="zizai__toggle_punctuation__tooltip">开启或关闭自动标点</string>
     <string name="zizai__toggle_punctuation__on">自动标点已开启</string>
     <string name="zizai__toggle_punctuation__off">自动标点已关闭</string>
+    <!-- io.zizai.ime.FloatingMic -->
+    <string name="zizai__floating_mic__title">悬浮麦克风按钮</string>
+    <string name="zizai__floating_mic__summary">更大的麦克风按钮，可拖动到屏幕任意位置。关闭后放回智能栏。</string>
 </resources>
