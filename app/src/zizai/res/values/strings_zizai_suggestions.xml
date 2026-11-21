@@ -11,4 +11,8 @@
     <string name="zizai__toggle_autocorrect__tooltip">Turn autocorrect on Space on or off</string>
     <string name="zizai__toggle_autocorrect__on">Autocorrect on</string>
     <string name="zizai__toggle_autocorrect__off">Autocorrect off</string>
+    <string name="zizai__toggle_punctuation">Auto punctuation</string>
+    <string name="zizai__toggle_punctuation__tooltip">Turn automatic punctuation on or off</string>
+    <string name="zizai__toggle_punctuation__on">Auto punctuation on</string>
+    <string name="zizai__toggle_punctuation__off">Auto punctuation off</string>
 </resources>

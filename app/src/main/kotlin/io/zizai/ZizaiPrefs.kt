@@ -79,6 +79,15 @@ class ZizaiPrefs private constructor(private val sp: SharedPreferences) {
         get() = sp.getBoolean(KEY_PROOFREAD, false)
         set(v) = sp.edit().putBoolean(KEY_PROOFREAD, v).apply()
 
+    /**
+     * The punctuation settings the Smartbar switch turned off, as a
+     * [io.zizai.ime.SuggestionToggles.Punctuation] mask, so switching back on restores them. -1 when
+     * nothing is remembered.
+     */
+    var punctuationSwitchMemory: Int
+        get() = sp.getInt(KEY_PUNCTUATION_MEMORY, -1)
+        set(v) = sp.edit().putInt(KEY_PUNCTUATION_MEMORY, v).apply()
+
     var proofreadProvider: String
         get() = sp.getString(KEY_PROOFREAD_PROVIDER, "").orEmpty()
         set(v) = sp.edit().putString(KEY_PROOFREAD_PROVIDER, v).apply()
@@ -134,6 +143,7 @@ class ZizaiPrefs private constructor(private val sp: SharedPreferences) {
         private const val KEY_TYPING_LANGUAGE = "typing_language"
         private const val KEY_LAZY_SOUNDS = "lazy_sounds"
         private const val KEY_PROOFREAD = "proofread_enabled"
+        private const val KEY_PUNCTUATION_MEMORY = "punctuation_switch_memory"
         private const val KEY_COMPACT = "compact_keyboard"
         private const val KEY_FLIP_KEY = "flip_key"
         private const val KEY_PTT_KEY = "push_to_talk_key"

@@ -474,7 +474,7 @@ fun ComputingEvaluator.computeImageVector(data: KeyData): ImageVector? {
             Icons.Default.Close
         }
         io.zizai.dictate.ProviderActions.CODE -> io.zizai.dictate.ProviderActions.icon(data) // ZIZAI-HOOK: provider buttons
-        io.zizai.ime.SuggestionToggles.CODE_COMPLETIONS, io.zizai.ime.SuggestionToggles.CODE_AUTOCORRECT -> io.zizai.ime.SuggestionToggles.icon(data, this.context()) // ZIZAI-HOOK: completions/autocorrect switches
+        io.zizai.ime.SuggestionToggles.CODE_COMPLETIONS, io.zizai.ime.SuggestionToggles.CODE_AUTOCORRECT, io.zizai.ime.SuggestionToggles.CODE_PUNCTUATION -> io.zizai.ime.SuggestionToggles.icon(data, this.context()) // ZIZAI-HOOK: completions/autocorrect switches
         else -> null
     }
 }

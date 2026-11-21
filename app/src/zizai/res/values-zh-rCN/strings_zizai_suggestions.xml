@@ -11,4 +11,8 @@
     <string name="zizai__toggle_autocorrect__tooltip">开启或关闭空格自动纠错</string>
     <string name="zizai__toggle_autocorrect__on">自动纠错已开启</string>
     <string name="zizai__toggle_autocorrect__off">自动纠错已关闭</string>
+    <string name="zizai__toggle_punctuation">自动标点</string>
+    <string name="zizai__toggle_punctuation__tooltip">开启或关闭自动标点</string>
+    <string name="zizai__toggle_punctuation__on">自动标点已开启</string>
+    <string name="zizai__toggle_punctuation__off">自动标点已关闭</string>
 </resources>

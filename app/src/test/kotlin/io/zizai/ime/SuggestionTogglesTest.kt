@@ -17,6 +17,8 @@ import io.zizai.ime.SuggestionToggles.AUTOCORRECT
 import io.zizai.ime.SuggestionToggles.CODE_AUTOCORRECT
 import io.zizai.ime.SuggestionToggles.CODE_COMPLETIONS
 import io.zizai.ime.SuggestionToggles.COMPLETIONS
+import io.zizai.ime.SuggestionToggles.PUNCTUATION
+import io.zizai.ime.SuggestionToggles.Punctuation
 import io.zizai.ime.SuggestionToggles.State
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -54,7 +56,7 @@ class SuggestionTogglesTest {
     fun `the buttons go in after incognito`() {
         val before = QuickActionArrangement(null, listOf(undo, incognito, redo), emptyList())
         assertEquals(
-            listOf(undo, incognito, COMPLETIONS, AUTOCORRECT, redo),
+            listOf(undo, incognito, COMPLETIONS, AUTOCORRECT, PUNCTUATION, redo),
             SuggestionToggles.withButtons(before).dynamicActions,
         )
     }
@@ -62,15 +64,44 @@ class SuggestionTogglesTest {
     @Test
     fun `without incognito in the list they go at the end`() {
         val before = QuickActionArrangement(null, listOf(undo), listOf(incognito))
-        assertEquals(listOf(undo, COMPLETIONS, AUTOCORRECT), SuggestionToggles.withButtons(before).dynamicActions)
+        assertEquals(listOf(undo, COMPLETIONS, AUTOCORRECT, PUNCTUATION), SuggestionToggles.withButtons(before).dynamicActions)
     }
 
     @Test
     fun `a button the user hid stays hidden`() {
         val before = QuickActionArrangement(null, listOf(undo, incognito), listOf(COMPLETIONS))
         val after = SuggestionToggles.withButtons(before)
-        assertEquals(listOf(undo, incognito, AUTOCORRECT), after.dynamicActions)
+        assertEquals(listOf(undo, incognito, AUTOCORRECT, PUNCTUATION), after.dynamicActions)
         assertEquals(listOf(COMPLETIONS), after.hiddenActions)
         assertSame(after, SuggestionToggles.withButtons(after))
+    }
+
+    @Test
+    fun `a newer switch joins the ones already placed`() {
+        val before = QuickActionArrangement(null, listOf(incognito, COMPLETIONS, AUTOCORRECT, redo), emptyList())
+        assertEquals(listOf(incognito, COMPLETIONS, AUTOCORRECT, PUNCTUATION, redo), SuggestionToggles.withButtons(before).dynamicActions)
+    }
+
+    @Test
+    fun `punctuation off remembers the mix and on restores it`() {
+        val mine = Punctuation(doubleSpacePeriod = true, autoSpace = true, tighten = false)
+        val (off, remembered) = SuggestionToggles.afterPunctuationTap(mine, -1)
+        assertEquals(Punctuation.OFF, off)
+        val (on, cleared) = SuggestionToggles.afterPunctuationTap(off, remembered)
+        assertEquals(mine, on)
+        assertEquals(-1, cleared)
+    }
+
+    @Test
+    fun `punctuation on with nothing remembered gives the defaults`() {
+        assertEquals(Punctuation.DEFAULTS, SuggestionToggles.afterPunctuationTap(Punctuation.OFF, -1).first)
+        assertEquals(Punctuation.DEFAULTS, SuggestionToggles.afterPunctuationTap(Punctuation.OFF, 0).first)
+    }
+
+    @Test
+    fun `any one punctuation setting on reads as on`() {
+        val (after, remembered) = SuggestionToggles.afterPunctuationTap(Punctuation(false, false, true), -1)
+        assertEquals(Punctuation.OFF, after)
+        assertEquals(Punctuation(false, false, true), Punctuation.of(remembered))
     }
 }

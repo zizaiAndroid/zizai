@@ -13,6 +13,7 @@ package io.zizai.ime
 import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Spellcheck
+import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material.icons.filled.SubtitlesOff
 import androidx.compose.runtime.Composable
@@ -36,7 +37,7 @@ import org.florisboard.lib.android.showShortToastSync
 import org.florisboard.lib.compose.stringRes
 
 /**
- * Two Smartbar buttons that switch word completions and autocorrect on and off without a trip
+ * Smartbar buttons that switch word completions, autocorrect and auto punctuation on and off without a trip
  * through Typing settings. They flip the same two settings the Typing screen has: completions are
  * `suggestion.enabled`, and autocorrect is `suggestion.autoCorrect`, which decides only whether
  * Space swaps a fix in; fixes stay in the strip either way.
@@ -52,11 +53,40 @@ object SuggestionToggles {
     /** Clear of upstream's codes, next to [io.zizai.dictate.ProviderActions.CODE]. */
     const val CODE_COMPLETIONS = -9302
     const val CODE_AUTOCORRECT = -9303
+    const val CODE_PUNCTUATION = -9304
 
     val COMPLETIONS: QuickAction =
         QuickAction.InsertKey(TextKeyData(type = KeyType.SYSTEM_GUI, code = CODE_COMPLETIONS, label = "zizai_toggle_completions"))
     val AUTOCORRECT: QuickAction =
         QuickAction.InsertKey(TextKeyData(type = KeyType.SYSTEM_GUI, code = CODE_AUTOCORRECT, label = "zizai_toggle_autocorrect"))
+    val PUNCTUATION: QuickAction =
+        QuickAction.InsertKey(TextKeyData(type = KeyType.SYSTEM_GUI, code = CODE_PUNCTUATION, label = "zizai_toggle_punctuation"))
+
+    /**
+     * The three automatic punctuation settings the punctuation switch handles together: double-tap
+     * Space for a full stop, a space after a punctuation mark, and dropping a space typed before one.
+     * The switch reads "on" while any of them is on. Off remembers the mix, and on puts it back, or
+     * the defaults (only the double-tap) when there is nothing to put back.
+     */
+    data class Punctuation(val doubleSpacePeriod: Boolean, val autoSpace: Boolean, val tighten: Boolean) {
+        val anyOn get() = doubleSpacePeriod || autoSpace || tighten
+        val mask get() = (if (doubleSpacePeriod) 1 else 0) or (if (autoSpace) 2 else 0) or (if (tighten) 4 else 0)
+
+        companion object {
+            val OFF = Punctuation(false, false, false)
+            val DEFAULTS = Punctuation(doubleSpacePeriod = true, autoSpace = false, tighten = false)
+            fun of(mask: Int) = Punctuation(mask and 1 != 0, mask and 2 != 0, mask and 4 != 0)
+        }
+    }
+
+    /** The settings after a tap on the punctuation switch, and what to remember (-1 for nothing). */
+    fun afterPunctuationTap(current: Punctuation, remembered: Int): Pair<Punctuation, Int> =
+        if (current.anyOn) {
+            Punctuation.OFF to current.mask
+        } else {
+            val restored = Punctuation.of(remembered).takeIf { remembered > 0 && it.anyOn } ?: Punctuation.DEFAULTS
+            restored to -1
+        }
 
     data class State(val completions: Boolean, val autoCorrect: Boolean) {
         /** What the autocorrect button shows: Space only fixes words when completions are running. */
@@ -75,28 +105,56 @@ object SuggestionToggles {
     }
 
     /**
-     * [arrangement] with any button it lacks added after incognito in the bar's list, or at its end.
+     * [arrangement] with any button it lacks added after incognito and the other switches in the bar's
+     * list, or at its end.
      * A button already anywhere in it, even hidden, is left where it is.
      */
     fun withButtons(arrangement: QuickActionArrangement): QuickActionArrangement {
-        val missing = listOf(COMPLETIONS, AUTOCORRECT).filter { it !in arrangement }
+        val missing = listOf(COMPLETIONS, AUTOCORRECT, PUNCTUATION).filter { it !in arrangement }
         if (missing.isEmpty()) return arrangement
         val dynamic = arrangement.dynamicActions.toMutableList()
-        val anchor = dynamic.indexOfFirst { (it as? QuickAction.InsertKey)?.data?.code == KeyCode.TOGGLE_INCOGNITO_MODE }
+        // After the last of incognito and the switches already there, so a newer switch joins the others.
+        val anchor = dynamic.indexOfLast {
+            val code = (it as? QuickAction.InsertKey)?.data?.code
+            code == KeyCode.TOGGLE_INCOGNITO_MODE || (code != null && isToggle(code))
+        }
         if (anchor >= 0) dynamic.addAll(anchor + 1, missing) else dynamic.addAll(missing)
         return arrangement.copy(dynamicActions = dynamic)
     }
 
-    private fun isToggle(code: Int) = code == CODE_COMPLETIONS || code == CODE_AUTOCORRECT
+    private fun isToggle(code: Int) = code == CODE_COMPLETIONS || code == CODE_AUTOCORRECT || code == CODE_PUNCTUATION
 
     private fun codeOf(action: QuickAction): Int? =
         (action as? QuickAction.InsertKey)?.data?.code?.takeIf(::isToggle)
 
     private fun current() = State(prefs.suggestion.enabled.get(), prefs.suggestion.autoCorrect.get())
 
+    private fun punctuation() = Punctuation(
+        prefs.correction.doubleSpacePeriod.get(),
+        prefs.correction.autoSpacePunctuation.get(),
+        prefs.correction.tightenPunctuationSpacing.get(),
+    )
+
+    private fun onPunctuationKey(context: Context) {
+        val zizaiPrefs = io.zizai.ZizaiPrefs.get(context)
+        val (after, remember) = afterPunctuationTap(punctuation(), zizaiPrefs.punctuationSwitchMemory)
+        zizaiPrefs.punctuationSwitchMemory = remember
+        scope.launch {
+            prefs.correction.doubleSpacePeriod.set(after.doubleSpacePeriod)
+            prefs.correction.autoSpacePunctuation.set(after.autoSpace)
+            prefs.correction.tightenPunctuationSpacing.set(after.tighten)
+        }
+        val message = if (after.anyOn) R.string.zizai__toggle_punctuation__on else R.string.zizai__toggle_punctuation__off
+        runCatching { context.showShortToastSync(message) }
+    }
+
     /** From the key-up path: flip the setting on this button. */
     fun onKey(data: KeyData, context: Context): Boolean {
         if (!isToggle(data.code)) return false
+        if (data.code == CODE_PUNCTUATION) {
+            onPunctuationKey(context)
+            return true
+        }
         val before = current()
         val after = afterTap(before, data.code)
         scope.launch {
@@ -117,22 +175,27 @@ object SuggestionToggles {
         return when (data.code) {
             CODE_COMPLETIONS -> if (state.completions) Icons.Default.Subtitles else Icons.Default.SubtitlesOff
             CODE_AUTOCORRECT -> if (state.autoCorrectEffective) Icons.Default.Spellcheck else context?.vectorResource(R.drawable.ic_zizai_spellcheck_off)
+            CODE_PUNCTUATION -> if (punctuation().anyOn) Icons.Default.FormatQuote else context?.vectorResource(R.drawable.ic_zizai_punctuation_off)
             else -> null
         }
     }
 
     /** Read by the button's icon so it is redrawn when either setting changes, from here or elsewhere. */
     @Composable
-    fun observe(): State {
+    fun observe(): Any {
         val completions by prefs.suggestion.enabled.collectAsState()
         val autoCorrect by prefs.suggestion.autoCorrect.collectAsState()
-        return State(completions, autoCorrect)
+        val doubleSpace by prefs.correction.doubleSpacePeriod.collectAsState()
+        val autoSpace by prefs.correction.autoSpacePunctuation.collectAsState()
+        val tighten by prefs.correction.tightenPunctuationSpacing.collectAsState()
+        return State(completions, autoCorrect) to Punctuation(doubleSpace, autoSpace, tighten)
     }
 
     @Composable
     fun displayName(action: QuickAction): String? = when (codeOf(action)) {
         CODE_COMPLETIONS -> stringRes(R.string.zizai__toggle_completions)
         CODE_AUTOCORRECT -> stringRes(R.string.zizai__toggle_autocorrect)
+        CODE_PUNCTUATION -> stringRes(R.string.zizai__toggle_punctuation)
         else -> null
     }
 
@@ -140,6 +203,7 @@ object SuggestionToggles {
     fun tooltip(action: QuickAction): String? = when (codeOf(action)) {
         CODE_COMPLETIONS -> stringRes(R.string.zizai__toggle_completions__tooltip)
         CODE_AUTOCORRECT -> stringRes(R.string.zizai__toggle_autocorrect__tooltip)
+        CODE_PUNCTUATION -> stringRes(R.string.zizai__toggle_punctuation__tooltip)
         else -> null
     }
 
