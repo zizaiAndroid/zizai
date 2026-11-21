@@ -93,6 +93,9 @@ object FloatingMic {
 
     private val MARGIN = 12.dp
 
+    /** About the height of an app's message bar, which the default position keeps clear of. */
+    private val INPUT_BAR = 72.dp
+
     /**
      * From the Smartbar's sticky slot: draws the floating mic instead when [action] is the mic and
      * floating is on, and answers whether it did, so the slot leaves its own button out.
@@ -123,6 +126,7 @@ object FloatingMic {
         val zizaiPrefs = remember { ZizaiPrefs.get(context) }
         val sizePx = with(density) { diameter.roundToPx() }
         val marginPx = with(density) { MARGIN.roundToPx() }
+        val inputBarPx = with(density) { INPUT_BAR.roundToPx() }
         val metrics = context.resources.displayMetrics
         val screenW = metrics.widthPixels
         val screenH = metrics.heightPixels
@@ -149,10 +153,16 @@ object FloatingMic {
                         popupContentSize: IntSize,
                     ): IntOffset {
                         val origin = windowOriginOnScreen(view)
-                        // Default: at the right, just above the Smartbar, over the app.
+                        // Default: at the right, over the app and clear of the keyboard. The keyboard's
+                        // top, not the slot's: the slot can sit in the Smartbar's second row, and above
+                        // that is the action row, which the button would cover. And an input bar's height
+                        // higher than that, because right above the keyboard on the right is where apps
+                        // put their send button (Gemini's was covered).
+                        val keyboardTop = dev.patrickgold.florisboard.FlorisImeService.windowControllerOrNull()
+                            ?.activeWindowInsets?.value?.boundsPx?.top ?: anchorBounds.top
                         val pos = screenPos ?: clamp(
                             origin.x + anchorBounds.right - sizePx - marginPx,
-                            origin.y + anchorBounds.top - sizePx - marginPx,
+                            origin.y + keyboardTop - sizePx - marginPx - inputBarPx,
                             sizePx, screenW, screenH,
                         )
                         return IntOffset(pos.x - origin.x, pos.y - origin.y)
