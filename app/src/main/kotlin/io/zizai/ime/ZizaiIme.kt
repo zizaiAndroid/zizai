@@ -186,6 +186,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
             // Not before the settings have loaded: ProviderActions.sync would read the defaults.
             (ims.applicationContext as? dev.patrickgold.florisboard.FlorisApplication)
                 ?.preferenceStoreLoaded?.first { it } ?: return@launch
+            SuggestionToggles.sync() // before the providers, so the two writes cannot race
             appPrefs.dictate.providerAccounts.asFlow().collect { io.zizai.dictate.ProviderActions.sync(ims) }
         }
     }
@@ -291,6 +292,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     /** From `KeyboardManager.onInputKeyUp`; true when the session took the key. */
     fun onTouchKey(data: KeyData): Boolean = guard(false) {
         if (io.zizai.dictate.ProviderActions.onKey(data)) return@guard true // a provider button on the Smartbar
+        if (SuggestionToggles.onKey(data, ims)) return@guard true // completions/autocorrect switch on the Smartbar
         val info = editorInfo ?: return@guard false
         if (!session.isActive && !(chineseSubtype && chineseMode && KeyRouter.isTextField(info))) return@guard false
         val stroke = when {

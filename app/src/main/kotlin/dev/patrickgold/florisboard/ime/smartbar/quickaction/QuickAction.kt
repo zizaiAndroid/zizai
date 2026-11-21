@@ -119,6 +119,7 @@ fun QuickAction.performAsSecondAction(context: Context) {
 @Composable
 fun QuickAction.computeDisplayName(evaluator: ComputingEvaluator): String {
     io.zizai.dictate.ProviderActions.displayName(this)?.let { return it } // ZIZAI-HOOK: provider buttons
+    io.zizai.ime.SuggestionToggles.displayName(this)?.let { return it } // ZIZAI-HOOK: completions/autocorrect switches
     return when (this) {
         is QuickAction.InsertKey -> stringRes(when (data.code) {
             KeyCode.ARROW_UP -> R.string.quick_action__arrow_up
@@ -176,6 +177,7 @@ fun QuickAction.computeDisplayName(evaluator: ComputingEvaluator): String {
 @Composable
 fun QuickAction.computeTooltip(evaluator: ComputingEvaluator): String {
     io.zizai.dictate.ProviderActions.tooltip(this)?.let { return it } // ZIZAI-HOOK: provider buttons
+    io.zizai.ime.SuggestionToggles.tooltip(this)?.let { return it } // ZIZAI-HOOK: completions/autocorrect switches
     return when (this) {
         is QuickAction.InsertKey -> stringRes(when (data.code) {
             KeyCode.ARROW_UP -> R.string.quick_action__arrow_up__tooltip

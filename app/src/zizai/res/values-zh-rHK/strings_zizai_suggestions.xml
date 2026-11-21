@@ -2,4 +2,13 @@
 <!-- Zizai overrides: email and web address fields keep an app's suggestion block (io.zizai.ime.SuggestionBlock). -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="ExtraTranslation,MissingTranslation">
     <string name="pref__suggestion__ignore_app_suggestion_block__summary">仍然顯示，密碼、電郵和網址輸入框除外</string>
+    <!-- Smartbar switches (io.zizai.ime.SuggestionToggles). -->
+    <string name="zizai__toggle_completions">聯想字詞</string>
+    <string name="zizai__toggle_completions__tooltip">開啟或關閉聯想字詞</string>
+    <string name="zizai__toggle_completions__on">聯想字詞已開啟</string>
+    <string name="zizai__toggle_completions__off">聯想字詞已關閉</string>
+    <string name="zizai__toggle_autocorrect">自動校正</string>
+    <string name="zizai__toggle_autocorrect__tooltip">開啟或關閉空格鍵自動校正</string>
+    <string name="zizai__toggle_autocorrect__on">自動校正已開啟</string>
+    <string name="zizai__toggle_autocorrect__off">自動校正已關閉</string>
 </resources>

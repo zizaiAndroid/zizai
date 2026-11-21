@@ -2,4 +2,13 @@
 <!-- Zizai overrides: email and web address fields keep an app's suggestion block (io.zizai.ime.SuggestionBlock). -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="ExtraTranslation,MissingTranslation">
     <string name="pref__suggestion__ignore_app_suggestion_block__summary">Show them anyway, except in password, email and web address fields</string>
+    <!-- Smartbar switches (io.zizai.ime.SuggestionToggles). -->
+    <string name="zizai__toggle_completions">Word completions</string>
+    <string name="zizai__toggle_completions__tooltip">Turn word completions on or off</string>
+    <string name="zizai__toggle_completions__on">Word completions on</string>
+    <string name="zizai__toggle_completions__off">Word completions off</string>
+    <string name="zizai__toggle_autocorrect">Autocorrect</string>
+    <string name="zizai__toggle_autocorrect__tooltip">Turn autocorrect on Space on or off</string>
+    <string name="zizai__toggle_autocorrect__on">Autocorrect on</string>
+    <string name="zizai__toggle_autocorrect__off">Autocorrect off</string>
 </resources>

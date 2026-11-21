@@ -838,7 +838,7 @@ fun QuickActionButton(
                                     .map { it.selection.isSelectionMode }
                                     .distinctUntilChanged()
                             }.collectAsState(initial = editorInstance.activeContent.selection.isSelectionMode)
-                            val (imageVector, label) = remember(action, evaluator, dictateState, hasSelection) {
+                            val (imageVector, label) = remember(action, evaluator, dictateState, hasSelection, io.zizai.ime.SuggestionToggles.observe()) { // ZIZAI-HOOK: redraw on/off icons
                                 val icon = if (action.data.code == KeyCode.CLIPBOARD_SELECT_ALL && hasSelection) {
                                     Icons.Default.Deselect
                                 } else {
