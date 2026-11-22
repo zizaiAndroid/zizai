@@ -18,4 +18,8 @@
     <!-- io.zizai.ime.FloatingMic -->
     <string name="zizai__floating_mic__title">Floating mic button</string>
     <string name="zizai__floating_mic__summary">A larger mic you can drag anywhere on the screen. Off puts it back in the Smartbar.</string>
+    <string name="zizai__toggle_floating_mic">Floating mic</string>
+    <string name="zizai__toggle_floating_mic__tooltip">Float the mic over the screen, or put it back in the Smartbar</string>
+    <string name="zizai__toggle_floating_mic__on">Mic floats over the screen</string>
+    <string name="zizai__floating_mic__docked">Mic back in the Smartbar</string>
 </resources>

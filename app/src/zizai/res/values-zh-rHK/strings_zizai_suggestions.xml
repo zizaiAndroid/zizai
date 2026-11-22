@@ -18,4 +18,8 @@
     <!-- io.zizai.ime.FloatingMic -->
     <string name="zizai__floating_mic__title">懸浮咪高峰按鈕</string>
     <string name="zizai__floating_mic__summary">更大的咪高峰按鈕，可拖曳到螢幕任何位置。關閉後放回智能欄。</string>
+    <string name="zizai__toggle_floating_mic">懸浮咪高峰</string>
+    <string name="zizai__toggle_floating_mic__tooltip">讓咪高峰懸浮在螢幕上，或放回智能欄</string>
+    <string name="zizai__toggle_floating_mic__on">咪高峰已懸浮</string>
+    <string name="zizai__floating_mic__docked">咪高峰已放回智能欄</string>
 </resources>

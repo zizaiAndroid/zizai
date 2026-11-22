@@ -18,4 +18,8 @@
     <!-- io.zizai.ime.FloatingMic -->
     <string name="zizai__floating_mic__title">悬浮麦克风按钮</string>
     <string name="zizai__floating_mic__summary">更大的麦克风按钮，可拖动到屏幕任意位置。关闭后放回智能栏。</string>
+    <string name="zizai__toggle_floating_mic">悬浮麦克风</string>
+    <string name="zizai__toggle_floating_mic__tooltip">让麦克风悬浮在屏幕上，或放回智能栏</string>
+    <string name="zizai__toggle_floating_mic__on">麦克风已悬浮</string>
+    <string name="zizai__floating_mic__docked">麦克风已放回智能栏</string>
 </resources>

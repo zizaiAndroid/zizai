@@ -18,4 +18,8 @@
     <!-- io.zizai.ime.FloatingMic -->
     <string name="zizai__floating_mic__title">懸浮麥克風按鈕</string>
     <string name="zizai__floating_mic__summary">更大的麥克風按鈕，可拖曳到螢幕任何位置。關閉後放回智慧欄。</string>
+    <string name="zizai__toggle_floating_mic">懸浮麥克風</string>
+    <string name="zizai__toggle_floating_mic__tooltip">讓麥克風懸浮在螢幕上，或放回智慧欄</string>
+    <string name="zizai__toggle_floating_mic__on">麥克風已懸浮</string>
+    <string name="zizai__floating_mic__docked">麥克風已放回智慧欄</string>
 </resources>

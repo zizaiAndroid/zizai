@@ -14,6 +14,7 @@ import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Spellcheck
 import androidx.compose.material.icons.filled.FormatQuote
+import androidx.compose.material.icons.filled.PictureInPictureAlt
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material.icons.filled.SubtitlesOff
 import androidx.compose.runtime.Composable
@@ -37,7 +38,7 @@ import org.florisboard.lib.android.showShortToastSync
 import org.florisboard.lib.compose.stringRes
 
 /**
- * Smartbar buttons that switch word completions, autocorrect and auto punctuation on and off without a trip
+ * Smartbar buttons that switch word completions, autocorrect, auto punctuation and the floating mic on and off without a trip
  * through Typing settings. They flip the same two settings the Typing screen has: completions are
  * `suggestion.enabled`, and autocorrect is `suggestion.autoCorrect`, which decides only whether
  * Space swaps a fix in; fixes stay in the strip either way.
@@ -54,6 +55,7 @@ object SuggestionToggles {
     const val CODE_COMPLETIONS = -9302
     const val CODE_AUTOCORRECT = -9303
     const val CODE_PUNCTUATION = -9304
+    const val CODE_FLOATING_MIC = -9305
 
     val COMPLETIONS: QuickAction =
         QuickAction.InsertKey(TextKeyData(type = KeyType.SYSTEM_GUI, code = CODE_COMPLETIONS, label = "zizai_toggle_completions"))
@@ -61,6 +63,9 @@ object SuggestionToggles {
         QuickAction.InsertKey(TextKeyData(type = KeyType.SYSTEM_GUI, code = CODE_AUTOCORRECT, label = "zizai_toggle_autocorrect"))
     val PUNCTUATION: QuickAction =
         QuickAction.InsertKey(TextKeyData(type = KeyType.SYSTEM_GUI, code = CODE_PUNCTUATION, label = "zizai_toggle_punctuation"))
+    /** Floats the mic over the screen or puts it back in the Smartbar ([FloatingMic]). */
+    val FLOATING_MIC: QuickAction =
+        QuickAction.InsertKey(TextKeyData(type = KeyType.SYSTEM_GUI, code = CODE_FLOATING_MIC, label = "zizai_toggle_floating_mic"))
 
     /**
      * The three automatic punctuation settings the punctuation switch handles together: double-tap
@@ -110,7 +115,7 @@ object SuggestionToggles {
      * A button already anywhere in it, even hidden, is left where it is.
      */
     fun withButtons(arrangement: QuickActionArrangement): QuickActionArrangement {
-        val missing = listOf(COMPLETIONS, AUTOCORRECT, PUNCTUATION).filter { it !in arrangement }
+        val missing = listOf(COMPLETIONS, AUTOCORRECT, PUNCTUATION, FLOATING_MIC).filter { it !in arrangement }
         if (missing.isEmpty()) return arrangement
         val dynamic = arrangement.dynamicActions.toMutableList()
         // After the last of incognito and the switches already there, so a newer switch joins the others.
@@ -122,7 +127,7 @@ object SuggestionToggles {
         return arrangement.copy(dynamicActions = dynamic)
     }
 
-    private fun isToggle(code: Int) = code == CODE_COMPLETIONS || code == CODE_AUTOCORRECT || code == CODE_PUNCTUATION
+    private fun isToggle(code: Int) = code == CODE_COMPLETIONS || code == CODE_AUTOCORRECT || code == CODE_PUNCTUATION || code == CODE_FLOATING_MIC
 
     private fun codeOf(action: QuickAction): Int? =
         (action as? QuickAction.InsertKey)?.data?.code?.takeIf(::isToggle)
@@ -151,6 +156,13 @@ object SuggestionToggles {
     /** From the key-up path: flip the setting on this button. */
     fun onKey(data: KeyData, context: Context): Boolean {
         if (!isToggle(data.code)) return false
+        if (data.code == CODE_FLOATING_MIC) {
+            val on = !FloatingMic.isEnabled(context)
+            FloatingMic.setEnabled(context, on)
+            val message = if (on) R.string.zizai__toggle_floating_mic__on else R.string.zizai__floating_mic__docked
+            runCatching { context.showShortToastSync(message) }
+            return true
+        }
         if (data.code == CODE_PUNCTUATION) {
             onPunctuationKey(context)
             return true
@@ -176,6 +188,7 @@ object SuggestionToggles {
             CODE_COMPLETIONS -> if (state.completions) Icons.Default.Subtitles else Icons.Default.SubtitlesOff
             CODE_AUTOCORRECT -> if (state.autoCorrectEffective) Icons.Default.Spellcheck else context?.vectorResource(R.drawable.ic_zizai_spellcheck_off)
             CODE_PUNCTUATION -> if (punctuation().anyOn) Icons.Default.FormatQuote else context?.vectorResource(R.drawable.ic_zizai_punctuation_off)
+            CODE_FLOATING_MIC -> if (context != null && FloatingMic.isEnabled(context)) Icons.Default.PictureInPictureAlt else context?.vectorResource(R.drawable.ic_zizai_floating_mic_off)
             else -> null
         }
     }
@@ -188,7 +201,8 @@ object SuggestionToggles {
         val doubleSpace by prefs.correction.doubleSpacePeriod.collectAsState()
         val autoSpace by prefs.correction.autoSpacePunctuation.collectAsState()
         val tighten by prefs.correction.tightenPunctuationSpacing.collectAsState()
-        return State(completions, autoCorrect) to Punctuation(doubleSpace, autoSpace, tighten)
+        val floating = FloatingMic.observeEnabled()
+        return Triple(State(completions, autoCorrect), Punctuation(doubleSpace, autoSpace, tighten), floating)
     }
 
     @Composable
@@ -196,6 +210,7 @@ object SuggestionToggles {
         CODE_COMPLETIONS -> stringRes(R.string.zizai__toggle_completions)
         CODE_AUTOCORRECT -> stringRes(R.string.zizai__toggle_autocorrect)
         CODE_PUNCTUATION -> stringRes(R.string.zizai__toggle_punctuation)
+        CODE_FLOATING_MIC -> stringRes(R.string.zizai__toggle_floating_mic)
         else -> null
     }
 
@@ -204,6 +219,7 @@ object SuggestionToggles {
         CODE_COMPLETIONS -> stringRes(R.string.zizai__toggle_completions__tooltip)
         CODE_AUTOCORRECT -> stringRes(R.string.zizai__toggle_autocorrect__tooltip)
         CODE_PUNCTUATION -> stringRes(R.string.zizai__toggle_punctuation__tooltip)
+        CODE_FLOATING_MIC -> stringRes(R.string.zizai__toggle_floating_mic__tooltip)
         else -> null
     }
 

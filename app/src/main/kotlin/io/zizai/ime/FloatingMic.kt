@@ -59,6 +59,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import androidx.compose.runtime.collectAsState
+import org.florisboard.lib.android.showShortToastSync
 import org.florisboard.lib.compose.stringRes
 
 /**
@@ -69,9 +70,9 @@ import org.florisboard.lib.compose.stringRes
  * It is a popup window of the keyboard's, the same kind push-to-talk already draws its mic in, so it
  * can sit over the app as well as over the keys, and it is there exactly while the Smartbar is. It
  * takes over the Smartbar's sticky slot only while that slot holds the mic; the slot then stays empty
- * and the suggestions get its room. Hold-to-talk stays with the Smartbar mic: on a button that moves
- * when dragged, a hold and the start of a move cannot be told apart. The switch on the Smartbar
- * settings screen puts it back in the bar.
+ * and the suggestions get its room. Hold-to-talk stays with the Smartbar mic. Holding the floating
+ * button docks it back in the bar; the Floating mic switch (io.zizai.ime.SuggestionToggles) and the
+ * one on the Smartbar settings screen float it again.
  */
 object FloatingMic {
     private val enabledFlow = MutableStateFlow<Boolean?>(null)
@@ -80,6 +81,15 @@ object FloatingMic {
         if (enabledFlow.value == null) enabledFlow.value = ZizaiPrefs.get(context).floatingMic
         @Suppress("UNCHECKED_CAST")
         return enabledFlow.asStateFlow() as StateFlow<Boolean>
+    }
+
+    fun isEnabled(context: Context): Boolean = enabled(context).value
+
+    /** For the switch's icon, so it redraws when floating is turned on or off from anywhere. */
+    @Composable
+    fun observeEnabled(): Boolean {
+        val on by enabled(LocalContext.current).collectAsState()
+        return on
     }
 
     fun setEnabled(context: Context, on: Boolean) {
@@ -174,6 +184,20 @@ object FloatingMic {
             var downRaw by remember { mutableStateOf(IntOffset.Zero) }
             var downPos by remember { mutableStateOf(IntOffset.Zero) }
             var dragging by remember { mutableStateOf(false) }
+            // Holding the button still docks it back in the Smartbar. A hold is free here: a drag only
+            // starts once the finger moves, and tapping is decided on lift.
+            var held by remember { mutableStateOf(false) }
+            val handler = remember { android.os.Handler(android.os.Looper.getMainLooper()) }
+            val dock = remember {
+                Runnable {
+                    if (dragging) return@Runnable
+                    held = true
+                    view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                    setEnabled(context, false)
+                    runCatching { context.showShortToastSync(R.string.zizai__floating_mic__docked) }
+                }
+            }
+            androidx.compose.runtime.DisposableEffect(Unit) { onDispose { handler.removeCallbacks(dock) } }
             Box(
                 modifier = Modifier
                     .size(diameter)
@@ -188,15 +212,23 @@ object FloatingMic {
                                 // minus the touch's spot in the button gives where that is.
                                 downPos = screenPos ?: IntOffset(raw.x - ev.x.toInt(), raw.y - ev.y.toInt())
                                 dragging = false
+                                held = false
+                                handler.postDelayed(dock, ViewConfiguration.getLongPressTimeout().toLong())
                             }
                             MotionEvent.ACTION_MOVE -> {
                                 val dx = raw.x - downRaw.x
                                 val dy = raw.y - downRaw.y
-                                if (!dragging && dx * dx + dy * dy > slop * slop) dragging = true
+                                if (!dragging && !held && dx * dx + dy * dy > slop * slop) {
+                                    dragging = true
+                                    handler.removeCallbacks(dock)
+                                }
                                 if (dragging) screenPos = clamp(downPos.x + dx, downPos.y + dy, sizePx, screenW, screenH)
                             }
                             MotionEvent.ACTION_UP -> {
-                                if (dragging) {
+                                handler.removeCallbacks(dock)
+                                if (held) {
+                                    // Docked already; the lift is not a tap.
+                                } else if (dragging) {
                                     screenPos?.let {
                                         zizaiPrefs.floatingMicX = it.x.toFloat() / screenW
                                         zizaiPrefs.floatingMicY = it.y.toFloat() / screenH
@@ -208,7 +240,10 @@ object FloatingMic {
                                 }
                                 dragging = false
                             }
-                            MotionEvent.ACTION_CANCEL -> dragging = false
+                            MotionEvent.ACTION_CANCEL -> {
+                                handler.removeCallbacks(dock)
+                                dragging = false
+                            }
                         }
                         true
                     },

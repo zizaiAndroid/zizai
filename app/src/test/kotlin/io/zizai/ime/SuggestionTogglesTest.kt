@@ -17,6 +17,7 @@ import io.zizai.ime.SuggestionToggles.AUTOCORRECT
 import io.zizai.ime.SuggestionToggles.CODE_AUTOCORRECT
 import io.zizai.ime.SuggestionToggles.CODE_COMPLETIONS
 import io.zizai.ime.SuggestionToggles.COMPLETIONS
+import io.zizai.ime.SuggestionToggles.FLOATING_MIC
 import io.zizai.ime.SuggestionToggles.PUNCTUATION
 import io.zizai.ime.SuggestionToggles.Punctuation
 import io.zizai.ime.SuggestionToggles.State
@@ -56,7 +57,7 @@ class SuggestionTogglesTest {
     fun `the buttons go in after incognito`() {
         val before = QuickActionArrangement(null, listOf(undo, incognito, redo), emptyList())
         assertEquals(
-            listOf(undo, incognito, COMPLETIONS, AUTOCORRECT, PUNCTUATION, redo),
+            listOf(undo, incognito, COMPLETIONS, AUTOCORRECT, PUNCTUATION, FLOATING_MIC, redo),
             SuggestionToggles.withButtons(before).dynamicActions,
         )
     }
@@ -64,14 +65,14 @@ class SuggestionTogglesTest {
     @Test
     fun `without incognito in the list they go at the end`() {
         val before = QuickActionArrangement(null, listOf(undo), listOf(incognito))
-        assertEquals(listOf(undo, COMPLETIONS, AUTOCORRECT, PUNCTUATION), SuggestionToggles.withButtons(before).dynamicActions)
+        assertEquals(listOf(undo, COMPLETIONS, AUTOCORRECT, PUNCTUATION, FLOATING_MIC), SuggestionToggles.withButtons(before).dynamicActions)
     }
 
     @Test
     fun `a button the user hid stays hidden`() {
         val before = QuickActionArrangement(null, listOf(undo, incognito), listOf(COMPLETIONS))
         val after = SuggestionToggles.withButtons(before)
-        assertEquals(listOf(undo, incognito, AUTOCORRECT, PUNCTUATION), after.dynamicActions)
+        assertEquals(listOf(undo, incognito, AUTOCORRECT, PUNCTUATION, FLOATING_MIC), after.dynamicActions)
         assertEquals(listOf(COMPLETIONS), after.hiddenActions)
         assertSame(after, SuggestionToggles.withButtons(after))
     }
@@ -79,7 +80,7 @@ class SuggestionTogglesTest {
     @Test
     fun `a newer switch joins the ones already placed`() {
         val before = QuickActionArrangement(null, listOf(incognito, COMPLETIONS, AUTOCORRECT, redo), emptyList())
-        assertEquals(listOf(incognito, COMPLETIONS, AUTOCORRECT, PUNCTUATION, redo), SuggestionToggles.withButtons(before).dynamicActions)
+        assertEquals(listOf(incognito, COMPLETIONS, AUTOCORRECT, PUNCTUATION, FLOATING_MIC, redo), SuggestionToggles.withButtons(before).dynamicActions)
     }
 
     @Test
