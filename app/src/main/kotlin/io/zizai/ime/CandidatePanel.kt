@@ -68,9 +68,10 @@ class CandidatePanel(context: Context) : TextView(context) {
 
     /**
      * Upstream's word suggestions (English, or any non-Chinese language) while no Chinese is composing,
-     * each tappable. The word Space would swap in is bold, as the Smartbar marks it. Hidden when empty.
+     * each tappable. The word Space would swap in is bold, as the Smartbar marks it. [numbered] puts
+     * the digit that picks each one in front of it, as for Chinese candidates. Hidden when empty.
      */
-    fun renderWords(words: List<SuggestionCandidate>, onTap: (SuggestionCandidate) -> Unit) {
+    fun renderWords(words: List<SuggestionCandidate>, numbered: Boolean, onTap: (SuggestionCandidate) -> Unit) {
         if (words.isEmpty()) {
             visibility = View.GONE
             return
@@ -81,6 +82,7 @@ class CandidatePanel(context: Context) : TextView(context) {
             val label = candidate.text.toString().replace('\n', ' ').let {
                 if (it.length > MAX_WORD_CHARS) it.take(MAX_WORD_CHARS - 1) + "…" else it
             }
+            if (numbered) sb.append(if (i == 9) "0" else "${i + 1}", ForegroundColorSpan(dim), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             val start = sb.length
             sb.append(label)
             sb.setSpan(object : ClickableSpan() {
@@ -161,14 +163,14 @@ class CandidatePanel(context: Context) : TextView(context) {
         visibility = View.VISIBLE
     }
 
-    private companion object {
-        const val GRID_WINDOW = 16
+    companion object {
+        private const val GRID_WINDOW = 16
         const val MAX_WORDS = 6
-        const val MAX_WORD_CHARS = 24
+        private const val MAX_WORD_CHARS = 24
     }
 }
 
-/** The 中/英 status pill, with a recording dot while dictating. Tapping it toggles the mode. */
+/** The language pill (中, 英, FR…), with a recording dot while dictating. Tapping it toggles 中/英. */
 class StatusPill(context: Context) : TextView(context) {
     init {
         val dp = { v: Float -> TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v, resources.displayMetrics) }
@@ -183,9 +185,9 @@ class StatusPill(context: Context) : TextView(context) {
         visibility = View.GONE
     }
 
-    fun render(chinese: Boolean, recording: Boolean, suspects: Int = 0) {
+    fun render(label: String, recording: Boolean, suspects: Int = 0) {
         text = buildString {
-            append(if (chinese) "中" else "英")
+            append(label)
             if (recording) append("  ● 录音")
             if (suspects > 0) append("  F8 改 $suspects") // proofreading suspects (P2-08)
         }

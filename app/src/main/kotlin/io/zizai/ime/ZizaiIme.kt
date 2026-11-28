@@ -27,6 +27,7 @@ import dev.patrickgold.florisboard.ime.keyboard.KeyData
 import dev.patrickgold.florisboard.ime.nlp.SuggestionCandidate
 import dev.patrickgold.florisboard.ime.text.key.KeyCode
 import dev.patrickgold.florisboard.ime.text.key.KeyType
+import dev.patrickgold.florisboard.editorInstance
 import dev.patrickgold.florisboard.keyboardManager
 import dev.patrickgold.florisboard.nlpManager
 import io.zizai.han.candidate.CandidateEngine
@@ -65,6 +66,7 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     private val subtypeManager by ims.subtypeManager()
     private val nlpManager by ims.nlpManager()
     private val keyboardManager by ims.keyboardManager()
+    private val editorInstance by ims.editorInstance()
     private val appPrefs by FlorisPreferenceStore
     private val prefs by lazy { ZizaiPrefs.get(ims) } // lazy: the service has no context while constructing
     private val editor = EditorBridge(ims)
@@ -181,6 +183,10 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         (ims as LifecycleOwner).lifecycleScope.launch {
             nlpManager.activeCandidatesFlow.collect { renderPanel() }
         }
+        // The pill names the language, which Shift (or the language key) may have just switched.
+        (ims as LifecycleOwner).lifecycleScope.launch {
+            subtypeManager.activeSubtypeFlow.collect { renderPill() }
+        }
         // One Smartbar button per transcription provider that is set up (see ProviderActions).
         (ims as LifecycleOwner).lifecycleScope.launch {
             // Not before the settings have loaded: ProviderActions.sync would read the defaults.
@@ -200,9 +206,41 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
         when {
             !hardware.active -> hardware.panel.render(io.zizai.han.session.HanUiState.Idle)
             session.isActive -> hardware.panel.render(session.ui.value)
-            else -> hardware.panel.renderWords(panelWords()) { keyboardManager.commitCandidate(it) }
+            else -> hardware.panel.renderWords(panelWords(), numbered = numberedWords().isNotEmpty()) {
+                keyboardManager.commitCandidate(it)
+            }
         }
         if (hardware.active) hardware.position()
+    }
+
+    /** Esc turned the numbers off for the word being typed; they come back with the next word. */
+    private var wordNumbersOff = false
+
+    /**
+     * The words digits pick from, as the panel numbers them: only while a word is being typed, so a
+     * digit after a space, or anywhere else, still types itself.
+     */
+    private fun numberedWords(): List<SuggestionCandidate> {
+        if (!hardware.active || cheatSheetShown || session.isActive) return emptyList()
+        if (editorInstance.textCompletionWouldReplace().isEmpty()) {
+            wordNumbersOff = false
+            return emptyList()
+        }
+        if (wordNumbersOff) return emptyList()
+        return panelWords().take(CandidatePanel.MAX_WORDS)
+    }
+
+    override fun pickWord(index: Int): Boolean = guard(false) {
+        val word = numberedWords().getOrNull(index) ?: return@guard false
+        keyboardManager.commitCandidate(word)
+        true
+    }
+
+    override fun hideWordNumbers(): Boolean {
+        if (numberedWords().isEmpty()) return false
+        wordNumbersOff = true
+        renderPanel()
+        return true
     }
 
     /** Upstream's suggestions for the panel; none in a password field, where the strip never echoes typing. */
@@ -398,6 +436,28 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
             (it.startsWith("zh") && "pinyin" in it) || "jyutping" in it
         }
 
+    /** The language Shift last switched away from, so the next tap goes back to it. */
+    private var shiftLeftSubtype: Long? = null
+
+    override fun onShiftTap() {
+        if (session.isActive) commitRawComposition()
+        // In 英 within Chinese, Shift goes back to 中 first.
+        if (chineseSubtype && !chineseMode) {
+            chineseMode = true
+            return
+        }
+        fun language(s: Subtype) = HardwareShortcuts.Language(s.id, HardwareShortcuts.isChineseTag(s.primaryLocale.languageTag()))
+        val active = subtypeManager.activeSubtype
+        val target = HardwareShortcuts.shiftTarget(language(active), subtypeManager.subtypes.map(::language), shiftLeftSubtype)
+        if (target == null) {
+            if (chineseSubtype) chineseMode = !chineseMode // Chinese alone: 中/英 as before
+            return
+        }
+        shiftLeftSubtype = active.id
+        chineseMode = true // arriving in Chinese means 中
+        subtypeManager.switchToSubtypeById(target)
+    }
+
     /** Cantonese when the active language is 粵語 (Jyutping), else what 中文 settings say for Pinyin's language. */
     private fun typingLanguage(): ZizaiPrefs.TypingLanguage =
         if ("jyutping" in subtypeManager.activeSubtype.primaryLocale.languageTag().lowercase()) {
@@ -500,8 +560,13 @@ class ZizaiIme(private val ims: InputMethodService) : KeyRouterHost {
     }
 
     private fun renderPill() {
+        val tag = subtypeManager.activeSubtype.primaryLocale.languageTag()
         hardware.pill.render(
-            chinese = chineseSubtype && chineseMode,
+            label = when {
+                chineseSubtype -> if (chineseMode) "中" else "英"
+                tag.lowercase().startsWith("en") -> "英"
+                else -> shortLanguageLabel(tag)
+            },
             recording = DictateController.state.value is DictateController.UiState.Recording,
             suspects = proofread?.suspects?.size ?: 0,
         )

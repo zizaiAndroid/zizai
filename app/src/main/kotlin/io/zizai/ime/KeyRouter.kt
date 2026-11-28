@@ -46,6 +46,15 @@ interface KeyRouterHost {
     /** F8 / Shift+F8: the next or previous proofreading suspect (P2-08). False when there is none. */
     fun nextSuspect(forward: Boolean): Boolean
 
+    /** A Shift tap: switch between the two languages (or 中/英 within Chinese alone). */
+    fun onShiftTap()
+
+    /** A digit while an English word is being typed: commit that word from the panel. False when none. */
+    fun pickWord(index: Int): Boolean
+
+    /** Esc while the panel numbers English words: turn the numbers off for this word. False when none. */
+    fun hideWordNumbers(): Boolean
+
     /** Ctrl+/ shows or hides the shortcut cheat sheet; any other key hides it. */
     fun toggleCheatSheet()
     fun hideCheatSheet()
@@ -90,13 +99,10 @@ class KeyRouter(private val host: KeyRouterHost) {
     fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
         when (keyCode) {
             KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_SHIFT_RIGHT -> {
-                // Rule 7: a Shift tap toggles 中/英. Shift itself is never consumed, so the app's state stays right.
+                // Rule 7: a Shift tap switches language. Shift itself is never consumed, so the app's state stays right.
                 val tap = shiftDownAt >= 0 && !otherKeySinceShift && SystemClock.uptimeMillis() - shiftDownAt < SHIFT_TAP_MS
                 shiftDownAt = -1
-                if (tap && host.chineseSubtype && host.editorInfo?.let(::isTextField) == true) {
-                    if (host.sessionActive) host.commitRawComposition()
-                    host.chineseMode = !host.chineseMode
-                }
+                if (tap && host.editorInfo?.let(::isTextField) == true) host.onShiftTap()
             }
             host.pushToTalkKey -> {
                 handler.removeCallbacks(startPushToTalk)
@@ -149,6 +155,7 @@ class KeyRouter(private val host: KeyRouterHost) {
             return true
         }
         if (keyCode == KeyEvent.KEYCODE_ESCAPE && !host.sessionActive && host.cancelDictation()) return true
+        if (keyCode == KeyEvent.KEYCODE_ESCAPE && !host.sessionActive && event.repeatCount == 0 && host.hideWordNumbers()) return true
 
         val textField = isTextField(info)
         val stroke = normalize(keyCode, event) ?: return false
@@ -156,6 +163,11 @@ class KeyRouter(private val host: KeyRouterHost) {
 
         // Rules 3–6: reconversion, composition, and idle Chinese input go through the session.
         val chinese = host.chineseSubtype && host.chineseMode && textField
+        // English (or any other language) mid-word: a digit picks a word from the panel, as in Chinese.
+        if (!host.sessionActive && !chinese && stroke.key == Key.CHAR && !stroke.hasCommandModifier && !stroke.shift) {
+            val index = HardwareShortcuts.digitIndex(stroke.codePoint)
+            if (index != null && event.repeatCount == 0 && host.pickWord(index)) return true
+        }
         if (!host.sessionActive && !chinese) return false
         return host.dispatch(stroke)
     }
